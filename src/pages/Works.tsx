@@ -1,10 +1,13 @@
 import { useLocale } from '@/hooks/useLocale';
+import { usePaintings } from '@/hooks/usePaintings';
+import CategoryFilter from '@/components/gallery/CategoryFilter';
+import PaintingGrid from '@/components/gallery/PaintingGrid';
 
-/**
- * Works listing placeholder. Filterable PaintingCard grid arrives in milestone 8.
- */
 export default function Works() {
   const { t } = useLocale();
+  const state = usePaintings();
+  const paintings = state.status === 'success' ? state.data : [];
+
   return (
     <section className="px-6 md:px-10 py-20 md:py-28">
       <div className="mx-auto max-w-7xl">
@@ -14,10 +17,21 @@ export default function Works() {
         <h1 className="mt-6 font-display text-5xl md:text-7xl tracking-tightest">
           {t('works.title')}
         </h1>
-        <div className="hairline mt-12" />
-        <p className="mt-10 text-ink/65 max-w-xl leading-relaxed">
-          {t('works.stub')}
-        </p>
+        <div className="hairline mt-12 mb-12" />
+
+        <CategoryFilter />
+
+        {state.status === 'loading' ? (
+          <div className="text-ink/50 py-20 text-center">
+            {t('works.loading')}
+          </div>
+        ) : paintings.length === 0 ? (
+          <div className="text-ink/50 py-20 text-center">
+            {t('works.empty')}
+          </div>
+        ) : (
+          <PaintingGrid paintings={paintings} />
+        )}
       </div>
     </section>
   );

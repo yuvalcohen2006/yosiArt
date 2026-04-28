@@ -29,11 +29,13 @@ export default function Home() {
   const cards =
     categoriesState.status === 'success' && categoriesState.data.length > 0
       ? categoriesState.data.map((c) => ({
+          id: c._id,
           slug: c.slug,
           label: pickLocale(c.title, locale, c.slug),
           coverImage: c.coverImage,
         }))
       : FALLBACK_CATEGORY_KEYS.map((slug) => ({
+          id: slug,
           slug,
           label: t(`categories.${slug}`),
           coverImage: undefined,
@@ -127,7 +129,7 @@ export default function Home() {
           </Reveal>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-5">
             {cards.map((card, i) => (
-              <Reveal key={card.slug} delay={i * 0.06}>
+              <Reveal key={card.id} delay={i * 0.06}>
                 <Link
                   to={`/works/${card.slug}`}
                   className="group aspect-[3/4] relative overflow-hidden bg-mist/40 border border-mist hover:border-teal/40 transition-colors duration-300 block"

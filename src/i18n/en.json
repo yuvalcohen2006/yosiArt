@@ -26,11 +26,12 @@
   "works": {
     "tagline": "The collection",
     "title": "Works",
-    "stub": "A grid of every painting, filterable by category. Coming online once Sanity is wired in milestone 6."
+    "all": "All",
+    "loading": "Loading…",
+    "empty": "No paintings yet — check back soon."
   },
   "category": {
-    "tagline": "Category",
-    "stub": "The {{category}} collection will populate from Sanity in milestone 6."
+    "tagline": "Category"
   },
   "painting": {
     "tagline": "Painting",

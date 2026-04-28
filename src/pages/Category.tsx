@@ -1,20 +1,28 @@
 import { useParams } from 'react-router-dom';
 import { useLocale } from '@/hooks/useLocale';
-
-const KNOWN: Record<string, string> = {
-  originals: 'categories.originals',
-  exodus: 'categories.exodus',
-  rabbis: 'categories.rabbis',
-  retro: 'categories.retro',
-  movies: 'categories.movies',
-};
+import { usePaintings } from '@/hooks/usePaintings';
+import { useCategories } from '@/hooks/useCategories';
+import { pickLocale } from '@/lib/pickLocale';
+import CategoryFilter from '@/components/gallery/CategoryFilter';
+import PaintingGrid from '@/components/gallery/PaintingGrid';
 
 export default function Category() {
-  const { t } = useLocale();
-  const { category } = useParams<{ category: string }>();
-  const slug = category ?? '';
-  const titleKey = KNOWN[slug];
-  const title = titleKey ? t(titleKey) : slug;
+  const { t, locale } = useLocale();
+  const { category: categorySlug } = useParams<{ category: string }>();
+
+  const paintingsState = usePaintings(categorySlug);
+  const categoriesState = useCategories();
+
+  const paintings =
+    paintingsState.status === 'success' ? paintingsState.data : [];
+  const currentCategory =
+    categoriesState.status === 'success'
+      ? categoriesState.data.find((c) => c.slug === categorySlug)
+      : undefined;
+
+  const title = currentCategory
+    ? pickLocale(currentCategory.title, locale, categorySlug ?? '')
+    : (categorySlug ?? '');
 
   return (
     <section className="px-6 md:px-10 py-20 md:py-28">
@@ -25,10 +33,21 @@ export default function Category() {
         <h1 className="mt-6 font-display text-5xl md:text-7xl tracking-tightest">
           {title}
         </h1>
-        <div className="hairline mt-12" />
-        <p className="mt-10 text-ink/65 max-w-xl leading-relaxed">
-          {t('category.stub', { category: title })}
-        </p>
+        <div className="hairline mt-12 mb-12" />
+
+        <CategoryFilter />
+
+        {paintingsState.status === 'loading' ? (
+          <div className="text-ink/50 py-20 text-center">
+            {t('works.loading')}
+          </div>
+        ) : paintings.length === 0 ? (
+          <div className="text-ink/50 py-20 text-center">
+            {t('works.empty')}
+          </div>
+        ) : (
+          <PaintingGrid paintings={paintings} />
+        )}
       </div>
     </section>
   );
