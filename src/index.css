@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  YosiArt theme tokens — clean editorial palette.
+  RGB triplets so Tailwind's <alpha-value> syntax works (e.g. bg-teal/20).
+*/
+:root {
+  --color-paper: 255 255 255;       /* #ffffff */
+  --color-ink: 53 53 53;            /* #353535 */
+  --color-mist: 217 217 217;        /* #d9d9d9 */
+  --color-teal: 60 110 113;         /* #3c6e71 */
+  --color-deep: 40 75 99;           /* #284b63 */
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  html[dir='rtl'] {
+    /* Hebrew typography reads slightly cleaner with a touch of tracking. */
+    letter-spacing: 0.005em;
+  }
+
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight;
+    /* Cormorant looks better with slightly opened tracking on big sizes. */
+    font-feature-settings: 'liga', 'dlig';
+  }
+
+  ::selection {
+    @apply bg-teal/25 text-ink;
+  }
+}
+
+@layer utilities {
+  /* A hairline divider in muted mist — used for section breaks. */
+  .hairline {
+    @apply h-px w-full bg-mist;
+  }
+
+  /* A subtle deep-teal hairline used as a more deliberate accent. */
+  .hairline-accent {
+    @apply h-px w-full bg-teal/50;
+  }
+}
