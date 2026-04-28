@@ -3,16 +3,11 @@
 @tailwind utilities;
 
 /*
-  YosiArt theme tokens — clean editorial palette.
-  RGB triplets so Tailwind's <alpha-value> syntax works (e.g. bg-teal/20).
+  YosiArt theme — clean editorial palette.
+  Colors live in tailwind.config.ts (paper / ink / mist / teal / deep)
+  and are usable as Tailwind classes site-wide (e.g. bg-paper, text-ink,
+  bg-teal/20 for arbitrary opacity).
 */
-:root {
-  --color-paper: 255 255 255;       /* #ffffff */
-  --color-ink: 53 53 53;            /* #353535 */
-  --color-mist: 217 217 217;        /* #d9d9d9 */
-  --color-teal: 60 110 113;         /* #3c6e71 */
-  --color-deep: 40 75 99;           /* #284b63 */
-}
 
 @layer base {
   html {

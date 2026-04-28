@@ -4,12 +4,15 @@ export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
+      // Direct hex values — Tailwind 3.4+ generates per-opacity variants
+      // automatically (e.g. bg-paper/50 works), so we don't need the
+      // <alpha-value> CSS-variable indirection at the theme layer.
       colors: {
-        paper: 'rgb(var(--color-paper) / <alpha-value>)',   // #ffffff
-        ink: 'rgb(var(--color-ink) / <alpha-value>)',       // #353535
-        mist: 'rgb(var(--color-mist) / <alpha-value>)',     // #d9d9d9
-        teal: 'rgb(var(--color-teal) / <alpha-value>)',     // #3c6e71
-        deep: 'rgb(var(--color-deep) / <alpha-value>)',     // #284b63
+        paper: '#ffffff',
+        ink: '#353535',
+        mist: '#d9d9d9',
+        teal: '#3c6e71',
+        deep: '#284b63',
       },
       fontFamily: {
         // Display — refined gallery serif. Cormorant for LTR; Frank Ruhl Libre for RTL.
