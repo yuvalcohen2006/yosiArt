@@ -1,27 +1,47 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Subtle background motion — large soft gradient blobs drifting slowly
- * with sinusoidal motion. Reads as gentle depth, never as "particles".
+ * Background motion — two layers, both very quiet:
  *
- *  - Pure canvas, no library; ~5 blobs on desktop, 3 on mobile.
- *  - Tinted in teal + deep at very low alpha (~4–7%) so the page still feels white.
- *  - Pauses when the tab is hidden; bails out entirely under prefers-reduced-motion.
- *  - Position fixed, behind all content via -z-10 so headings always stay legible.
+ *  1. Breathing gradient blobs (5 desktop / 3 mobile). Each blob has its
+ *     own slow sinusoidal drift in x and y, plus a "breathing" pulse on
+ *     radius (~±12% over ~22s) so the page subtly inhales and exhales.
+ *
+ *  2. Floating strokes (10 desktop / 6 mobile). Thin teal/deep lines with
+ *     gradient-faded ends, drifting linearly across the viewport. Wraps
+ *     when off screen.
+ *
+ * Pure canvas, no library. Pauses when the tab is hidden; bails out
+ * entirely under prefers-reduced-motion. Position fixed behind all content
+ * via -z-10 so headings always stay legible.
  */
 
 type GradientBlob = {
-  cx: number;     // 0..1 base position
+  cx: number;
   cy: number;
-  r: number;      // px radius
+  r: number;
   colorIdx: number;
   alpha: number;
   phaseX: number;
   phaseY: number;
-  ampX: number;   // 0..1 amplitude (fraction of viewport)
+  ampX: number;
   ampY: number;
-  freqX: number;  // radians per ms
+  freqX: number;
   freqY: number;
+  breathPhase: number;
+  breathFreq: number;
+};
+
+type Stroke = {
+  x: number;
+  y: number;
+  length: number;
+  angle: number;
+  vx: number;
+  vy: number;
+  alpha: number;
+  width: number;
+  colorIdx: number;
 };
 
 const PALETTE = [
@@ -49,25 +69,48 @@ export default function ParticleField() {
     let width = 0;
     let height = 0;
     let blobs: GradientBlob[] = [];
+    let strokes: Stroke[] = [];
     let rafId = 0;
     let running = true;
     const startTime = performance.now();
 
+    const isMobile = () => window.innerWidth < 768;
+
     const makeBlobs = (): GradientBlob[] => {
-      const count = window.innerWidth < 768 ? 3 : 5;
+      const count = isMobile() ? 3 : 5;
       return Array.from({ length: count }, (_, i) => ({
         cx: rand(0.1, 0.9),
         cy: rand(0.1, 0.9),
         r: rand(280, 480),
         colorIdx: i % PALETTE.length,
-        alpha: rand(0.04, 0.07),
+        alpha: rand(0.08, 0.14),
         phaseX: rand(0, Math.PI * 2),
         phaseY: rand(0, Math.PI * 2),
-        ampX: rand(0.06, 0.14),
-        ampY: rand(0.05, 0.12),
-        freqX: rand(0.00008, 0.00018),
-        freqY: rand(0.00008, 0.00018),
+        ampX: rand(0.08, 0.16),
+        ampY: rand(0.06, 0.14),
+        freqX: rand(0.00010, 0.00022),
+        freqY: rand(0.00010, 0.00022),
+        breathPhase: rand(0, Math.PI * 2),
+        breathFreq: rand(0.00025, 0.00045), // ~14–25s breath cycle
       }));
+    };
+
+    const makeStroke = (): Stroke => ({
+      x: rand(0, width),
+      y: rand(0, height),
+      length: rand(110, 220),
+      // Mostly horizontal with a slight tilt — feels organic, not striped.
+      angle: (Math.random() - 0.5) * (Math.PI / 2.5),
+      vx: rand(-0.12, 0.12),
+      vy: rand(-0.05, 0.05),
+      alpha: rand(0.12, 0.22),
+      width: rand(0.7, 1.1),
+      colorIdx: Math.floor(Math.random() * PALETTE.length),
+    });
+
+    const makeStrokes = (): Stroke[] => {
+      const count = isMobile() ? 6 : 10;
+      return Array.from({ length: count }, makeStroke);
     };
 
     const resize = () => {
@@ -81,29 +124,63 @@ export default function ParticleField() {
       canvas.style.height = `${h}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       if (blobs.length === 0) blobs = makeBlobs();
+      if (strokes.length === 0) strokes = makeStrokes();
+    };
+
+    const drawBlobs = (t: number) => {
+      for (const b of blobs) {
+        const x =
+          (b.cx + Math.sin(b.phaseX + t * b.freqX) * b.ampX) * width;
+        const y =
+          (b.cy + Math.cos(b.phaseY + t * b.freqY) * b.ampY) * height;
+        const breath = 1 + Math.sin(b.breathPhase + t * b.breathFreq) * 0.12;
+        const r = b.r * breath;
+        const c = PALETTE[b.colorIdx];
+
+        const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
+        grad.addColorStop(0, `rgba(${c.r},${c.g},${c.b},${b.alpha})`);
+        grad.addColorStop(1, `rgba(${c.r},${c.g},${c.b},0)`);
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    };
+
+    const drawStrokes = () => {
+      const margin = 240;
+      for (const s of strokes) {
+        s.x += s.vx;
+        s.y += s.vy;
+        if (s.x < -margin) s.x = width + margin;
+        if (s.x > width + margin) s.x = -margin;
+        if (s.y < -margin) s.y = height + margin;
+        if (s.y > height + margin) s.y = -margin;
+
+        const dx = Math.cos(s.angle) * s.length;
+        const dy = Math.sin(s.angle) * s.length;
+        const c = PALETTE[s.colorIdx];
+
+        const grad = ctx.createLinearGradient(s.x, s.y, s.x + dx, s.y + dy);
+        grad.addColorStop(0, `rgba(${c.r},${c.g},${c.b},0)`);
+        grad.addColorStop(0.5, `rgba(${c.r},${c.g},${c.b},${s.alpha})`);
+        grad.addColorStop(1, `rgba(${c.r},${c.g},${c.b},0)`);
+
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = s.width;
+        ctx.beginPath();
+        ctx.moveTo(s.x, s.y);
+        ctx.lineTo(s.x + dx, s.y + dy);
+        ctx.stroke();
+      }
     };
 
     const step = () => {
       if (!running) return;
       const t = performance.now() - startTime;
       ctx.clearRect(0, 0, width, height);
-
-      for (const b of blobs) {
-        const x =
-          (b.cx + Math.sin(b.phaseX + t * b.freqX) * b.ampX) * width;
-        const y =
-          (b.cy + Math.cos(b.phaseY + t * b.freqY) * b.ampY) * height;
-        const c = PALETTE[b.colorIdx];
-
-        const grad = ctx.createRadialGradient(x, y, 0, x, y, b.r);
-        grad.addColorStop(0, `rgba(${c.r},${c.g},${c.b},${b.alpha})`);
-        grad.addColorStop(1, `rgba(${c.r},${c.g},${c.b},0)`);
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(x, y, b.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
+      drawBlobs(t);
+      drawStrokes();
       rafId = requestAnimationFrame(step);
     };
 
