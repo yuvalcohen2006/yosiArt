@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useLocale } from '@/hooks/useLocale';
+import Reveal from '@/components/fx/Reveal';
 
 const CATEGORY_KEYS = [
   'originals',
@@ -13,13 +14,14 @@ const CATEGORY_KEYS = [
  * Hero placeholder. The real cinematic cross-fade carousel + animated
  * headline + featured-works strip arrive in milestone 7.
  * For now: a clean, full-bleed editorial hero that demonstrates the palette
- * and typography in their final shape.
+ * and typography in their final shape, plus a scroll-revealed categories
+ * teaser to demo the Reveal wrapper.
  */
 export default function Home() {
   const { t } = useLocale();
   return (
     <>
-      {/* Hero */}
+      {/* Hero — above the fold, no Reveal wrapper needed. */}
       <section className="relative min-h-[calc(100svh-72px)] flex items-center px-6 md:px-10">
         <div className="mx-auto max-w-7xl w-full">
           <p className="text-[11px] uppercase tracking-[0.4em] text-teal">
@@ -54,33 +56,36 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Categories teaser */}
+      {/* Categories teaser — arrives via scroll reveal with stagger. */}
       <section className="px-6 md:px-10 py-24">
         <div className="mx-auto max-w-7xl">
-          <div className="flex items-baseline justify-between mb-10">
-            <h2 className="font-display text-3xl md:text-4xl tracking-tight">
-              {t('home.bodiesOfWork')}
-            </h2>
-            <Link
-              to="/works"
-              className="text-xs uppercase tracking-[0.28em] text-ink/55 hover:text-teal transition-colors duration-300"
-            >
-              {t('home.seeAll')} →
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-5">
-            {CATEGORY_KEYS.map((slug) => (
+          <Reveal>
+            <div className="flex items-baseline justify-between mb-10">
+              <h2 className="font-display text-3xl md:text-4xl tracking-tight">
+                {t('home.bodiesOfWork')}
+              </h2>
               <Link
-                key={slug}
-                to={`/works/${slug}`}
-                className="group aspect-[3/4] relative overflow-hidden bg-mist/40 border border-mist hover:border-teal/40 transition-colors duration-300"
+                to="/works"
+                className="text-xs uppercase tracking-[0.28em] text-ink/55 hover:text-teal transition-colors duration-300"
               >
-                <div className="absolute inset-0 flex items-end p-4">
-                  <span className="font-display text-xl text-ink group-hover:text-teal transition-colors duration-300">
-                    {t(`categories.${slug}`)}
-                  </span>
-                </div>
+                {t('home.seeAll')} →
               </Link>
+            </div>
+          </Reveal>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-5">
+            {CATEGORY_KEYS.map((slug, i) => (
+              <Reveal key={slug} delay={i * 0.06}>
+                <Link
+                  to={`/works/${slug}`}
+                  className="group aspect-[3/4] relative overflow-hidden bg-mist/40 border border-mist hover:border-teal/40 transition-colors duration-300 block"
+                >
+                  <div className="absolute inset-0 flex items-end p-4">
+                    <span className="font-display text-xl text-ink group-hover:text-teal transition-colors duration-300">
+                      {t(`categories.${slug}`)}
+                    </span>
+                  </div>
+                </Link>
+              </Reveal>
             ))}
           </div>
         </div>

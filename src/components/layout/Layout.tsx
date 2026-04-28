@@ -1,20 +1,23 @@
-import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import ParticleField from '../fx/ParticleField';
+import CursorGlow from '../fx/CursorGlow';
+import AnimatedOutlet from '../fx/AnimatedOutlet';
 
 /**
- * Root layout. Sticky header, content via Outlet, footer below.
- * ParticleField sits behind everything via -z-10.
- * Page transitions land in milestone 4.
+ * Root layout. Sticky header, page content via AnimatedOutlet (cross-fade
+ * route transitions), footer below. ParticleField sits behind everything
+ * via -z-10; CursorGlow rides above content but is pointer-events: none
+ * so it never intercepts clicks.
  */
 export default function Layout() {
   return (
     <div className="min-h-screen flex flex-col">
       <ParticleField />
+      <CursorGlow />
       <Header />
       <main className="flex-1">
-        <Outlet />
+        <AnimatedOutlet />
       </main>
       <Footer />
     </div>
