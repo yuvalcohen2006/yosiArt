@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useLocale } from '@/hooks/useLocale';
+import { useCategories } from '@/hooks/useCategories';
+import { pickLocale } from '@/lib/pickLocale';
+import { urlFor } from '@/sanity/imageUrl';
 import Reveal from '@/components/fx/Reveal';
 
-const CATEGORY_KEYS = [
+const FALLBACK_CATEGORY_KEYS = [
   'originals',
   'exodus',
   'rabbis',
@@ -13,12 +16,28 @@ const CATEGORY_KEYS = [
 /**
  * Hero placeholder. The real cinematic cross-fade carousel + animated
  * headline + featured-works strip arrive in milestone 7.
- * For now: a clean, full-bleed editorial hero that demonstrates the palette
- * and typography in their final shape, plus a scroll-revealed categories
- * teaser to demo the Reveal wrapper.
+ *
+ * Categories teaser is now Sanity-driven: when the dataset has categories
+ * it shows the real ones; until then it falls back to the hardcoded keys
+ * so the home never looks broken.
  */
 export default function Home() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
+  const categoriesState = useCategories();
+
+  const cards =
+    categoriesState.status === 'success' && categoriesState.data.length > 0
+      ? categoriesState.data.map((c) => ({
+          slug: c.slug,
+          label: pickLocale(c.title, locale, c.slug),
+          coverImage: c.coverImage,
+        }))
+      : FALLBACK_CATEGORY_KEYS.map((slug) => ({
+          slug,
+          label: t(`categories.${slug}`),
+          coverImage: undefined,
+        }));
+
   return (
     <>
       {/* Hero — above the fold, no Reveal wrapper needed. */}
@@ -56,7 +75,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Categories teaser — arrives via scroll reveal with stagger. */}
+      {/* Categories teaser — fetched from Sanity, falls back to hardcoded
+          keys until the dataset is populated. */}
       <section className="px-6 md:px-10 py-24">
         <div className="mx-auto max-w-7xl">
           <Reveal>
@@ -73,15 +93,24 @@ export default function Home() {
             </div>
           </Reveal>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-5">
-            {CATEGORY_KEYS.map((slug, i) => (
-              <Reveal key={slug} delay={i * 0.06}>
+            {cards.map((card, i) => (
+              <Reveal key={card.slug} delay={i * 0.06}>
                 <Link
-                  to={`/works/${slug}`}
+                  to={`/works/${card.slug}`}
                   className="group aspect-[3/4] relative overflow-hidden bg-mist/40 border border-mist hover:border-teal/40 transition-colors duration-300 block"
                 >
+                  {card.coverImage && (
+                    <img
+                      src={urlFor(card.coverImage).width(600).height(800).auto('format').url()}
+                      alt=""
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-gallery group-hover:scale-[1.04]"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-paper/95 via-paper/30 to-transparent" />
                   <div className="absolute inset-0 flex items-end p-4">
                     <span className="font-display text-xl text-ink group-hover:text-teal transition-colors duration-300">
-                      {t(`categories.${slug}`)}
+                      {card.label}
                     </span>
                   </div>
                 </Link>
