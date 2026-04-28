@@ -24,7 +24,16 @@ export function useCategories() {
         if (!cancelled) setState({ status: 'success', data });
       })
       .catch((error) => {
-        if (!cancelled) setState({ status: 'error', error });
+        if (!cancelled) {
+          // Surface fetch failures during dev — silent failures are the
+          // worst class of bug. CORS / private-dataset / wrong-projectId
+          // errors will all land here.
+          if (import.meta.env.DEV) {
+            // eslint-disable-next-line no-console
+            console.error('[Sanity] categories fetch failed:', error);
+          }
+          setState({ status: 'error', error });
+        }
       });
     return () => {
       cancelled = true;

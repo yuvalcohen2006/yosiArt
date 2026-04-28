@@ -1,9 +1,12 @@
 import { Link } from 'react-router-dom';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { useLocale } from '@/hooks/useLocale';
 import { useCategories } from '@/hooks/useCategories';
 import { pickLocale } from '@/lib/pickLocale';
 import { urlFor } from '@/sanity/imageUrl';
 import Reveal from '@/components/fx/Reveal';
+import HeroCarousel from '@/components/hero/HeroCarousel';
+import AnimatedHeadline from '@/components/hero/AnimatedHeadline';
 
 const FALLBACK_CATEGORY_KEYS = [
   'originals',
@@ -13,17 +16,15 @@ const FALLBACK_CATEGORY_KEYS = [
   'movies',
 ] as const;
 
-/**
- * Hero placeholder. The real cinematic cross-fade carousel + animated
- * headline + featured-works strip arrive in milestone 7.
- *
- * Categories teaser is now Sanity-driven: when the dataset has categories
- * it shows the real ones; until then it falls back to the hardcoded keys
- * so the home never looks broken.
- */
 export default function Home() {
   const { t, locale } = useLocale();
   const categoriesState = useCategories();
+
+  // Parallax on the hero text — fades out and lifts as you scroll past.
+  // Driven by Framer's useScroll so it's smooth and respects raf timing.
+  const { scrollY } = useScroll();
+  const heroOpacity = useTransform(scrollY, [0, 480], [1, 0.15]);
+  const heroY = useTransform(scrollY, [0, 480], [0, -40]);
 
   const cards =
     categoriesState.status === 'success' && categoriesState.data.length > 0
@@ -40,21 +41,37 @@ export default function Home() {
 
   return (
     <>
-      {/* Hero — above the fold, no Reveal wrapper needed. */}
-      <section className="relative min-h-[calc(100svh-72px)] flex items-center px-6 md:px-10">
-        <div className="mx-auto max-w-7xl w-full">
+      {/* Hero — full-bleed, with cross-fading featured paintings behind
+          and an animated headline up front. Padding lives on the inner
+          column so the carousel can extend edge-to-edge. */}
+      <section className="relative overflow-hidden min-h-[calc(100svh-72px)] flex items-center">
+        <HeroCarousel className="absolute inset-0" />
+
+        <motion.div
+          style={{ opacity: heroOpacity, y: heroY }}
+          className="relative z-10 mx-auto max-w-7xl w-full px-6 md:px-10"
+        >
           <p className="text-[11px] uppercase tracking-[0.4em] text-teal">
             {t('home.tagline')}
           </p>
           <h1 className="mt-8 font-display tracking-tightest leading-[0.95] text-ink">
             <span className="block text-6xl sm:text-7xl md:text-8xl lg:text-[10rem]">
-              {t('home.headline1')}
+              <AnimatedHeadline text={t('home.headline1')} />
             </span>
             <span className="block text-6xl sm:text-7xl md:text-8xl lg:text-[10rem] italic font-light text-deep">
-              {t('home.headline2')}
+              <AnimatedHeadline
+                text={t('home.headline2')}
+                delay={0.45}
+                staggerPer={0.045}
+              />
             </span>
           </h1>
-          <div className="mt-12 flex items-center gap-8 flex-wrap">
+          <motion.div
+            className="mt-12 flex items-center gap-8 flex-wrap"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.2, duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
+          >
             <Link
               to="/works"
               className="group inline-flex items-center gap-3 text-sm uppercase tracking-[0.28em] text-ink hover:text-teal transition-colors duration-300"
@@ -71,8 +88,24 @@ export default function Home() {
             >
               {t('home.aboutTheArtist')}
             </Link>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
+
+        {/* Scroll cue — quietly pulses at the bottom of the hero. */}
+        <motion.div
+          aria-hidden
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, 0.6, 0.6, 0] }}
+          transition={{
+            delay: 1.6,
+            duration: 2.4,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        >
+          <div className="h-10 w-px bg-ink/40 mx-auto" />
+        </motion.div>
       </section>
 
       {/* Categories teaser — fetched from Sanity, falls back to hardcoded
@@ -101,7 +134,11 @@ export default function Home() {
                 >
                   {card.coverImage && (
                     <img
-                      src={urlFor(card.coverImage).width(600).height(800).auto('format').url()}
+                      src={urlFor(card.coverImage)
+                        .width(600)
+                        .height(800)
+                        .auto('format')
+                        .url()}
                       alt=""
                       loading="lazy"
                       className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-gallery group-hover:scale-[1.04]"
