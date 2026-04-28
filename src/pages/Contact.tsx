@@ -1,18 +1,21 @@
+import { useLocale } from '@/hooks/useLocale';
+
 export default function Contact() {
+  const { t } = useLocale();
   return (
     <section className="px-6 md:px-10 py-20 md:py-28">
       <div className="mx-auto max-w-3xl">
         <p className="text-[11px] uppercase tracking-[0.32em] text-teal">
-          Reach out
+          {t('contact.tagline')}
         </p>
         <h1 className="mt-6 font-display text-5xl md:text-7xl tracking-tightest">
-          Contact
+          {t('contact.title')}
         </h1>
         <div className="hairline mt-12" />
         <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-8">
           <div>
             <p className="text-[11px] uppercase tracking-[0.28em] text-ink/55">
-              Email
+              {t('contact.email')}
             </p>
             <a
               href="mailto:hello@yosiart.example"
@@ -23,7 +26,7 @@ export default function Contact() {
           </div>
           <div>
             <p className="text-[11px] uppercase tracking-[0.28em] text-ink/55">
-              WhatsApp
+              {t('contact.whatsapp')}
             </p>
             <a
               href="https://wa.me/0000000000"
@@ -36,8 +39,7 @@ export default function Contact() {
           </div>
         </div>
         <p className="mt-12 text-ink/60 text-sm leading-relaxed max-w-prose">
-          Real contact details slot in via Sanity once the CMS is online
-          (milestone 5). Until then these are placeholders.
+          {t('contact.stub')}
         </p>
       </div>
     </section>

@@ -1,26 +1,28 @@
 import { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import Logo from './Logo';
 import LanguageToggle from './LanguageToggle';
 import CurrencyToggle from './CurrencyToggle';
+import { useLocale } from '@/hooks/useLocale';
 
-const NAV: { to: string; label: string }[] = [
-  { to: '/works', label: 'Works' },
-  { to: '/about', label: 'About' },
-  { to: '/contact', label: 'Contact' },
+const NAV: { to: string; key: 'nav.works' | 'nav.about' | 'nav.contact' }[] = [
+  { to: '/works', key: 'nav.works' },
+  { to: '/about', key: 'nav.about' },
+  { to: '/contact', key: 'nav.contact' },
 ];
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
     'relative text-[13px] uppercase tracking-[0.22em] transition-colors duration-300',
     isActive ? 'text-ink' : 'text-ink/55 hover:text-ink',
-    // Underline drawn via after-pseudo so it's animatable later.
     'after:absolute after:left-0 after:rtl:left-auto after:rtl:right-0 after:-bottom-1.5',
     'after:h-px after:bg-teal after:transition-all after:duration-300 after:ease-gallery',
     isActive ? 'after:w-full' : 'after:w-0 hover:after:w-full',
   ].join(' ');
 
 export default function Header() {
+  const { t } = useLocale();
+  const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -31,12 +33,10 @@ export default function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close mobile menu when route changes (cheap heuristic via location pathname change).
+  // Close mobile menu on route change.
   useEffect(() => {
-    const close = () => setMobileOpen(false);
-    window.addEventListener('popstate', close);
-    return () => window.removeEventListener('popstate', close);
-  }, []);
+    setMobileOpen(false);
+  }, [location.pathname]);
 
   return (
     <>
@@ -61,14 +61,14 @@ export default function Header() {
           <nav className="hidden md:flex items-center gap-9">
             {NAV.map((item) => (
               <NavLink key={item.to} to={item.to} className={navLinkClass}>
-                {item.label}
+                {t(item.key)}
               </NavLink>
             ))}
           </nav>
 
           {/* Desktop toggles */}
           <div className="hidden md:flex items-center gap-6">
-            <LanguageToggle locale="en" />
+            <LanguageToggle />
             <span aria-hidden className="block h-3 w-px bg-mist" />
             <CurrencyToggle currency="USD" />
           </div>
@@ -128,11 +128,11 @@ export default function Header() {
               }
               style={{ transitionDelay: mobileOpen ? `${100 + i * 80}ms` : '0ms' }}
             >
-              {item.label}
+              {t(item.key)}
             </NavLink>
           ))}
           <div className="mt-6 flex items-center gap-6">
-            <LanguageToggle locale="en" />
+            <LanguageToggle />
             <span aria-hidden className="block h-3 w-px bg-mist" />
             <CurrencyToggle currency="USD" />
           </div>

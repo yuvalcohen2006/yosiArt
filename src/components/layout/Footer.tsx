@@ -1,4 +1,5 @@
 import Logo from './Logo';
+import { useLocale } from '@/hooks/useLocale';
 
 const SOCIALS: { href: string; label: string; icon: 'instagram' | 'facebook' }[] = [
   { href: '#', label: 'Instagram', icon: 'instagram' },
@@ -23,6 +24,7 @@ function SocialIcon({ name }: { name: 'instagram' | 'facebook' }) {
 }
 
 export default function Footer() {
+  const { t } = useLocale();
   const year = new Date().getFullYear();
   return (
     <footer className="mt-32 border-t border-mist/70">
@@ -32,7 +34,7 @@ export default function Footer() {
           <div className="flex flex-col gap-3">
             <Logo variant="footer" />
             <p className="text-sm text-ink/60 max-w-xs leading-relaxed">
-              Original acrylic paintings on canvas. Each piece is one of a kind.
+              {t('footer.tagline')}
             </p>
           </div>
 
@@ -56,9 +58,12 @@ export default function Footer() {
           </div>
 
           {/* Fine print — right column */}
-          <div className="flex flex-col md:items-end gap-3 text-xs uppercase tracking-[0.22em] text-ink/55">
+          <div className="flex flex-col md:items-end rtl:md:items-start gap-3 text-xs uppercase tracking-[0.22em] text-ink/55">
             <span>© {year} YosiArt</span>
-            <a href="mailto:hello@yosiart.example" className="hover:text-teal transition-colors duration-300 normal-case tracking-normal text-sm text-ink/70">
+            <a
+              href="mailto:hello@yosiart.example"
+              className="hover:text-teal transition-colors duration-300 normal-case tracking-normal text-sm text-ink/70"
+            >
               hello@yosiart.example
             </a>
           </div>

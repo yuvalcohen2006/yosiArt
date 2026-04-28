@@ -1,34 +1,43 @@
-/*
-  Visual-only stub. Wired to react-i18next in milestone 3.
-  Shows the current locale highlighted; the inactive option is muted.
-*/
-type Props = { locale?: 'en' | 'he' };
+import { useLocale } from '@/hooks/useLocale';
 
-export default function LanguageToggle({ locale = 'en' }: Props) {
+/**
+ * Functional locale switch. Clicking either side flips the whole site —
+ * `<html lang>` + `<html dir>` are synced inside `src/i18n` on change.
+ */
+export default function LanguageToggle() {
+  const { locale, setLocale } = useLocale();
+
   return (
     <div
-      className="inline-flex items-center text-[11px] uppercase tracking-[0.2em] select-none"
+      role="group"
       aria-label="Language"
+      className="inline-flex items-center text-[11px] uppercase tracking-[0.2em] select-none"
     >
-      <span
+      <button
+        type="button"
+        onClick={() => setLocale('en')}
+        aria-pressed={locale === 'en'}
         className={[
-          'transition-colors duration-300',
+          'transition-colors duration-300 hover:text-ink',
           locale === 'en' ? 'text-ink' : 'text-ink/35',
         ].join(' ')}
       >
         EN
-      </span>
+      </button>
       <span aria-hidden className="mx-2 text-ink/25">
         /
       </span>
-      <span
+      <button
+        type="button"
+        onClick={() => setLocale('he')}
+        aria-pressed={locale === 'he'}
         className={[
-          'font-sans transition-colors duration-300',
+          'font-sans transition-colors duration-300 hover:text-ink',
           locale === 'he' ? 'text-ink' : 'text-ink/35',
         ].join(' ')}
       >
         עב
-      </span>
+      </button>
     </div>
   );
 }

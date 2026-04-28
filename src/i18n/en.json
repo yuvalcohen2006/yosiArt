@@ -1,0 +1,58 @@
+{
+  "nav": {
+    "works": "Works",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "footer": {
+    "tagline": "Original acrylic paintings on canvas. Each piece is one of a kind."
+  },
+  "home": {
+    "tagline": "Acrylic on canvas",
+    "headline1": "Painted",
+    "headline2": "with intent.",
+    "viewWorks": "View works",
+    "aboutTheArtist": "About the artist",
+    "bodiesOfWork": "Bodies of work",
+    "seeAll": "See all"
+  },
+  "categories": {
+    "originals": "Originals",
+    "exodus": "Exodus",
+    "rabbis": "Rabbis",
+    "retro": "Retro",
+    "movies": "Movies"
+  },
+  "works": {
+    "tagline": "The collection",
+    "title": "Works",
+    "stub": "A grid of every painting, filterable by category. Coming online once Sanity is wired in milestone 6."
+  },
+  "category": {
+    "tagline": "Category",
+    "stub": "The {{category}} collection will populate from Sanity in milestone 6."
+  },
+  "painting": {
+    "tagline": "Painting",
+    "stub": "The painting detail layout — lightbox, dimensions, story, inquire buttons — is built in milestones 9 and 10."
+  },
+  "about": {
+    "tagline": "The artist",
+    "title": "Yosi",
+    "stub": "A short bio goes here — a few sentences in Yosi's voice about the work, the practice, the studio. The real copy lives in Sanity and lands in milestone 11."
+  },
+  "contact": {
+    "tagline": "Reach out",
+    "title": "Contact",
+    "email": "Email",
+    "whatsapp": "WhatsApp",
+    "stub": "Real contact details slot in via Sanity once the CMS is online (milestone 5). Until then these are placeholders."
+  },
+  "notFound": {
+    "tagline": "404",
+    "title1": "Off",
+    "title2": "the canvas.",
+    "subtitle": "That page doesn't exist (yet).",
+    "back": "Back home"
+  }
+}
