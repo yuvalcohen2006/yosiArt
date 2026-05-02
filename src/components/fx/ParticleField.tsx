@@ -1,15 +1,18 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Background motion — two layers, both very quiet:
+ * Background motion — three layers, all very quiet:
  *
  *  1. Breathing gradient blobs (5 desktop / 3 mobile). Each blob has its
  *     own slow sinusoidal drift in x and y, plus a "breathing" pulse on
  *     radius (~±12% over ~22s) so the page subtly inhales and exhales.
  *
- *  2. Floating strokes (10 desktop / 6 mobile). Thin teal/deep lines with
- *     gradient-faded ends, drifting linearly across the viewport. Wraps
- *     when off screen.
+ *  2. Drifting strokes (14 desktop / 8 mobile). Thin teal/deep lines —
+ *     half straight, half subtly curved (quadratic bezier with a small
+ *     bow) — with gradient-faded ends. Wraps when off screen.
+ *
+ *  3. Pulsing dots (14 desktop / 7 mobile). Small filled circles with
+ *     individual sine-wave alpha pulses and a slow linear drift.
  *
  * Pure canvas, no library. Pauses when the tab is hidden; bails out
  * entirely under prefers-reduced-motion. Position fixed behind all content
@@ -37,10 +40,24 @@ type Stroke = {
   y: number;
   length: number;
   angle: number;
+  /** -1..1 — bow size for the bezier control point. 0 = straight line. */
+  curvature: number;
   vx: number;
   vy: number;
   alpha: number;
   width: number;
+  colorIdx: number;
+};
+
+type Dot = {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  r: number;
+  baseAlpha: number;
+  pulsePhase: number;
+  pulseFreq: number;
   colorIdx: number;
 };
 
@@ -70,6 +87,7 @@ export default function ParticleField() {
     let height = 0;
     let blobs: GradientBlob[] = [];
     let strokes: Stroke[] = [];
+    let dots: Dot[] = [];
     let rafId = 0;
     let running = true;
     const startTime = performance.now();
@@ -83,7 +101,7 @@ export default function ParticleField() {
         cy: rand(0.1, 0.9),
         r: rand(280, 480),
         colorIdx: i % PALETTE.length,
-        alpha: rand(0.08, 0.14),
+        alpha: rand(0.10, 0.16),
         phaseX: rand(0, Math.PI * 2),
         phaseY: rand(0, Math.PI * 2),
         ampX: rand(0.08, 0.16),
@@ -91,26 +109,44 @@ export default function ParticleField() {
         freqX: rand(0.00010, 0.00022),
         freqY: rand(0.00010, 0.00022),
         breathPhase: rand(0, Math.PI * 2),
-        breathFreq: rand(0.00025, 0.00045), // ~14–25s breath cycle
+        breathFreq: rand(0.00025, 0.00045),
       }));
     };
 
     const makeStroke = (): Stroke => ({
       x: rand(0, width),
       y: rand(0, height),
-      length: rand(110, 220),
-      // Mostly horizontal with a slight tilt — feels organic, not striped.
+      length: rand(120, 240),
       angle: (Math.random() - 0.5) * (Math.PI / 2.5),
+      // ~50% straight, ~50% curved — keeps the layer mixed and abstract.
+      curvature: Math.random() < 0.5 ? 0 : rand(-0.45, 0.45),
       vx: rand(-0.12, 0.12),
       vy: rand(-0.05, 0.05),
-      alpha: rand(0.12, 0.22),
+      alpha: rand(0.14, 0.26),
       width: rand(0.7, 1.1),
       colorIdx: Math.floor(Math.random() * PALETTE.length),
     });
 
     const makeStrokes = (): Stroke[] => {
-      const count = isMobile() ? 6 : 10;
+      const count = isMobile() ? 8 : 14;
       return Array.from({ length: count }, makeStroke);
+    };
+
+    const makeDot = (): Dot => ({
+      x: rand(0, width),
+      y: rand(0, height),
+      vx: rand(-0.05, 0.05),
+      vy: rand(-0.04, 0.04),
+      r: rand(1.0, 2.4),
+      baseAlpha: rand(0.18, 0.32),
+      pulsePhase: rand(0, Math.PI * 2),
+      pulseFreq: rand(0.0008, 0.0016),
+      colorIdx: Math.floor(Math.random() * PALETTE.length),
+    });
+
+    const makeDots = (): Dot[] => {
+      const count = isMobile() ? 7 : 14;
+      return Array.from({ length: count }, makeDot);
     };
 
     const resize = () => {
@@ -125,6 +161,7 @@ export default function ParticleField() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       if (blobs.length === 0) blobs = makeBlobs();
       if (strokes.length === 0) strokes = makeStrokes();
+      if (dots.length === 0) dots = makeDots();
     };
 
     const drawBlobs = (t: number) => {
@@ -148,7 +185,7 @@ export default function ParticleField() {
     };
 
     const drawStrokes = () => {
-      const margin = 240;
+      const margin = 280;
       for (const s of strokes) {
         s.x += s.vx;
         s.y += s.vy;
@@ -159,9 +196,11 @@ export default function ParticleField() {
 
         const dx = Math.cos(s.angle) * s.length;
         const dy = Math.sin(s.angle) * s.length;
+        const ex = s.x + dx;
+        const ey = s.y + dy;
         const c = PALETTE[s.colorIdx];
 
-        const grad = ctx.createLinearGradient(s.x, s.y, s.x + dx, s.y + dy);
+        const grad = ctx.createLinearGradient(s.x, s.y, ex, ey);
         grad.addColorStop(0, `rgba(${c.r},${c.g},${c.b},0)`);
         grad.addColorStop(0.5, `rgba(${c.r},${c.g},${c.b},${s.alpha})`);
         grad.addColorStop(1, `rgba(${c.r},${c.g},${c.b},0)`);
@@ -170,8 +209,39 @@ export default function ParticleField() {
         ctx.lineWidth = s.width;
         ctx.beginPath();
         ctx.moveTo(s.x, s.y);
-        ctx.lineTo(s.x + dx, s.y + dy);
+        if (s.curvature === 0) {
+          ctx.lineTo(ex, ey);
+        } else {
+          // Control point: midpoint of the segment, offset perpendicularly
+          // by `curvature * length` to bow the curve.
+          const px = -dy * s.curvature;
+          const py = dx * s.curvature;
+          const cx = s.x + dx / 2 + px;
+          const cy = s.y + dy / 2 + py;
+          ctx.quadraticCurveTo(cx, cy, ex, ey);
+        }
         ctx.stroke();
+      }
+    };
+
+    const drawDots = (t: number) => {
+      const margin = 20;
+      for (const d of dots) {
+        d.x += d.vx;
+        d.y += d.vy;
+        if (d.x < -margin) d.x = width + margin;
+        if (d.x > width + margin) d.x = -margin;
+        if (d.y < -margin) d.y = height + margin;
+        if (d.y > height + margin) d.y = -margin;
+
+        const pulse = 0.55 + Math.sin(d.pulsePhase + t * d.pulseFreq) * 0.45;
+        const a = d.baseAlpha * pulse;
+        const c = PALETTE[d.colorIdx];
+
+        ctx.fillStyle = `rgba(${c.r},${c.g},${c.b},${a})`;
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+        ctx.fill();
       }
     };
 
@@ -181,6 +251,7 @@ export default function ParticleField() {
       ctx.clearRect(0, 0, width, height);
       drawBlobs(t);
       drawStrokes();
+      drawDots(t);
       rafId = requestAnimationFrame(step);
     };
 
