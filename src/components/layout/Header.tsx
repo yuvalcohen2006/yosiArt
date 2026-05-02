@@ -70,7 +70,7 @@ export default function Header() {
           <div className="hidden md:flex items-center gap-6">
             <LanguageToggle />
             <span aria-hidden className="block h-3 w-px bg-mist" />
-            <CurrencyToggle currency="USD" />
+            <CurrencyToggle />
           </div>
 
           {/* Mobile menu button */}
@@ -134,7 +134,7 @@ export default function Header() {
           <div className="mt-6 flex items-center gap-6">
             <LanguageToggle />
             <span aria-hidden className="block h-3 w-px bg-mist" />
-            <CurrencyToggle currency="USD" />
+            <CurrencyToggle />
           </div>
         </nav>
       </div>

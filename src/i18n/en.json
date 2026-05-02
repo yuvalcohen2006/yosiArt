@@ -35,7 +35,19 @@
   },
   "painting": {
     "tagline": "Painting",
-    "stub": "The painting detail layout — lightbox, dimensions, story, inquire buttons — is built in milestones 9 and 10."
+    "year": "Year",
+    "medium": "Medium",
+    "dimensions": "Dimensions",
+    "statusAvailable": "Available",
+    "statusSold": "Sold",
+    "statusReserved": "Reserved",
+    "inquireForPrice": "Inquire for price",
+    "inquireWhatsapp": "WhatsApp about this",
+    "inquireEmail": "Email about this",
+    "viewLarger": "Click to enlarge",
+    "related": "More in this collection",
+    "loading": "Loading…",
+    "notFound": "Painting not found"
   },
   "about": {
     "tagline": "The artist",

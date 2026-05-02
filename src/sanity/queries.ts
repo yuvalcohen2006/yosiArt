@@ -79,6 +79,22 @@ export const PAINTING_BY_SLUG_QUERY = /* groq */ `
   }
 `;
 
+export const RELATED_PAINTINGS_QUERY = /* groq */ `
+  *[_type == "painting"
+    && category->slug.current == $categorySlug
+    && slug.current != $slug
+  ] | order(_createdAt desc) [0...4] {
+    _id,
+    title,
+    "slug": slug.current,
+    "category": category->{ title, "slug": slug.current },
+    images,
+    priceILS,
+    priceUSD,
+    status
+  }
+`;
+
 export const SITE_SETTINGS_QUERY = /* groq */ `
   *[_type == "siteSettings"][0] {
     brandName,

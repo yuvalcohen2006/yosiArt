@@ -35,7 +35,19 @@
   },
   "painting": {
     "tagline": "ציור",
-    "stub": "פריסת פרטי הציור — לייטבוקס, מידות, סיפור, כפתורי פנייה — נבנית בשלבים 9 ו-10."
+    "year": "שנה",
+    "medium": "טכניקה",
+    "dimensions": "מידות",
+    "statusAvailable": "זמין",
+    "statusSold": "נמכר",
+    "statusReserved": "שמור",
+    "inquireForPrice": "לבירור מחיר",
+    "inquireWhatsapp": "שאלו בוואטסאפ",
+    "inquireEmail": "שאלו במייל",
+    "viewLarger": "להגדלה",
+    "related": "עוד מהאוסף",
+    "loading": "טוען…",
+    "notFound": "ציור לא נמצא"
   },
   "about": {
     "tagline": "האמן",
