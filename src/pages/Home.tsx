@@ -51,7 +51,7 @@ export default function Home() {
           style={{ opacity: heroOpacity, y: heroY }}
           className="relative z-10 mx-auto max-w-5xl w-full px-6 md:px-12 lg:px-16"
         >
-          <p className="text-[11px] uppercase tracking-[0.4em] text-ink/55">
+          <p className="text-[14px] uppercase tracking-[0.4em] text-ink/55">
             {t('home.tagline')}
           </p>
           <h1 className="mt-7 font-hero tracking-tight leading-[0.98] text-ink">
@@ -67,21 +67,18 @@ export default function Home() {
             </span>
           </h1>
           <motion.div
-            className="mt-12 flex items-center gap-8 flex-wrap"
+            className="mt-12 flex items-center gap-6 flex-wrap"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.2, duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
           >
             <Link
               to="/works"
-              className="group inline-flex items-center gap-3 text-sm uppercase tracking-[0.28em] text-ink hover:text-teal transition-colors duration-300"
+              className="text-sm uppercase tracking-[0.28em] text-ink hover:text-teal transition-colors duration-300"
             >
-              <span>{t('home.viewWorks')}</span>
-              <span
-                aria-hidden
-                className="inline-block h-px w-12 bg-ink group-hover:bg-teal group-hover:w-16 transition-all duration-300 ease-gallery"
-              />
+              {t('home.viewWorks')}
             </Link>
+            <span aria-hidden className="block h-px w-12 bg-ink/45" />
             <Link
               to="/about"
               className="text-sm uppercase tracking-[0.28em] text-ink/55 hover:text-ink transition-colors duration-300"
@@ -125,7 +122,7 @@ export default function Home() {
               </Link>
             </div>
           </Reveal>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-8">
             {cards.map((card, i) => (
               <Reveal key={card.id} delay={i * 0.06}>
                 <Link

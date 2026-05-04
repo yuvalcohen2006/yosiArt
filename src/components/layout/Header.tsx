@@ -13,7 +13,7 @@ const NAV: { to: string; key: 'nav.works' | 'nav.about' | 'nav.contact' }[] = [
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
-    'relative text-[13px] uppercase tracking-[0.22em] transition-colors duration-300',
+    'relative text-[13px] uppercase tracking-[0.176em] transition-colors duration-300',
     isActive ? 'text-ink' : 'text-ink/55 hover:text-ink',
     'after:absolute after:left-0 after:rtl:left-auto after:rtl:right-0 after:-bottom-1.5',
     'after:h-px after:bg-teal after:transition-all after:duration-300 after:ease-gallery',

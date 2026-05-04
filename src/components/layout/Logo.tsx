@@ -26,8 +26,8 @@ export default function Logo({ variant = 'header' }: Props) {
         className={[
           'object-contain w-auto transition-opacity duration-300 mix-blend-multiply',
           isFooter
-            ? 'h-12 opacity-75 group-hover:opacity-100'
-            : 'h-14 md:h-16 opacity-90 group-hover:opacity-100',
+            ? 'h-14 opacity-75 group-hover:opacity-100'
+            : 'h-16 md:h-20 opacity-90 group-hover:opacity-100',
         ].join(' ')}
       />
     </Link>

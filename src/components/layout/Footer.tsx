@@ -6,74 +6,84 @@ import { useLocale } from '@/hooks/useLocale';
   Sanity-driven `siteSettings` so dad can edit them himself.
 */
 const EMAIL = 'Yosicohen164@gmail.com';
+const WHATSAPP_NUMBER = '97245241828';
+const WHATSAPP_DISPLAY = '+972 4 524-18-28';
 const INSTAGRAM_URL = 'https://www.instagram.com/_cohen_art';
+const INSTAGRAM_HANDLE = '@_cohen_art';
 
-const SOCIALS: { href: string; label: string; icon: 'instagram' | 'facebook' }[] = [
-  { href: INSTAGRAM_URL, label: 'Instagram', icon: 'instagram' },
-];
-
-function SocialIcon({ name }: { name: 'instagram' | 'facebook' }) {
-  if (name === 'instagram') {
-    return (
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden>
-        <rect x="3" y="3" width="18" height="18" rx="5" />
-        <circle cx="12" cy="12" r="4" />
-        <circle cx="17.5" cy="6.5" r="0.9" fill="currentColor" stroke="none" />
-      </svg>
-    );
-  }
-  return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden>
-      <path d="M14 9h3V5h-3a4 4 0 0 0-4 4v2H7v4h3v6h4v-6h3l1-4h-4V9a0 0 0 0 1 0-0z" />
-    </svg>
-  );
-}
-
+/**
+ * Editorial-style footer. Two zones:
+ *
+ *   Top: Brand mark + tagline on the left, three labelled contact
+ *   columns on the right. Generous vertical breathing room, modest
+ *   text sizes — the copy is reference-grade, not brand presentation.
+ *
+ *   Bottom (separated by a thin hairline): a small caps row with the
+ *   copyright on the left and a single-line attribution on the right.
+ */
 export default function Footer() {
   const { t } = useLocale();
   const year = new Date().getFullYear();
+
   return (
-    <footer className="mt-32 border-t border-ink/15 bg-paper/60 backdrop-blur-sm">
-      <div className="mx-auto max-w-7xl px-6 md:px-12 lg:px-16 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-6 items-start">
-          {/* Brand */}
-          <div className="flex flex-col gap-3">
+    <footer className="mt-32 border-t border-ink/15">
+      <div className="mx-auto max-w-5xl px-6 md:px-12 lg:px-16 pt-16 pb-8">
+        {/* Top: brand + contacts */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-16">
+          <div className="md:col-span-6 lg:col-span-7 flex flex-col gap-5">
             <Logo variant="footer" />
             <p className="text-sm text-ink/60 max-w-xs leading-relaxed">
               {t('footer.tagline')}
             </p>
           </div>
 
-          {/* Socials — center column on desktop. Footer is the one place
-              the strict left-align rule doesn't apply. */}
-          <div className="flex md:justify-center">
-            <ul className="flex items-center gap-5">
-              {SOCIALS.map((s) => (
-                <li key={s.label}>
-                  <a
-                    href={s.href}
-                    aria-label={s.label}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    className="inline-flex items-center justify-center h-10 w-10 rounded-full text-ink/70 hover:text-teal border border-ink/20 hover:border-teal/50 transition-colors duration-300"
-                  >
-                    <SocialIcon name={s.icon} />
-                  </a>
-                </li>
-              ))}
+          <div className="md:col-span-6 lg:col-span-5">
+            <ul className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-7">
+              <li>
+                <p className="text-[10px] uppercase tracking-[0.32em] text-ink/45 mb-2">
+                  {t('contact.email')}
+                </p>
+                <a
+                  href={`mailto:${EMAIL}`}
+                  className="text-sm text-ink/85 hover:text-teal transition-colors duration-300 break-all"
+                >
+                  {EMAIL}
+                </a>
+              </li>
+              <li>
+                <p className="text-[10px] uppercase tracking-[0.32em] text-ink/45 mb-2">
+                  {t('contact.whatsapp')}
+                </p>
+                <a
+                  href={`https://wa.me/${WHATSAPP_NUMBER}`}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-sm text-ink/85 hover:text-teal transition-colors duration-300"
+                >
+                  {WHATSAPP_DISPLAY}
+                </a>
+              </li>
+              <li>
+                <p className="text-[10px] uppercase tracking-[0.32em] text-ink/45 mb-2">
+                  Instagram
+                </p>
+                <a
+                  href={INSTAGRAM_URL}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-sm text-ink/85 hover:text-teal transition-colors duration-300"
+                >
+                  {INSTAGRAM_HANDLE}
+                </a>
+              </li>
             </ul>
           </div>
+        </div>
 
-          {/* Fine print */}
-          <div className="flex flex-col md:items-end rtl:md:items-start gap-3 text-xs uppercase tracking-[0.22em] text-ink/55">
-            <span>© {year} YosiArt</span>
-            <a
-              href={`mailto:${EMAIL}`}
-              className="hover:text-teal transition-colors duration-300 normal-case tracking-normal text-sm text-ink/70 break-all"
-            >
-              {EMAIL}
-            </a>
-          </div>
+        {/* Bottom: copyright + attribution */}
+        <div className="mt-16 pt-6 border-t border-ink/10 flex flex-wrap items-center justify-between gap-3 text-[10px] uppercase tracking-[0.32em] text-ink/45">
+          <span>© {year} YosiArt</span>
+          <span>Acrylic paintings by Yosi Cohen</span>
         </div>
       </div>
     </footer>
