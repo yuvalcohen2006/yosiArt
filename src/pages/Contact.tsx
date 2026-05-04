@@ -16,7 +16,7 @@ export default function Contact() {
   return (
     <section className="px-6 md:px-12 lg:px-16 py-20 md:py-28">
       <div className="mx-auto max-w-3xl">
-        <p className="text-[11px] uppercase tracking-[0.32em] text-teal">
+        <p className="text-[11px] uppercase tracking-[0.176em] text-teal">
           {t('contact.tagline')}
         </p>
         <h1 className="mt-6 font-display text-5xl md:text-7xl tracking-tightest">
@@ -26,7 +26,7 @@ export default function Contact() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 sm:gap-12">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.28em] text-ink/55">
+            <p className="text-[11px] uppercase tracking-[0.176em] text-ink/55">
               {t('contact.email')}
             </p>
             <a
@@ -37,7 +37,7 @@ export default function Contact() {
             </a>
           </div>
           <div>
-            <p className="text-[11px] uppercase tracking-[0.28em] text-ink/55">
+            <p className="text-[11px] uppercase tracking-[0.176em] text-ink/55">
               {t('contact.whatsapp')}
             </p>
             <a
@@ -50,7 +50,7 @@ export default function Contact() {
             </a>
           </div>
           <div>
-            <p className="text-[11px] uppercase tracking-[0.28em] text-ink/55">
+            <p className="text-[11px] uppercase tracking-[0.176em] text-ink/55">
               Instagram
             </p>
             <a

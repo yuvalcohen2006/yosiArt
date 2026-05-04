@@ -21,7 +21,7 @@ export default function PriceTag({ priceILS, priceUSD, status }: Props) {
 
   if (status === 'sold') {
     return (
-      <span className="inline-flex items-center text-xs uppercase tracking-[0.28em] text-deep">
+      <span className="inline-flex items-center text-xs uppercase tracking-[0.176em] text-deep">
         <span className="mr-2 h-1 w-1 rounded-full bg-deep" />
         {t('painting.statusSold')}
       </span>

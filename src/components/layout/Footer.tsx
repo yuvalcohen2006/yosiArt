@@ -38,40 +38,42 @@ export default function Footer() {
           </div>
 
           <div className="md:col-span-6 lg:col-span-5">
-            <ul className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-7">
+            {/* Vertical stack — each contact gets full column width so the
+                email and phone never wrap mid-line. */}
+            <ul className="flex flex-col gap-6">
               <li>
-                <p className="text-[10px] uppercase tracking-[0.32em] text-ink/45 mb-2">
+                <p className="text-[10px] uppercase tracking-[0.176em] text-ink/45 mb-1.5">
                   {t('contact.email')}
                 </p>
                 <a
                   href={`mailto:${EMAIL}`}
-                  className="text-sm text-ink/85 hover:text-teal transition-colors duration-300 break-all"
+                  className="text-sm text-ink/85 hover:text-teal transition-colors duration-300 whitespace-nowrap"
                 >
                   {EMAIL}
                 </a>
               </li>
               <li>
-                <p className="text-[10px] uppercase tracking-[0.32em] text-ink/45 mb-2">
+                <p className="text-[10px] uppercase tracking-[0.176em] text-ink/45 mb-1.5">
                   {t('contact.whatsapp')}
                 </p>
                 <a
                   href={`https://wa.me/${WHATSAPP_NUMBER}`}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="text-sm text-ink/85 hover:text-teal transition-colors duration-300"
+                  className="text-sm text-ink/85 hover:text-teal transition-colors duration-300 whitespace-nowrap"
                 >
                   {WHATSAPP_DISPLAY}
                 </a>
               </li>
               <li>
-                <p className="text-[10px] uppercase tracking-[0.32em] text-ink/45 mb-2">
+                <p className="text-[10px] uppercase tracking-[0.176em] text-ink/45 mb-1.5">
                   Instagram
                 </p>
                 <a
                   href={INSTAGRAM_URL}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="text-sm text-ink/85 hover:text-teal transition-colors duration-300"
+                  className="text-sm text-ink/85 hover:text-teal transition-colors duration-300 whitespace-nowrap"
                 >
                   {INSTAGRAM_HANDLE}
                 </a>
@@ -81,7 +83,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom: copyright + attribution */}
-        <div className="mt-16 pt-6 border-t border-ink/10 flex flex-wrap items-center justify-between gap-3 text-[10px] uppercase tracking-[0.32em] text-ink/45">
+        <div className="mt-16 pt-6 border-t border-ink/10 flex flex-wrap items-center justify-between gap-3 text-[10px] uppercase tracking-[0.176em] text-ink/45">
           <span>© {year} YosiArt</span>
           <span>Acrylic paintings by Yosi Cohen</span>
         </div>

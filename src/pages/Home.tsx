@@ -51,7 +51,7 @@ export default function Home() {
           style={{ opacity: heroOpacity, y: heroY }}
           className="relative z-10 mx-auto max-w-5xl w-full px-6 md:px-12 lg:px-16"
         >
-          <p className="text-[14px] uppercase tracking-[0.4em] text-ink/55">
+          <p className="text-[14px] uppercase tracking-[0.176em] text-ink/55">
             {t('home.tagline')}
           </p>
           <h1 className="mt-7 font-hero tracking-tight leading-[0.98] text-ink">
@@ -74,14 +74,14 @@ export default function Home() {
           >
             <Link
               to="/works"
-              className="text-sm uppercase tracking-[0.28em] text-ink hover:text-teal transition-colors duration-300"
+              className="text-sm uppercase tracking-[0.176em] text-ink hover:text-teal transition-colors duration-300"
             >
               {t('home.viewWorks')}
             </Link>
             <span aria-hidden className="block h-px w-12 bg-ink/45" />
             <Link
               to="/about"
-              className="text-sm uppercase tracking-[0.28em] text-ink/55 hover:text-ink transition-colors duration-300"
+              className="text-sm uppercase tracking-[0.176em] text-ink/55 hover:text-ink transition-colors duration-300"
             >
               {t('home.aboutTheArtist')}
             </Link>
@@ -116,7 +116,7 @@ export default function Home() {
               </h2>
               <Link
                 to="/works"
-                className="text-xs uppercase tracking-[0.28em] text-ink/55 hover:text-teal transition-colors duration-300"
+                className="text-xs uppercase tracking-[0.176em] text-ink/55 hover:text-teal transition-colors duration-300"
               >
                 {t('home.seeAll')} →
               </Link>
@@ -149,7 +149,7 @@ export default function Home() {
                   {/* Bottom row: label (with optional eyebrow on hover) + arrow */}
                   <div className="absolute inset-x-0 bottom-0 p-5 flex items-end justify-between gap-3">
                     <div className="transition-transform duration-500 ease-gallery group-hover:-translate-y-1.5">
-                      <span className="block text-[10px] uppercase tracking-[0.32em] text-paper/70 opacity-0 group-hover:opacity-100 transition-opacity duration-500 mb-1">
+                      <span className="block text-[10px] uppercase tracking-[0.176em] text-paper/70 opacity-0 group-hover:opacity-100 transition-opacity duration-500 mb-1">
                         {t('home.viewWorks')}
                       </span>
                       <span className="font-display text-xl md:text-2xl text-paper">

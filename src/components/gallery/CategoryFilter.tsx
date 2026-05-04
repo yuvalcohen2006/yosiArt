@@ -5,7 +5,7 @@ import { pickLocale } from '@/lib/pickLocale';
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   [
-    'inline-flex items-center text-[11px] uppercase tracking-[0.28em] px-4 py-2 rounded-full border transition-colors duration-300',
+    'inline-flex items-center text-[11px] uppercase tracking-[0.176em] px-4 py-2 rounded-full border transition-colors duration-300',
     isActive
       ? 'bg-ink text-paper border-ink'
       : 'border-mist text-ink/65 hover:border-teal hover:text-teal',

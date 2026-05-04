@@ -40,7 +40,7 @@ export default function PaintingCard({ painting }: Props) {
 
       <div className="absolute inset-x-0 bottom-0 p-4 flex flex-col gap-1">
         {categoryTitle && (
-          <span className="text-[10px] uppercase tracking-[0.28em] text-ink/55">
+          <span className="text-[10px] uppercase tracking-[0.176em] text-ink/55">
             {categoryTitle}
           </span>
         )}
@@ -48,7 +48,7 @@ export default function PaintingCard({ painting }: Props) {
           {title}
         </span>
         {isSold && (
-          <span className="mt-1 inline-flex items-center text-[10px] uppercase tracking-[0.28em] text-deep">
+          <span className="mt-1 inline-flex items-center text-[10px] uppercase tracking-[0.176em] text-deep">
             <span className="mr-2 h-1 w-1 rounded-full bg-deep" />
             Sold
           </span>

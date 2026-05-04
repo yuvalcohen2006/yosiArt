@@ -19,13 +19,13 @@ export default function PaintingPage() {
   if (state.status === 'error' || !state.data) {
     return (
       <section className="px-6 md:px-10 py-32 text-center">
-        <p className="text-[11px] uppercase tracking-[0.32em] text-teal">404</p>
+        <p className="text-[11px] uppercase tracking-[0.176em] text-teal">404</p>
         <h1 className="mt-6 font-display text-4xl md:text-6xl tracking-tightest">
           {t('painting.notFound')}
         </h1>
         <Link
           to="/works"
-          className="mt-10 inline-flex items-center gap-3 text-sm uppercase tracking-[0.28em] text-ink hover:text-teal transition-colors duration-300"
+          className="mt-10 inline-flex items-center gap-3 text-sm uppercase tracking-[0.176em] text-ink hover:text-teal transition-colors duration-300"
         >
           <span aria-hidden className="block h-px w-12 bg-current" />
           <span>{t('works.title')}</span>

@@ -11,7 +11,7 @@ export default function LanguageToggle() {
     <div
       role="group"
       aria-label="Language"
-      className="inline-flex items-center text-[13px] uppercase tracking-[0.2em] select-none"
+      className="inline-flex items-center text-[13px] uppercase tracking-[0.176em] select-none"
     >
       <button
         type="button"

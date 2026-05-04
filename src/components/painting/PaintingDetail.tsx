@@ -55,7 +55,7 @@ export default function PaintingDetail({ painting }: Props) {
         <div className="mb-8">
           <Link
             to={painting.category ? `/works/${painting.category.slug}` : '/works'}
-            className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.28em] text-ink/55 hover:text-teal transition-colors duration-300"
+            className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.176em] text-ink/55 hover:text-teal transition-colors duration-300"
           >
             <span aria-hidden>←</span>
             <span>{categoryTitle || t('works.title')}</span>
@@ -93,7 +93,7 @@ export default function PaintingDetail({ painting }: Props) {
               }}
             />
             {/* "View larger" cue, fades in on hover */}
-            <span className="absolute top-4 left-4 rtl:left-auto rtl:right-4 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.28em] text-paper/0 group-hover:text-paper transition-colors duration-300 bg-ink/0 group-hover:bg-ink/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
+            <span className="absolute top-4 left-4 rtl:left-auto rtl:right-4 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.176em] text-paper/0 group-hover:text-paper transition-colors duration-300 bg-ink/0 group-hover:bg-ink/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
               {t('painting.viewLarger')}
             </span>
           </motion.button>
@@ -102,14 +102,14 @@ export default function PaintingDetail({ painting }: Props) {
         {/* Body — narrower column, left-aligned within. */}
         <div className="max-w-2xl mt-16 md:mt-20">
           <Reveal>
-            <p className="text-[11px] uppercase tracking-[0.32em] text-teal">
+            <p className="text-[11px] uppercase tracking-[0.176em] text-teal">
               {categoryTitle || t('painting.tagline')}
             </p>
             <h1 className="mt-5 font-display text-5xl md:text-6xl tracking-tightest leading-[1.05]">
               {title}
             </h1>
             {meta.length > 0 && (
-              <p className="mt-6 text-[11px] uppercase tracking-[0.28em] text-ink/55">
+              <p className="mt-6 text-[11px] uppercase tracking-[0.176em] text-ink/55">
                 {meta.join(' · ')}
               </p>
             )}
@@ -138,7 +138,7 @@ export default function PaintingDetail({ painting }: Props) {
                   <button
                     type="button"
                     disabled
-                    className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 border border-mist text-xs uppercase tracking-[0.28em] text-ink/40 cursor-not-allowed"
+                    className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 border border-mist text-xs uppercase tracking-[0.176em] text-ink/40 cursor-not-allowed"
                     title="Coming in milestone 10"
                   >
                     {t('painting.inquireWhatsapp')}
@@ -146,7 +146,7 @@ export default function PaintingDetail({ painting }: Props) {
                   <button
                     type="button"
                     disabled
-                    className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 border border-mist text-xs uppercase tracking-[0.28em] text-ink/40 cursor-not-allowed"
+                    className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 border border-mist text-xs uppercase tracking-[0.176em] text-ink/40 cursor-not-allowed"
                     title="Coming in milestone 10"
                   >
                     {t('painting.inquireEmail')}
