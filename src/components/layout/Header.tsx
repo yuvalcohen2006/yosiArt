@@ -11,13 +11,20 @@ const NAV: { to: string; key: 'nav.works' | 'nav.about' | 'nav.contact' }[] = [
   { to: '/contact', key: 'nav.contact' },
 ];
 
-const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+/**
+ * Slide-reveal nav link. Two stacked copies of the label sit inside a
+ * clipped container; on hover (or active state) the stack translates up
+ * and the second copy slides into the visible window. The first copy is
+ * muted ink, the second is full ink — so the swap reads as a colour shift
+ * with a small physical motion, not just a static fade.
+ */
+const navContainerClass =
+  'group relative inline-block h-[1.05em] overflow-hidden leading-none align-middle text-[13px] uppercase tracking-[0.176em]';
+
+const navInnerClass = (isActive: boolean) =>
   [
-    'relative text-[13px] uppercase tracking-[0.176em] transition-colors duration-300',
-    isActive ? 'text-ink' : 'text-ink/55 hover:text-ink',
-    'after:absolute after:left-0 after:rtl:left-auto after:rtl:right-0 after:-bottom-1.5',
-    'after:h-px after:bg-teal after:transition-all after:duration-300 after:ease-gallery',
-    isActive ? 'after:w-full' : 'after:w-0 hover:after:w-full',
+    'block transition-transform duration-[450ms] ease-gallery',
+    isActive ? '-translate-y-1/2' : 'group-hover:-translate-y-1/2',
   ].join(' ');
 
 export default function Header() {
@@ -60,8 +67,21 @@ export default function Header() {
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-9">
             {NAV.map((item) => (
-              <NavLink key={item.to} to={item.to} className={navLinkClass}>
-                {t(item.key)}
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={navContainerClass}
+              >
+                {({ isActive }) => (
+                  <span className={navInnerClass(isActive)}>
+                    <span className="block text-ink/55 group-hover:text-ink transition-colors duration-300">
+                      {t(item.key)}
+                    </span>
+                    <span aria-hidden className="block text-ink">
+                      {t(item.key)}
+                    </span>
+                  </span>
+                )}
               </NavLink>
             ))}
           </nav>

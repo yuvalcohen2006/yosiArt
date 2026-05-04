@@ -12,7 +12,7 @@ export default function CurrencyToggle() {
     <div
       role="group"
       aria-label="Currency"
-      className="inline-flex items-center text-[13px] tracking-[0.176em] select-none"
+      className="inline-flex items-center text-[11.5px] tracking-[0.176em] select-none"
     >
       <button
         type="button"
