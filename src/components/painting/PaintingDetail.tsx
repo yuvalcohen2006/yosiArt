@@ -81,14 +81,17 @@ export default function PaintingDetail({ painting }: Props) {
               alt={heroImage.alt ?? title}
               className="w-full h-auto"
             />
-            {/* Faint corner watermark — deters casual right-click theft. */}
-            <span
+            {/* Faint corner watermark — Yosi's signature, low opacity, with a
+                light drop-shadow so it stays legible over darker paintings. */}
+            <img
               aria-hidden
-              className="absolute bottom-4 right-4 rtl:right-auto rtl:left-4 font-display italic text-paper/70 text-xl tracking-tight pointer-events-none"
-              style={{ textShadow: '0 1px 4px rgba(0,0,0,0.45)' }}
-            >
-              YosiArt
-            </span>
+              alt=""
+              src="/signature.png"
+              className="absolute bottom-3 right-3 rtl:right-auto rtl:left-3 h-14 md:h-16 w-auto pointer-events-none opacity-40"
+              style={{
+                filter: 'drop-shadow(0 1px 3px rgba(255,255,255,0.55))',
+              }}
+            />
             {/* "View larger" cue, fades in on hover */}
             <span className="absolute top-4 left-4 rtl:left-auto rtl:right-4 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.28em] text-paper/0 group-hover:text-paper transition-colors duration-300 bg-ink/0 group-hover:bg-ink/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
               {t('painting.viewLarger')}

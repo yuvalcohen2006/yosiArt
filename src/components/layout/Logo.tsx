@@ -1,13 +1,15 @@
 import { Link } from 'react-router-dom';
 
 type Props = {
-  /** When true, the logo is sized for the footer (slightly smaller, muted). */
+  /** Header is the default; footer is a touch smaller and slightly muted. */
   variant?: 'header' | 'footer';
 };
 
 /**
- * Minimal wordmark — Cormorant italic with a small teal dot.
- * No image asset; renders crisp at any size and respects RTL automatically.
+ * Brand mark — Yosi's hand-drawn signature.
+ * `mix-blend-multiply` is a defensive pick: if there are any near-white
+ * anti-alias artifacts at the edges of the PNG, they vanish into the
+ * paper-textured background instead of showing as a halo.
  */
 export default function Logo({ variant = 'header' }: Props) {
   const isFooter = variant === 'footer';
@@ -15,21 +17,18 @@ export default function Logo({ variant = 'header' }: Props) {
     <Link
       to="/"
       aria-label="YosiArt — home"
-      className="inline-flex items-baseline gap-1.5 group"
+      className="inline-flex items-center group"
     >
-      <span
-        className={[
-          'font-display italic font-medium tracking-tight transition-colors duration-300',
-          isFooter
-            ? 'text-2xl text-ink/90 group-hover:text-teal'
-            : 'text-3xl text-ink group-hover:text-teal',
-        ].join(' ')}
-      >
-        YosiArt
-      </span>
-      <span
+      <img
+        src="/signature.png"
+        alt=""
         aria-hidden
-        className="block h-1.5 w-1.5 rounded-full bg-teal transition-transform duration-300 group-hover:scale-125"
+        className={[
+          'object-contain w-auto transition-opacity duration-300 mix-blend-multiply',
+          isFooter
+            ? 'h-12 opacity-75 group-hover:opacity-100'
+            : 'h-14 md:h-16 opacity-90 group-hover:opacity-100',
+        ].join(' ')}
       />
     </Link>
   );
