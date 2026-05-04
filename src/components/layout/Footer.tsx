@@ -1,9 +1,15 @@
 import Logo from './Logo';
 import { useLocale } from '@/hooks/useLocale';
 
+/*
+  Real contact details, hardcoded for now. M11 swaps these to a
+  Sanity-driven `siteSettings` so dad can edit them himself.
+*/
+const EMAIL = 'Yosicohen164@gmail.com';
+const INSTAGRAM_URL = 'https://www.instagram.com/_cohen_art';
+
 const SOCIALS: { href: string; label: string; icon: 'instagram' | 'facebook' }[] = [
-  { href: '#', label: 'Instagram', icon: 'instagram' },
-  { href: '#', label: 'Facebook', icon: 'facebook' },
+  { href: INSTAGRAM_URL, label: 'Instagram', icon: 'instagram' },
 ];
 
 function SocialIcon({ name }: { name: 'instagram' | 'facebook' }) {
@@ -27,8 +33,8 @@ export default function Footer() {
   const { t } = useLocale();
   const year = new Date().getFullYear();
   return (
-    <footer className="mt-32 border-t border-mist/70">
-      <div className="mx-auto max-w-7xl px-6 md:px-10 py-14">
+    <footer className="mt-32 border-t border-ink/15 bg-paper/60 backdrop-blur-sm">
+      <div className="mx-auto max-w-7xl px-6 md:px-12 lg:px-16 py-14">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-6 items-start">
           {/* Brand */}
           <div className="flex flex-col gap-3">
@@ -38,7 +44,8 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Socials — center column on desktop */}
+          {/* Socials — center column on desktop. Footer is the one place
+              the strict left-align rule doesn't apply. */}
           <div className="flex md:justify-center">
             <ul className="flex items-center gap-5">
               {SOCIALS.map((s) => (
@@ -48,7 +55,7 @@ export default function Footer() {
                     aria-label={s.label}
                     target="_blank"
                     rel="noreferrer noopener"
-                    className="inline-flex items-center justify-center h-10 w-10 rounded-full text-ink/70 hover:text-teal border border-mist hover:border-teal/50 transition-colors duration-300"
+                    className="inline-flex items-center justify-center h-10 w-10 rounded-full text-ink/70 hover:text-teal border border-ink/20 hover:border-teal/50 transition-colors duration-300"
                   >
                     <SocialIcon name={s.icon} />
                   </a>
@@ -57,14 +64,14 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Fine print — right column */}
+          {/* Fine print */}
           <div className="flex flex-col md:items-end rtl:md:items-start gap-3 text-xs uppercase tracking-[0.22em] text-ink/55">
             <span>© {year} YosiArt</span>
             <a
-              href="mailto:hello@yosiart.example"
-              className="hover:text-teal transition-colors duration-300 normal-case tracking-normal text-sm text-ink/70"
+              href={`mailto:${EMAIL}`}
+              className="hover:text-teal transition-colors duration-300 normal-case tracking-normal text-sm text-ink/70 break-all"
             >
-              hello@yosiart.example
+              {EMAIL}
             </a>
           </div>
         </div>

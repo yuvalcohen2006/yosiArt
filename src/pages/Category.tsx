@@ -25,8 +25,8 @@ export default function Category() {
     : (categorySlug ?? '');
 
   return (
-    <section className="px-6 md:px-10 py-20 md:py-28">
-      <div className="mx-auto max-w-7xl">
+    <section className="px-6 md:px-12 lg:px-16 py-20 md:py-28">
+      <div className="mx-auto max-w-5xl">
         <p className="text-[11px] uppercase tracking-[0.32em] text-teal">
           {t('category.tagline')}
         </p>
@@ -38,13 +38,9 @@ export default function Category() {
         <CategoryFilter />
 
         {paintingsState.status === 'loading' ? (
-          <div className="text-ink/50 py-20 text-center">
-            {t('works.loading')}
-          </div>
+          <div className="text-ink/50 py-20">{t('works.loading')}</div>
         ) : paintings.length === 0 ? (
-          <div className="text-ink/50 py-20 text-center">
-            {t('works.empty')}
-          </div>
+          <div className="text-ink/50 py-20">{t('works.empty')}</div>
         ) : (
           <PaintingGrid paintings={paintings} />
         )}

@@ -20,8 +20,7 @@ export default function Home() {
   const { t, locale } = useLocale();
   const categoriesState = useCategories();
 
-  // Parallax on the hero text — fades out and lifts as you scroll past.
-  // Driven by Framer's useScroll so it's smooth and respects raf timing.
+  // Parallax on the hero text — fades and lifts as you scroll past.
   const { scrollY } = useScroll();
   const heroOpacity = useTransform(scrollY, [0, 480], [1, 0.15]);
   const heroY = useTransform(scrollY, [0, 480], [0, -40]);
@@ -44,23 +43,22 @@ export default function Home() {
   return (
     <>
       {/* Hero — full-bleed, with cross-fading featured paintings behind
-          and an animated headline up front. Padding lives on the inner
-          column so the carousel can extend edge-to-edge. */}
+          and an animated headline up front. */}
       <section className="relative overflow-hidden min-h-[calc(100svh-72px)] flex items-center">
         <HeroCarousel className="absolute inset-0" />
 
         <motion.div
           style={{ opacity: heroOpacity, y: heroY }}
-          className="relative z-10 mx-auto max-w-7xl w-full px-6 md:px-10"
+          className="relative z-10 mx-auto max-w-5xl w-full px-6 md:px-12 lg:px-16"
         >
-          <p className="text-[11px] uppercase tracking-[0.4em] text-teal">
+          <p className="text-[11px] uppercase tracking-[0.4em] text-ink/55">
             {t('home.tagline')}
           </p>
-          <h1 className="mt-8 font-display tracking-tightest leading-[0.95] text-ink">
-            <span className="block text-6xl sm:text-7xl md:text-8xl lg:text-[10rem]">
+          <h1 className="mt-7 font-hero tracking-tight leading-[0.98] text-ink">
+            <span className="block text-6xl sm:text-7xl md:text-8xl lg:text-[8rem]">
               <AnimatedHeadline text={t('home.headline1')} />
             </span>
-            <span className="block text-6xl sm:text-7xl md:text-8xl lg:text-[10rem] italic font-light text-deep">
+            <span className="block text-6xl sm:text-7xl md:text-8xl lg:text-[8rem] italic">
               <AnimatedHeadline
                 text={t('home.headline2')}
                 delay={0.45}
@@ -93,7 +91,7 @@ export default function Home() {
           </motion.div>
         </motion.div>
 
-        {/* Scroll cue — quietly pulses at the bottom of the hero. */}
+        {/* Scroll cue */}
         <motion.div
           aria-hidden
           className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
@@ -112,10 +110,10 @@ export default function Home() {
 
       {/* Categories teaser — fetched from Sanity, falls back to hardcoded
           keys until the dataset is populated. */}
-      <section className="px-6 md:px-10 py-24">
-        <div className="mx-auto max-w-7xl">
+      <section className="px-6 md:px-12 lg:px-16 py-24">
+        <div className="mx-auto max-w-5xl">
           <Reveal>
-            <div className="flex items-baseline justify-between mb-10">
+            <div className="flex items-baseline justify-between mb-12">
               <h2 className="font-display text-3xl md:text-4xl tracking-tight">
                 {t('home.bodiesOfWork')}
               </h2>
@@ -127,12 +125,12 @@ export default function Home() {
               </Link>
             </div>
           </Reveal>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-5">
             {cards.map((card, i) => (
               <Reveal key={card.id} delay={i * 0.06}>
                 <Link
                   to={`/works/${card.slug}`}
-                  className="group aspect-[3/4] relative overflow-hidden bg-mist/40 border border-mist hover:border-teal/40 transition-colors duration-300 block"
+                  className="group relative block aspect-[3/4] overflow-hidden bg-ink/10 border border-ink/10 transition-colors duration-500 hover:border-ink/30"
                 >
                   {card.coverImage && (
                     <img
@@ -143,13 +141,29 @@ export default function Home() {
                         .url()}
                       alt=""
                       loading="lazy"
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-gallery group-hover:scale-[1.04]"
+                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-gallery group-hover:scale-[1.06]"
                     />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-paper/95 via-paper/30 to-transparent" />
-                  <div className="absolute inset-0 flex items-end p-4">
-                    <span className="font-display text-xl text-ink group-hover:text-teal transition-colors duration-300">
-                      {card.label}
+                  {/* Persistent dark gradient — keeps title legible against any image. */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/35 to-transparent" />
+                  {/* Hover wash — deepens the whole card */}
+                  <div className="absolute inset-0 bg-ink/0 transition-colors duration-500 group-hover:bg-ink/25" />
+
+                  {/* Bottom row: label (with optional eyebrow on hover) + arrow */}
+                  <div className="absolute inset-x-0 bottom-0 p-5 flex items-end justify-between gap-3">
+                    <div className="transition-transform duration-500 ease-gallery group-hover:-translate-y-1.5">
+                      <span className="block text-[10px] uppercase tracking-[0.32em] text-paper/70 opacity-0 group-hover:opacity-100 transition-opacity duration-500 mb-1">
+                        {t('home.viewWorks')}
+                      </span>
+                      <span className="font-display text-xl md:text-2xl text-paper">
+                        {card.label}
+                      </span>
+                    </div>
+                    <span
+                      aria-hidden
+                      className="text-paper text-2xl opacity-0 -translate-x-3 rtl:translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-gallery"
+                    >
+                      →
                     </span>
                   </div>
                 </Link>

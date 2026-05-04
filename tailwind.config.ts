@@ -15,7 +15,18 @@ export default {
         deep: '#284b63',
       },
       fontFamily: {
-        // Display — refined gallery serif. Cormorant for LTR; Frank Ruhl Libre for RTL.
+        // Hero — firm, modern editorial serif for the home headline only.
+        // Heavier than Cormorant; pairs cleanly with DM Sans body.
+        hero: [
+          '"DM Serif Display"',
+          '"Frank Ruhl Libre"',
+          'ui-serif',
+          'Georgia',
+          'serif',
+        ],
+        // Display — refined gallery serif. Used everywhere except hero:
+        // section headings ("Bodies of work"), page titles ("Yosi", "Contact"),
+        // logo wordmark, painting card titles.
         display: [
           '"Cormorant Garamond"',
           '"Frank Ruhl Libre"',

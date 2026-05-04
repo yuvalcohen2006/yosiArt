@@ -49,8 +49,8 @@ export default function PaintingDetail({ painting }: Props) {
     relatedState.status === 'success' ? relatedState.data : [];
 
   return (
-    <article className="px-6 md:px-10 py-12 md:py-20">
-      <div className="mx-auto max-w-6xl">
+    <article className="px-6 md:px-12 lg:px-16 py-12 md:py-20">
+      <div className="mx-auto max-w-5xl">
         {/* Breadcrumb back link */}
         <div className="mb-8">
           <Link
@@ -96,8 +96,8 @@ export default function PaintingDetail({ painting }: Props) {
           </motion.button>
         )}
 
-        {/* Body — narrower, centered */}
-        <div className="mx-auto max-w-2xl mt-16 md:mt-20">
+        {/* Body — narrower column, left-aligned within. */}
+        <div className="max-w-2xl mt-16 md:mt-20">
           <Reveal>
             <p className="text-[11px] uppercase tracking-[0.32em] text-teal">
               {categoryTitle || t('painting.tagline')}
