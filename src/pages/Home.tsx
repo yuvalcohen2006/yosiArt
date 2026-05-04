@@ -91,25 +91,37 @@ export default function Home() {
           </motion.div>
         </motion.div>
 
-        {/* Scroll cue — right-side vertical track with a falling dot
-            that loops every ~1.8s. Fades out as the visitor scrolls past
-            the hero. Hidden on mobile where the gesture is obvious. */}
+        {/* Scroll cue — pushed into the centre of the right margin (not
+            hugging the edge) so it owns its own visual zone. A taller
+            track + a "light beam" gradient pulse passing through it,
+            framed by tiny anchor dots at each end for an instrument-panel
+            feel. Fades out as the visitor scrolls past the hero. */}
         <motion.div
           aria-hidden
           style={{ opacity: cueOpacity }}
-          className="absolute right-6 md:right-10 lg:right-14 bottom-12 md:bottom-16 z-10 hidden md:block pointer-events-none"
+          className="absolute right-12 md:right-16 lg:right-24 xl:right-[8vw] bottom-16 md:bottom-20 z-10 hidden md:block pointer-events-none"
         >
-          <div className="relative h-28 md:h-32 w-px bg-ink/15">
+          <div className="relative h-36 md:h-44 w-px bg-ink/25">
+            {/* Anchor dots — tiny markers at both ends of the track. */}
+            <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-ink/45" />
+            <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-ink/45" />
+
+            {/* Falling pulse — gradient bar; reads as "light passing through". */}
             <motion.div
-              className="absolute left-1/2 -translate-x-1/2 w-px h-5 bg-ink"
+              className="absolute left-1/2 -translate-x-1/2 w-px"
+              style={{
+                height: '40px',
+                background:
+                  'linear-gradient(to bottom, transparent 0%, rgb(53,53,53) 50%, transparent 100%)',
+              }}
               animate={{
-                top: ['0%', '100%'],
+                top: ['-12%', '112%'],
                 opacity: [0, 1, 1, 0],
               }}
               transition={{
-                duration: 2.5,
+                duration: 2.8,
                 repeat: Infinity,
-                repeatDelay: 1,
+                repeatDelay: 0.9,
                 ease: [0.4, 0, 0.6, 1],
                 times: [0, 0.15, 0.85, 1],
               }}
