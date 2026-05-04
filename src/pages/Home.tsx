@@ -92,19 +92,13 @@ export default function Home() {
         </motion.div>
 
         {/* Scroll cue — right-side vertical track with a falling dot
-            that loops every ~1.8s. Vertical "Scroll" label sits above it.
-            Fades out as the visitor scrolls past the hero. Hidden on
-            mobile where the gesture is more obvious anyway. */}
+            that loops every ~1.8s. Fades out as the visitor scrolls past
+            the hero. Hidden on mobile where the gesture is obvious. */}
         <motion.div
           aria-hidden
           style={{ opacity: cueOpacity }}
-          className="absolute right-6 md:right-10 lg:right-14 bottom-12 md:bottom-16 z-10 hidden md:flex flex-col items-center gap-3 pointer-events-none"
+          className="absolute right-6 md:right-10 lg:right-14 bottom-12 md:bottom-16 z-10 hidden md:block pointer-events-none"
         >
-          <span
-            className="text-[10px] uppercase tracking-[0.176em] text-ink/55 [writing-mode:vertical-rl]"
-          >
-            Scroll
-          </span>
           <div className="relative h-16 w-px bg-ink/15">
             <motion.div
               className="absolute left-1/2 -translate-x-1/2 w-1 h-2.5 bg-ink rounded-full"
