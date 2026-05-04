@@ -99,18 +99,19 @@ export default function Home() {
           style={{ opacity: cueOpacity }}
           className="absolute right-6 md:right-10 lg:right-14 bottom-12 md:bottom-16 z-10 hidden md:block pointer-events-none"
         >
-          <div className="relative h-16 w-px bg-ink/15">
+          <div className="relative h-28 md:h-32 w-px bg-ink/15">
             <motion.div
-              className="absolute left-1/2 -translate-x-1/2 w-1 h-2.5 bg-ink rounded-full"
+              className="absolute left-1/2 -translate-x-1/2 w-px h-5 bg-ink"
               animate={{
                 top: ['0%', '100%'],
                 opacity: [0, 1, 1, 0],
               }}
               transition={{
-                duration: 1.8,
+                duration: 2.5,
                 repeat: Infinity,
+                repeatDelay: 1,
                 ease: [0.4, 0, 0.6, 1],
-                times: [0, 0.2, 0.8, 1],
+                times: [0, 0.15, 0.85, 1],
               }}
             />
           </div>

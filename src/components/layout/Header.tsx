@@ -12,19 +12,16 @@ const NAV: { to: string; key: 'nav.works' | 'nav.about' | 'nav.contact' }[] = [
 ];
 
 /**
- * Nav link with a persistent faint underline at rest, darkening to teal
- * on hover or when the route is active. The always-visible underline
- * signals "this is clickable" without waiting for hover to communicate
- * affordance — a quieter alternative to a button outline.
+ * Plain nav link. No underline at rest — the line draws in left-to-right
+ * on hover, fills permanently when the route is active.
  */
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
     'relative text-[13px] uppercase tracking-[0.176em] transition-colors duration-300',
-    isActive ? 'text-ink' : 'text-ink/70 hover:text-ink',
-    // Persistent underline — faint at rest, full teal on hover / active.
+    isActive ? 'text-ink' : 'text-ink/55 hover:text-ink',
     'after:absolute after:left-0 after:rtl:left-auto after:rtl:right-0 after:-bottom-1.5',
-    'after:h-px after:w-full after:transition-colors after:duration-300',
-    isActive ? 'after:bg-teal' : 'after:bg-ink/20 hover:after:bg-teal',
+    'after:h-px after:bg-teal after:transition-all after:duration-300 after:ease-gallery',
+    isActive ? 'after:w-full' : 'after:w-0 hover:after:w-full',
   ].join(' ');
 
 export default function Header() {
