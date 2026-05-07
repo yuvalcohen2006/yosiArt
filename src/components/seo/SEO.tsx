@@ -3,15 +3,15 @@ import { Head } from 'vite-react-ssg';
 const SITE_NAME = 'YosiArt';
 const SITE_TAGLINE = 'Acrylic on canvas';
 const SITE_BASE_URL = 'https://yosiart.vercel.app';
-const DEFAULT_DESCRIPTION =
-  'Original acrylic paintings by Yosi Cohen. Rabbis, Exodus, Retro, Movies, and one-of-a-kind originals.';
 
 type Props = {
   /** Page title — gets suffixed with " · YosiArt" automatically. Pass
    *  `null` (or omit) on Home to use the brand-only title. */
   title?: string | null;
-  /** Short page description (~160 chars). Falls back to the site default. */
-  description?: string;
+  /** Short page description (~160 chars). Pass `null` to suppress
+   *  description-related meta tags entirely (handy for the home OG
+   *  card, which we want to read as just image + title + URL). */
+  description?: string | null;
   /** Path of the current page, e.g. "/works" or "/work/exodus-splitting-the-sea".
    *  Used to build the canonical URL + og:url. */
   path: string;
@@ -41,7 +41,7 @@ type Props = {
  */
 export default function SEO({
   title,
-  description = DEFAULT_DESCRIPTION,
+  description,
   path,
   image,
   type = 'website',
@@ -58,7 +58,7 @@ export default function SEO({
   return (
     <Head>
       <title>{fullTitle}</title>
-      <meta name="description" content={description} />
+      {description && <meta name="description" content={description} />}
       <link rel="canonical" href={url} />
 
       {/* OpenGraph — used by WhatsApp / Slack / FB / IG / iMessage etc.
@@ -67,7 +67,9 @@ export default function SEO({
       <meta property="og:site_name" content={SITE_NAME} />
       <meta property="og:url" content={url} />
       <meta property="og:title" content={fullTitle} />
-      <meta property="og:description" content={description} />
+      {description && (
+        <meta property="og:description" content={description} />
+      )}
       {image && <meta property="og:image" content={image} />}
       {image && <meta property="og:image:width" content="1200" />}
       {image && <meta property="og:image:height" content="630" />}
@@ -79,7 +81,9 @@ export default function SEO({
         content={image ? 'summary_large_image' : 'summary'}
       />
       <meta name="twitter:title" content={fullTitle} />
-      <meta name="twitter:description" content={description} />
+      {description && (
+        <meta name="twitter:description" content={description} />
+      )}
       {image && <meta name="twitter:image" content={image} />}
 
       {/* JSON-LD structured data — invisible markup that tells search
@@ -92,4 +96,4 @@ export default function SEO({
 }
 
 /** Site-wide constants exported for tests / sitemap generation. */
-export { SITE_BASE_URL, SITE_NAME, DEFAULT_DESCRIPTION };
+export { SITE_BASE_URL, SITE_NAME };

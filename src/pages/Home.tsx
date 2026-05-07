@@ -215,11 +215,11 @@ export default function Home() {
 
   return (
     <>
-      <SEO
-        path="/"
-        description="Original acrylic paintings by Yosi Cohen — rabbis, exodus, retro, movies, and one-of-a-kind originals. Painted with intent."
-        image={homeOgImage}
-      />
+      {/* Home OG card — image + title + URL only. We deliberately skip
+          the description so WhatsApp's big-banner preview reads as a
+          gallery cover (image dominant, terse title) rather than a
+          marketing card with a paragraph of copy. */}
+      <SEO path="/" description={null} image={homeOgImage} />
       {/* Hero — full-bleed, with the cycling images from
           `homeMedia.heroImages` cross-fading behind, and an animated
           headline up front. */}
