@@ -25,9 +25,20 @@ export default function Category() {
   const paintings =
     paintingsState.status === 'success' ? paintingsState.data : [];
 
+  // Pretty fallback for the slug — used both when the loader hasn't
+  // yet populated `currentCategory` (e.g. during navigation away) and
+  // as the inner fallback for `pickLocale`. Splits on `-` and
+  // capitalizes each word so "abstract-portraits" → "Abstract
+  // Portraits", not the raw slug.
+  const slugAsTitle = categorySlug
+    ? categorySlug
+        .split('-')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+    : '';
   const title = currentCategory
-    ? pickLocale(currentCategory.title, locale, categorySlug ?? '')
-    : (categorySlug ?? '');
+    ? pickLocale(currentCategory.title, locale, slugAsTitle)
+    : slugAsTitle;
 
   // For SEO we always emit the English category title in the metadata —
   // the canonical URL is locale-agnostic, and crawlers index against

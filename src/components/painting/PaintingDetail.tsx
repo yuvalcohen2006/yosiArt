@@ -189,7 +189,13 @@ export default function PaintingDetail({ painting }: Props) {
           </div>
         )}
 
-        {/* Body — narrower column, left-aligned within. */}
+        {/* Body — only mounted once the hero image has loaded, so all
+            of the text below (title, meta, price, inquire buttons)
+            arrives in one moment along with the image rather than
+            shuffling around as different parts settle. The Reveal
+            wrappers inside still play their normal fade-up animation
+            on mount, so the entrance is preserved. */}
+        {heroLoaded && (
         <div className="max-w-2xl mt-16 md:mt-20">
           <Reveal>
             <p className="text-[14px] uppercase tracking-[0.176em] text-ink/55">
@@ -226,9 +232,11 @@ export default function PaintingDetail({ painting }: Props) {
             </div>
           </Reveal>
         </div>
+        )}
 
-        {/* Related paintings strip */}
-        {related.length > 0 && (
+        {/* Related paintings strip — also gated on heroLoaded so the
+            entire below-hero region appears together. */}
+        {heroLoaded && related.length > 0 && (
           <section className="mt-32">
             <Reveal>
               <h2 className="font-display text-2xl md:text-3xl tracking-tight mb-10">
