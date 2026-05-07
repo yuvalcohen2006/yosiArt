@@ -44,6 +44,12 @@
     "inquireForPrice": "לבירור מחיר",
     "inquireWhatsapp": "שאלו בוואטסאפ",
     "inquireEmail": "שאלו במייל",
+    "commissionSimilar": "כתבו לי על הזמנה דומה",
+    "inquireWhatsappMessage": "שלום יוסי! אשמח לקבל פרטים על \"{{title}}\" — {{url}}",
+    "inquireEmailSubject": "בקשר ליצירה \"{{title}}\"",
+    "inquireEmailBody": "שלום יוסי,\n\nראיתי את היצירה \"{{title}}\" באתר ואשמח לקבל עליה פרטים.\n\n{{url}}\n\nתודה!",
+    "commissionEmailSubject": "הזמנה אישית בסגנון \"{{title}}\"",
+    "commissionEmailBody": "שלום יוסי,\n\nשמתי לב שהיצירה \"{{title}}\" נמכרה, ואשמח ליצירה דומה בהזמנה אישית.\n\n{{url}}\n\nתודה!",
     "viewLarger": "להגדלה",
     "related": "עוד מהאוסף",
     "loading": "טוען…",
@@ -57,8 +63,10 @@
   "contact": {
     "tagline": "צרו קשר",
     "title": "ליצירת קשר",
+    "intro": "משהו כאן דיבר אליכם? אתם מוזמנים בחום ליצור קשר — לגבי יצירה מסוימת, הזמנה אישית, או סתם בשביל לומר שלום. כל פנייה מגיעה ישירות אלינו.",
     "email": "אימייל",
     "whatsapp": "וואטסאפ",
+    "instagram": "אינסטגרם",
     "stub": "פרטי קשר אמיתיים יתחברו דרך סניטי כשה-CMS עולה (שלב 5). עד אז אלו פלייסהולדרים."
   },
   "notFound": {

@@ -1,10 +1,16 @@
 import { Link } from 'react-router-dom';
 import { useLocale } from '@/hooks/useLocale';
+import SEO from '@/components/seo/SEO';
 
 export default function NotFound() {
   const { t } = useLocale();
   return (
     <section className="px-6 md:px-12 lg:px-16 py-32 md:py-40">
+      <SEO
+        path="/404"
+        title="Off the canvas"
+        description="That page doesn't exist (yet)."
+      />
       <div className="mx-auto max-w-3xl">
         <p className="text-[11px] uppercase tracking-[0.176em] text-teal">
           {t('notFound.tagline')}

@@ -19,6 +19,22 @@
     letter-spacing: 0.005em;
   }
 
+  /*
+    Hebrew letterforms (Heebo / Frank Ruhl Libre fallbacks) render
+    visually smaller than Latin at the same px size — same em, smaller
+    apparent size. To keep small UI text — eyebrows, nav links, labels,
+    "see all" links — looking the same size as the English version,
+    bump the small text utilities just for RTL. Body copy (text-lg /
+    text-base) is large enough already and is left alone so Hebrew
+    paragraphs don't grow out of their column.
+  */
+  html[dir='rtl'] .text-\[10px\] { font-size: 12px; }
+  html[dir='rtl'] .text-\[11px\] { font-size: 13px; }
+  html[dir='rtl'] .text-\[13px\] { font-size: 15px; }
+  html[dir='rtl'] .text-\[14px\] { font-size: 16px; }
+  html[dir='rtl'] .text-xs { font-size: 0.875rem; }   /* 12 → 14 */
+  html[dir='rtl'] .text-sm { font-size: 1rem; }       /* 14 → 16 */
+
   body {
     @apply bg-paper text-ink font-sans antialiased;
   }

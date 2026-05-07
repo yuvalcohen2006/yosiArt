@@ -1,25 +1,30 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLoaderData } from 'react-router-dom';
 import { useLocale } from '@/hooks/useLocale';
-import { usePainting } from '@/hooks/usePainting';
 import PaintingDetail from '@/components/painting/PaintingDetail';
+import SEO from '@/components/seo/SEO';
+import type { Painting } from '@/sanity/types';
 
+/**
+ * The painting detail page. Data comes from the route's `loader` (see
+ * `src/routes.tsx`) so the painting is already in hand at build time —
+ * the pre-rendered HTML carries the painting-specific title, OG image,
+ * and JSON-LD that link-preview bots and crawlers need.
+ */
 export default function PaintingPage() {
+  const painting = useLoaderData() as Painting | null;
   const { t } = useLocale();
-  const { slug } = useParams<{ slug: string }>();
-  const state = usePainting(slug);
 
-  if (state.status === 'loading') {
+  if (!painting) {
     return (
       <section className="px-6 md:px-10 py-32 text-center">
-        <p className="text-ink/50 text-sm">{t('painting.loading')}</p>
-      </section>
-    );
-  }
-
-  if (state.status === 'error' || !state.data) {
-    return (
-      <section className="px-6 md:px-10 py-32 text-center">
-        <p className="text-[11px] uppercase tracking-[0.176em] text-teal">404</p>
+        <SEO
+          path="/work"
+          title="Painting not found"
+          description="The painting you're looking for isn't here."
+        />
+        <p className="text-[11px] uppercase tracking-[0.176em] text-teal">
+          404
+        </p>
         <h1 className="mt-6 font-display text-4xl md:text-6xl tracking-tightest">
           {t('painting.notFound')}
         </h1>
@@ -34,5 +39,5 @@ export default function PaintingPage() {
     );
   }
 
-  return <PaintingDetail painting={state.data} />;
+  return <PaintingDetail painting={painting} />;
 }

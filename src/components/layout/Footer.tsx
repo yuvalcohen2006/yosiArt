@@ -1,15 +1,12 @@
 import Logo from './Logo';
 import { useLocale } from '@/hooks/useLocale';
-
-/*
-  Real contact details, hardcoded for now. M11 swaps these to a
-  Sanity-driven `siteSettings` so dad can edit them himself.
-*/
-const EMAIL = 'Yosicohen164@gmail.com';
-const WHATSAPP_NUMBER = '97245241828';
-const WHATSAPP_DISPLAY = '+972 4 524-18-28';
-const INSTAGRAM_URL = 'https://www.instagram.com/_cohen_art';
-const INSTAGRAM_HANDLE = '@_cohen_art';
+import {
+  EMAIL,
+  INSTAGRAM_HANDLE,
+  INSTAGRAM_URL,
+  WHATSAPP_DISPLAY,
+  WHATSAPP_NUMBER,
+} from '@/lib/contact';
 
 /**
  * Editorial-style footer. Two zones:
@@ -47,7 +44,8 @@ export default function Footer() {
                 </p>
                 <a
                   href={`mailto:${EMAIL}`}
-                  className="text-sm text-ink/85 hover:text-teal transition-colors duration-300 whitespace-nowrap"
+                  dir="ltr"
+                  className="block text-sm text-ink/85 hover:text-teal transition-colors duration-300 whitespace-nowrap rtl:text-right"
                 >
                   {EMAIL}
                 </a>
@@ -60,20 +58,22 @@ export default function Footer() {
                   href={`https://wa.me/${WHATSAPP_NUMBER}`}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="text-sm text-ink/85 hover:text-teal transition-colors duration-300 whitespace-nowrap"
+                  dir="ltr"
+                  className="block text-sm text-ink/85 hover:text-teal transition-colors duration-300 whitespace-nowrap rtl:text-right"
                 >
                   {WHATSAPP_DISPLAY}
                 </a>
               </li>
               <li>
                 <p className="text-[10px] uppercase tracking-[0.176em] text-ink/45 mb-1.5">
-                  Instagram
+                  {t('contact.instagram')}
                 </p>
                 <a
                   href={INSTAGRAM_URL}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="text-sm text-ink/85 hover:text-teal transition-colors duration-300 whitespace-nowrap"
+                  dir="ltr"
+                  className="block text-sm text-ink/85 hover:text-teal transition-colors duration-300 whitespace-nowrap rtl:text-right"
                 >
                   {INSTAGRAM_HANDLE}
                 </a>

@@ -4,8 +4,8 @@ import { formatPrice } from '@/lib/formatPrice';
 import type { PaintingStatus } from '@/sanity/types';
 
 type Props = {
-  priceILS?: number;
-  priceUSD?: number;
+  priceILS?: number | null;
+  priceUSD?: number | null;
   status: PaintingStatus;
 };
 
@@ -30,7 +30,9 @@ export default function PriceTag({ priceILS, priceUSD, status }: Props) {
 
   const price = currency === 'ILS' ? priceILS : priceUSD;
 
-  if (price === undefined) {
+  // `==` here is intentional — Sanity returns `null` for empty number
+  // fields, but TypeScript's `?:` only models `undefined`. Catch both.
+  if (price == null) {
     return (
       <span className="font-display text-2xl text-ink/80">
         {t('painting.inquireForPrice')}

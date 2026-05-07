@@ -44,6 +44,12 @@
     "inquireForPrice": "Inquire for price",
     "inquireWhatsapp": "WhatsApp about this",
     "inquireEmail": "Email about this",
+    "commissionSimilar": "Email about commissioning similar",
+    "inquireWhatsappMessage": "Hi Yosi! I'd love to know more about \"{{title}}\" — {{url}}",
+    "inquireEmailSubject": "About \"{{title}}\"",
+    "inquireEmailBody": "Hi Yosi,\n\nI came across \"{{title}}\" on YosiArt and would love to know more.\n\n{{url}}\n\nThanks!",
+    "commissionEmailSubject": "Commissioning a piece similar to \"{{title}}\"",
+    "commissionEmailBody": "Hi Yosi,\n\nI noticed \"{{title}}\" has been sold, but I'd love a similar piece. Do you take commissions?\n\n{{url}}\n\nThanks!",
     "viewLarger": "Click to enlarge",
     "related": "More in this collection",
     "loading": "Loading…",
@@ -57,8 +63,10 @@
   "contact": {
     "tagline": "Reach out",
     "title": "Contact",
+    "intro": "Something caught your eye? You're warmly welcome to reach out — about a particular piece, a commission, or just to say hello. Every message reaches us directly.",
     "email": "Email",
     "whatsapp": "WhatsApp",
+    "instagram": "Instagram",
     "stub": "Real contact details slot in via Sanity once the CMS is online (milestone 5). Until then these are placeholders."
   },
   "notFound": {

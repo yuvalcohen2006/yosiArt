@@ -35,6 +35,7 @@ export const PAINTINGS_QUERY = /* groq */ `
     priceUSD,
     status,
     featured,
+    previewImage,
     images
   }
 `;
@@ -53,6 +54,7 @@ export const PAINTINGS_BY_CATEGORY_QUERY = /* groq */ `
     _id,
     title,
     "slug": slug.current,
+    previewImage,
     images,
     priceILS,
     priceUSD,
@@ -75,6 +77,7 @@ export const PAINTING_BY_SLUG_QUERY = /* groq */ `
     priceUSD,
     status,
     featured,
+    previewImage,
     images
   }
 `;
@@ -88,6 +91,7 @@ export const RELATED_PAINTINGS_QUERY = /* groq */ `
     title,
     "slug": slug.current,
     "category": category->{ title, "slug": slug.current },
+    previewImage,
     images,
     priceILS,
     priceUSD,

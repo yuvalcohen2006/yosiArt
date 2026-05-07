@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion';
-import type { ReactNode } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { useLayoutEffect, useRef, type ReactNode } from 'react';
 
 type Props = {
   children: ReactNode;
@@ -22,6 +22,11 @@ type Props = {
  * first paint — `Reveal` is for things that should arrive on scroll.
  *
  * Respects `prefers-reduced-motion` automatically (Framer ships this).
+ *
+ * While the children are still at opacity 0 (haven't entered view yet)
+ * the wrapper carries `inert`, so links and buttons inside can't be
+ * tab-focused or clicked through invisible regions. Cleared as soon as
+ * the element scrolls into view.
  */
 export default function Reveal({
   children,
@@ -31,12 +36,22 @@ export default function Reveal({
   amount = 0.2,
   className,
 }: Props) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, amount });
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (inView) el.removeAttribute('inert');
+    else el.setAttribute('inert', '');
+  }, [inView]);
+
   return (
     <motion.div
+      ref={ref}
       className={className}
       initial={{ opacity: 0, y: distance }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount }}
+      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: distance }}
       transition={{
         duration,
         delay,

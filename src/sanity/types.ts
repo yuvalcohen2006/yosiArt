@@ -32,14 +32,18 @@ export type Painting = {
   slug: string;
   /** GROQ-resolved category title — populated by joins in queries.ts. */
   category?: { title: LocalizedString; slug: string };
-  description?: LocalizedText;
-  year?: number;
-  medium?: LocalizedString;
-  dimensions?: { widthCm?: number; heightCm?: number };
-  priceILS?: number;
-  priceUSD?: number;
+  description?: LocalizedText | null;
+  year?: number | null;
+  medium?: LocalizedString | null;
+  dimensions?: { widthCm?: number | null; heightCm?: number | null } | null;
+  // Sanity returns `null` (not `undefined`) for empty number fields, so
+  // models that talk to the CDN need to admit `null` explicitly.
+  priceILS?: number | null;
+  priceUSD?: number | null;
   status: PaintingStatus;
   featured?: boolean;
+  /** Tight crop for grid cards. Falls back to `images[0]` when not set. */
+  previewImage?: SanityImage | null;
   images: SanityImage[];
 };
 

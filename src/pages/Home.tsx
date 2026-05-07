@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useLocale } from '@/hooks/useLocale';
@@ -7,6 +8,7 @@ import { urlFor } from '@/sanity/imageUrl';
 import Reveal from '@/components/fx/Reveal';
 import HeroCarousel from '@/components/hero/HeroCarousel';
 import AnimatedHeadline from '@/components/hero/AnimatedHeadline';
+import SEO from '@/components/seo/SEO';
 
 const FALLBACK_CATEGORY_KEYS = [
   'originals',
@@ -28,6 +30,62 @@ export default function Home() {
   // starts scrolling, its job is done — fade it out.
   const cueOpacity = useTransform(scrollY, [0, 200], [1, 0]);
 
+  // Hero CTAs fade in after a 1.2s delay. Block pointer events until
+  // the entrance animation finishes so the invisible links can't be
+  // clicked through during the fade-up.
+  const [ctaReady, setCtaReady] = useState(false);
+
+  // Anchor the scroll cue to the hero title's geometry: vertically the
+  // line spans the full height of both headline lines (plus a touch),
+  // horizontally it sits at the midpoint of the gap between the title's
+  // right edge and the screen's right edge.
+  const sectionRef = useRef<HTMLElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const line1Ref = useRef<HTMLSpanElement>(null);
+  const line2Ref = useRef<HTMLSpanElement>(null);
+  const [cueGeom, setCueGeom] = useState<{
+    top: number;
+    right: number;
+    height: number;
+  } | null>(null);
+
+  useLayoutEffect(() => {
+    const measure = () => {
+      const section = sectionRef.current;
+      const title = titleRef.current;
+      const l1 = line1Ref.current;
+      const l2 = line2Ref.current;
+      if (!section || !title || !l1 || !l2) return;
+      const sectionRect = section.getBoundingClientRect();
+      const titleRect = title.getBoundingClientRect();
+      const r1 = l1.getBoundingClientRect();
+      const r2 = l2.getBoundingClientRect();
+      const titleRight = Math.max(r1.right, r2.right);
+      const screenW = window.innerWidth;
+      const gap = screenW - titleRight;
+      if (gap <= 0) {
+        setCueGeom(null);
+        return;
+      }
+      // Slightly taller than the title — "even a bit bigger".
+      const height = titleRect.height * 1.08;
+      setCueGeom({
+        top: titleRect.top - sectionRect.top - (height - titleRect.height) / 2,
+        right: gap / 2,
+        height,
+      });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (titleRef.current) ro.observe(titleRef.current);
+    if (sectionRef.current) ro.observe(sectionRef.current);
+    window.addEventListener('resize', measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [locale]);
+
   const cards =
     categoriesState.status === 'success' && categoriesState.data.length > 0
       ? categoriesState.data.map((c) => ({
@@ -45,9 +103,16 @@ export default function Home() {
 
   return (
     <>
+      <SEO
+        path="/"
+        description="Original acrylic paintings by Yosi Cohen — rabbis, exodus, retro, movies, and one-of-a-kind originals. Painted with intent."
+      />
       {/* Hero — full-bleed, with cross-fading featured paintings behind
           and an animated headline up front. */}
-      <section className="relative overflow-hidden min-h-[calc(100svh-72px)] flex items-center">
+      <section
+        ref={sectionRef}
+        className="relative overflow-hidden min-h-[calc(100svh-72px)] flex items-center"
+      >
         <HeroCarousel className="absolute inset-0" />
 
         <motion.div
@@ -57,23 +122,34 @@ export default function Home() {
           <p className="text-[14px] uppercase tracking-[0.176em] text-ink/55">
             {t('home.tagline')}
           </p>
-          <h1 className="mt-7 font-hero tracking-tight leading-[0.98] text-ink">
+          <h1
+            ref={titleRef}
+            className="mt-7 font-hero tracking-tight leading-[0.98] text-ink"
+          >
             <span className="block text-6xl sm:text-7xl md:text-8xl lg:text-[8rem]">
-              <AnimatedHeadline text={t('home.headline1')} />
+              <span ref={line1Ref} className="inline-block">
+                <AnimatedHeadline text={t('home.headline1')} />
+              </span>
             </span>
             <span className="block text-6xl sm:text-7xl md:text-8xl lg:text-[8rem] italic">
-              <AnimatedHeadline
-                text={t('home.headline2')}
-                delay={0.45}
-                staggerPer={0.045}
-              />
+              <span ref={line2Ref} className="inline-block">
+                <AnimatedHeadline
+                  text={t('home.headline2')}
+                  delay={0.45}
+                  staggerPer={0.045}
+                />
+              </span>
             </span>
           </h1>
           <motion.div
-            className="mt-12 flex items-center gap-6 flex-wrap"
+            className={[
+              'mt-12 flex items-center gap-6 flex-wrap',
+              ctaReady ? '' : 'pointer-events-none',
+            ].join(' ')}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.2, duration: 0.6, ease: [0.22, 0.61, 0.36, 1] }}
+            onAnimationComplete={() => setCtaReady(true)}
           >
             <Link
               to="/works"
@@ -91,33 +167,26 @@ export default function Home() {
           </motion.div>
         </motion.div>
 
-        {/* Scroll cue — pushed into the centre of the right margin (not
-            hugging the edge) so it owns its own visual zone. A taller
-            track + a "light beam" gradient pulse passing through it,
-            framed by tiny anchor dots at each end for an instrument-panel
-            feel. Fades out as the visitor scrolls past the hero. */}
-        <motion.div
-          aria-hidden
-          style={{ opacity: cueOpacity }}
-          className="absolute right-12 md:right-16 lg:right-24 xl:right-[8vw] bottom-16 md:bottom-20 z-10 hidden md:block pointer-events-none"
-        >
-          <div className="relative h-36 md:h-44 w-px bg-ink/25">
-            {/* Anchor dots — tiny markers at both ends of the track. */}
-            <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-ink/45" />
-            <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-ink/45" />
-
-            {/* Falling pulse — gradient bar; reads as "light passing through". */}
+        {/* Scroll cue — a clean thin track aligned vertically to the hero
+            title (slightly taller than its two lines), centred horizontally
+            in the empty band between the title's right edge and the screen
+            edge. A black indicator slides down the track. Fades out as the
+            visitor scrolls past the hero. */}
+        {cueGeom && (
+          <motion.div
+            aria-hidden
+            style={{
+              opacity: cueOpacity,
+              top: cueGeom.top,
+              right: cueGeom.right,
+              height: cueGeom.height,
+            }}
+            className="absolute z-10 hidden md:block pointer-events-none w-px bg-ink/25"
+          >
             <motion.div
-              className="absolute left-1/2 -translate-x-1/2 w-px"
-              style={{
-                height: '40px',
-                background:
-                  'linear-gradient(to bottom, transparent 0%, rgb(53,53,53) 50%, transparent 100%)',
-              }}
-              animate={{
-                top: ['-12%', '112%'],
-                opacity: [0, 1, 1, 0],
-              }}
+              className="absolute left-1/2 -translate-x-1/2 w-px bg-ink"
+              style={{ height: '32px' }}
+              animate={{ top: ['-12%', '112%'], opacity: [0, 1, 1, 0] }}
               transition={{
                 duration: 2.8,
                 repeat: Infinity,
@@ -126,14 +195,17 @@ export default function Home() {
                 times: [0, 0.15, 0.85, 1],
               }}
             />
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
       </section>
 
       {/* Categories teaser — fetched from Sanity, falls back to hardcoded
           keys until the dataset is populated. */}
-      <section className="px-6 md:px-12 lg:px-16 py-24">
+      <section className="px-6 md:px-12 lg:px-16 pt-8 pb-8">
         <div className="mx-auto max-w-5xl">
+          {/* Section break — visual transition out of the animated hero
+              and into the editorial body of the page. */}
+          <div className="hairline mb-24" />
           <Reveal>
             <div className="flex items-baseline justify-between mb-12">
               <h2 className="font-display text-3xl md:text-4xl tracking-tight">
@@ -143,7 +215,10 @@ export default function Home() {
                 to="/works"
                 className="text-xs uppercase tracking-[0.176em] text-ink/55 hover:text-teal transition-colors duration-300"
               >
-                {t('home.seeAll')} →
+                {t('home.seeAll')}{' '}
+                <span aria-hidden className="inline-block rtl:rotate-180">
+                  →
+                </span>
               </Link>
             </div>
           </Reveal>
@@ -163,13 +238,14 @@ export default function Home() {
                         .url()}
                       alt=""
                       loading="lazy"
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-gallery group-hover:scale-[1.06]"
+                      className="absolute inset-0 h-full w-full object-cover transition-[transform,filter] duration-700 ease-gallery group-hover:scale-[1.06] group-hover:brightness-105 group-hover:saturate-110"
                     />
                   )}
-                  {/* Persistent dark gradient — keeps title legible against any image. */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/35 to-transparent" />
-                  {/* Hover wash — deepens the whole card */}
-                  <div className="absolute inset-0 bg-ink/0 transition-colors duration-500 group-hover:bg-ink/25" />
+                  {/* Bottom-only scrim — keeps the label legible without
+                      muddying the upper two-thirds of the artwork. The
+                      gradient ends well before the midpoint so foggy /
+                      low-contrast paintings still read true. */}
+                  <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-ink/90 via-ink/20 to-transparent" />
 
                   {/* Bottom row: label (with optional eyebrow on hover) + arrow */}
                   <div className="absolute inset-x-0 bottom-0 p-5 flex items-end justify-between gap-3">
@@ -183,7 +259,7 @@ export default function Home() {
                     </div>
                     <span
                       aria-hidden
-                      className="text-paper text-2xl opacity-0 -translate-x-3 rtl:translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-gallery"
+                      className="inline-block text-paper text-2xl opacity-0 -translate-x-3 rtl:translate-x-3 rtl:rotate-180 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-gallery"
                     >
                       →
                     </span>

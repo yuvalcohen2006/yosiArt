@@ -6,7 +6,7 @@ import type { LocalizedString, LocalizedText } from '@/sanity/types';
  * across languages so we never show a blank if just one was filled in.
  */
 export function pickLocale(
-  value: LocalizedString | LocalizedText | undefined,
+  value: LocalizedString | LocalizedText | null | undefined,
   locale: Locale,
   fallback = '',
 ): string {

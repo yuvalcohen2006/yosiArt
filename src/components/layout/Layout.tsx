@@ -2,6 +2,7 @@ import Header from './Header';
 import Footer from './Footer';
 import PaperBackground from '../fx/PaperBackground';
 import AnimatedOutlet from '../fx/AnimatedOutlet';
+import ScrollToTop from '../fx/ScrollToTop';
 
 /**
  * Root layout. Sticky header, page content via AnimatedOutlet (cross-fade
@@ -11,6 +12,7 @@ import AnimatedOutlet from '../fx/AnimatedOutlet';
 export default function Layout() {
   return (
     <div className="min-h-screen flex flex-col">
+      <ScrollToTop />
       <PaperBackground />
       <Header />
       <main className="flex-1">

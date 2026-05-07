@@ -13,12 +13,33 @@ export default defineType({
   fields: [
     // --- core ---
     defineField({
+      name: 'previewImage',
+      title: 'Preview image (gallery cards)',
+      group: 'core',
+      type: 'image',
+      description:
+        'Shown on the Works grid and category pages as the card thumbnail. Pick a tightly-cropped, high-impact framing — the detail view uses a separate full image below. Optional: if left blank, the first detail image is used as a fallback.',
+      options: { hotspot: true },
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt text (English)',
+          type: 'string',
+        }),
+        defineField({
+          name: 'altHe',
+          title: 'Alt text (Hebrew)',
+          type: 'string',
+        }),
+      ],
+    }),
+    defineField({
       name: 'images',
-      title: 'Images',
+      title: 'Detail images',
       group: 'core',
       type: 'array',
       description:
-        'First image is used as the thumbnail and the social-share preview. Add more for detail / in-context shots.',
+        'Shown on the painting detail page (first image is the hero, the rest open in the lightbox gallery). Use the full, untrimmed painting plus any in-context / detail shots.',
       of: [
         defineArrayMember({
           type: 'image',
@@ -159,18 +180,26 @@ export default defineType({
     select: {
       titleEn: 'title.en',
       titleHe: 'title.he',
-      media: 'images.0',
+      previewMedia: 'previewImage',
+      detailMedia: 'images.0',
       status: 'status',
       categoryEn: 'category.title.en',
     },
-    prepare({ titleEn, titleHe, media, status, categoryEn }) {
+    prepare({
+      titleEn,
+      titleHe,
+      previewMedia,
+      detailMedia,
+      status,
+      categoryEn,
+    }) {
       const subtitleParts = [categoryEn, status && status !== 'available' ? status.toUpperCase() : null]
         .filter(Boolean)
         .join(' · ');
       return {
         title: titleEn || titleHe || 'Untitled',
         subtitle: subtitleParts || undefined,
-        media,
+        media: previewMedia ?? detailMedia,
       };
     },
   },
