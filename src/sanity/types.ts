@@ -7,6 +7,9 @@ export type LocalizedString = { en?: string; he?: string };
 export type LocalizedText = { en?: string; he?: string };
 
 export type SanityImage = {
+  /** Stable key Sanity adds to array members. Undefined for standalone
+   *  image fields (siteSettings.artistPhoto, painting.previewImage). */
+  _key?: string;
   _type?: 'image';
   asset: { _ref: string; _type: 'reference' };
   hotspot?: { x: number; y: number; height: number; width: number };
@@ -41,10 +44,19 @@ export type Painting = {
   priceILS?: number | null;
   priceUSD?: number | null;
   status: PaintingStatus;
-  featured?: boolean;
   /** Tight crop for grid cards. Falls back to `images[0]` when not set. */
   previewImage?: SanityImage | null;
   images: SanityImage[];
+};
+
+/**
+ * `homeMedia` singleton — controls the visuals on the home page that
+ * aren't paintings: the cycling hero carousel images, and the OG image
+ * used when the bare site URL is shared on WhatsApp / IG.
+ */
+export type HomeMedia = {
+  heroImages?: SanityImage[] | null;
+  ogImage?: SanityImage | null;
 };
 
 /** Portable Text shape — kept loose until we render rich text in M11. */
@@ -62,5 +74,4 @@ export type SiteSettings = {
   };
   social?: { instagram?: string; facebook?: string };
   studioAddress?: LocalizedText;
-  ogDefault?: SanityImage;
 };

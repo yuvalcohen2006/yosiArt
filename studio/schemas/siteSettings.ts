@@ -13,7 +13,6 @@ export default defineType({
     { name: 'brand', title: 'Brand', default: true },
     { name: 'about', title: 'About / Bio' },
     { name: 'contact', title: 'Contact & Social' },
-    { name: 'social', title: 'Social previews' },
   ],
   fields: [
     // --- brand ---
@@ -101,17 +100,6 @@ export default defineType({
       group: 'contact',
       type: 'localizedText',
       description: 'Optional — shown on the contact page.',
-    }),
-
-    // --- social previews ---
-    defineField({
-      name: 'ogDefault',
-      title: 'Default social-share image',
-      group: 'social',
-      type: 'image',
-      description:
-        'Fallback image used for link previews on WhatsApp, Instagram, Facebook when no painting-specific image is available. 1200x630 ideal.',
-      options: { hotspot: true },
     }),
   ],
   preview: {

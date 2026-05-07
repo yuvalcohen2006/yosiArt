@@ -28,17 +28,22 @@ export default defineConfig({
     types: schemaTypes,
   },
 
-  // Singleton handling for siteSettings: hide it from the global "+ New"
-  // menu, and remove the duplicate/delete actions on the doc itself.
+  // Singleton handling for siteSettings + homeMedia: hide them from
+  // the global "+ New" menu, and remove the duplicate/delete actions
+  // on each so there's never more than one of either.
   document: {
     newDocumentOptions: (prev, { creationContext }) => {
       if (creationContext.type === 'global') {
-        return prev.filter((option) => option.templateId !== 'siteSettings');
+        return prev.filter(
+          (option) =>
+            option.templateId !== 'siteSettings' &&
+            option.templateId !== 'homeMedia',
+        );
       }
       return prev;
     },
     actions: (prev, { schemaType }) => {
-      if (schemaType === 'siteSettings') {
+      if (schemaType === 'siteSettings' || schemaType === 'homeMedia') {
         return prev.filter(
           ({ action }) => action !== 'duplicate' && action !== 'delete',
         );

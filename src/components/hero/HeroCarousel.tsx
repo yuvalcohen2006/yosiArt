@@ -1,36 +1,42 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useFeaturedPaintings } from '@/hooks/useFeaturedPaintings';
 import { urlFor } from '@/sanity/imageUrl';
+import type { SanityImage } from '@/sanity/types';
 
 const ROTATE_MS = 7000;
 const FADE_S = 1.4;
 
-type Props = { className?: string };
+type Props = {
+  /** Images uploaded under "Home Media → Hero carousel images" in
+   *  Sanity. Cycle behind the headline; max 8. */
+  images?: SanityImage[];
+  className?: string;
+};
 
 /**
- * Cinematic backdrop for the hero. Cross-fades through featured paintings
- * every ~7 seconds with a 1.4s easing. A soft top-to-bottom scrim keeps
- * any layered text legible. Renders nothing when no featured paintings
- * exist yet — the page stays clean while dad fills the dataset.
+ * Cinematic backdrop for the hero. Cross-fades through the supplied
+ * images every ~7 seconds with a 1.4s easing. A soft top-to-bottom
+ * scrim keeps any layered text legible. Renders nothing when no
+ * images are configured — the page stays clean while dad fills the
+ * `homeMedia.heroImages` array in the studio.
  *
  * Pauses rotation when the tab is hidden (saves bandwidth / avoids the
  * "fast-forward" effect when you tab back in after a while).
  */
-export default function HeroCarousel({ className = '' }: Props) {
-  const state = useFeaturedPaintings();
+export default function HeroCarousel({
+  images = [],
+  className = '',
+}: Props) {
   const [index, setIndex] = useState(0);
 
-  const items = state.status === 'success' ? state.data : [];
-
   useEffect(() => {
-    if (items.length < 2) return;
+    if (images.length < 2) return;
     let id: ReturnType<typeof setInterval> | null = null;
 
     const start = () => {
       if (id !== null) return;
       id = setInterval(
-        () => setIndex((i) => (i + 1) % items.length),
+        () => setIndex((i) => (i + 1) % images.length),
         ROTATE_MS,
       );
     };
@@ -48,24 +54,23 @@ export default function HeroCarousel({ className = '' }: Props) {
       stop();
       document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [items.length]);
+  }, [images.length]);
 
-  if (items.length === 0) return null;
+  if (images.length === 0) return null;
 
-  const current = items[index];
-  const image = current.images?.[0];
-  if (!image) return null;
+  const current = images[index];
+  if (!current) return null;
+  // Each carousel slide needs a stable key. Sanity image objects come
+  // with `_key` for array members; fall back to the asset reference if
+  // _key is missing (defensive — shouldn't happen in practice).
+  const key = current._key ?? current.asset?._ref ?? `hero-${index}`;
 
   return (
-    // Note: don't add `relative` here — Home.tsx passes
-    // `absolute inset-0`, and Tailwind's `.relative` is defined after
-    // `.absolute` in the compiled CSS, so both together resolve to
-    // `position: relative` and the carousel collapses to 0×0.
     <div className={`overflow-hidden ${className}`} aria-hidden>
       <AnimatePresence mode="sync" initial={false}>
         <motion.img
-          key={current._id}
-          src={urlFor(image).width(2400).auto('format').url()}
+          key={key}
+          src={urlFor(current).width(2400).auto('format').url()}
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
           initial={{ opacity: 0, scale: 1.04 }}

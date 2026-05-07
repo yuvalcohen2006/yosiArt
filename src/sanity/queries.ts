@@ -19,7 +19,7 @@ export const CATEGORIES_QUERY = /* groq */ `
 `;
 
 export const PAINTINGS_QUERY = /* groq */ `
-  *[_type == "painting"] | order(featured desc, _createdAt desc) {
+  *[_type == "painting"] | order(_createdAt desc) {
     _id,
     title,
     "slug": slug.current,
@@ -34,18 +34,15 @@ export const PAINTINGS_QUERY = /* groq */ `
     priceILS,
     priceUSD,
     status,
-    featured,
     previewImage,
     images
   }
 `;
 
-export const FEATURED_PAINTINGS_QUERY = /* groq */ `
-  *[_type == "painting" && featured == true && status != "sold"] | order(_createdAt desc) [0...8] {
-    _id,
-    title,
-    "slug": slug.current,
-    images
+export const HOME_MEDIA_QUERY = /* groq */ `
+  *[_type == "homeMedia"][0] {
+    heroImages,
+    ogImage
   }
 `;
 
@@ -58,8 +55,7 @@ export const PAINTINGS_BY_CATEGORY_QUERY = /* groq */ `
     images,
     priceILS,
     priceUSD,
-    status,
-    featured
+    status
   }
 `;
 
@@ -76,7 +72,6 @@ export const PAINTING_BY_SLUG_QUERY = /* groq */ `
     priceILS,
     priceUSD,
     status,
-    featured,
     previewImage,
     images
   }
@@ -107,7 +102,6 @@ export const SITE_SETTINGS_QUERY = /* groq */ `
     artistPhoto,
     contact,
     social,
-    studioAddress,
-    ogDefault
+    studioAddress
   }
 `;

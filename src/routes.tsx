@@ -10,9 +10,14 @@ import NotFound from './pages/NotFound';
 import { sanityClient } from './sanity/client';
 import {
   CATEGORIES_QUERY,
+  HOME_MEDIA_QUERY,
   PAINTING_BY_SLUG_QUERY,
 } from './sanity/queries';
-import type { Category as CategoryDoc, Painting } from './sanity/types';
+import type {
+  Category as CategoryDoc,
+  HomeMedia,
+  Painting,
+} from './sanity/types';
 
 /*
   Routes use vite-react-ssg's `RouteRecord` (a superset of react-router's
@@ -42,22 +47,14 @@ export const routes: RouteRecord[] = [
         path: '/',
         element: <Home />,
         loader: async () => {
-          // Pull the most-recent featured painting at build time so
-          // the home page's OG card has a real painting in it (instead
-          // of falling back to the static /og-default.jpg, which can
-          // be the wrong size / aspect for WhatsApp's big-banner
-          // preview format).
-          const featured = await sanityClient.fetch<Pick<
-            Painting,
-            '_id' | 'previewImage' | 'images'
-          > | null>(
-            `*[_type == "painting" && featured == true && status != "sold"] | order(_createdAt desc)[0]{
-              _id,
-              previewImage,
-              images
-            }`,
+          // Pull the homeMedia singleton at build time. Provides the
+          // hero carousel images (cycle behind the headline) and the
+          // OG share image used when yosiart.vercel.app is pasted
+          // into a WhatsApp / IG message.
+          const homeMedia = await sanityClient.fetch<HomeMedia | null>(
+            HOME_MEDIA_QUERY,
           );
-          return { featured };
+          return { homeMedia };
         },
       },
       { path: '/works', element: <Works /> },

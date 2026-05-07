@@ -6,6 +6,7 @@ import localizedPortableText from './localizedPortableText';
 import painting from './painting';
 import category from './category';
 import siteSettings from './siteSettings';
+import homeMedia from './homeMedia';
 
 export const schemaTypes: SchemaTypeDefinition[] = [
   // Reusable bilingual primitives
@@ -16,4 +17,5 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   painting,
   category,
   siteSettings,
+  homeMedia,
 ];

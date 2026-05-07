@@ -134,16 +134,6 @@ export default defineType({
         }),
       ],
     }),
-    defineField({
-      name: 'featured',
-      title: 'Featured on home page',
-      group: 'details',
-      type: 'boolean',
-      description:
-        'Featured paintings rotate through the home-page hero carousel.',
-      initialValue: false,
-    }),
-
     // --- pricing & status ---
     defineField({
       name: 'priceILS',

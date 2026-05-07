@@ -10,10 +10,10 @@ import Spinner from '@/components/fx/Spinner';
 import HeroCarousel from '@/components/hero/HeroCarousel';
 import AnimatedHeadline from '@/components/hero/AnimatedHeadline';
 import SEO from '@/components/seo/SEO';
-import type { Painting, SanityImage } from '@/sanity/types';
+import type { HomeMedia, SanityImage } from '@/sanity/types';
 
 type HomeLoaderData = {
-  featured: Pick<Painting, '_id' | 'previewImage' | 'images'> | null;
+  homeMedia: HomeMedia | null;
 };
 
 /**
@@ -109,17 +109,16 @@ export default function Home() {
   const { t, locale } = useLocale();
   const categoriesState = useCategories();
 
-  // Build-time loader provides a featured painting; we use its image
-  // as the OG card source so shared yosiart.vercel.app links show a
-  // real painting (with black-bar letterbox to fit 1200x630). Falls
-  // back to the static /og-default.jpg when nothing is featured.
+  // Build-time loader provides the homeMedia singleton (hero carousel
+  // images + OG share image, both editable in Sanity). The OG image
+  // is letterboxed onto a 1200x630 black canvas so shared site URLs
+  // get the big-banner WhatsApp preview format regardless of the
+  // uploaded image's aspect ratio.
   const loaderData = useLoaderData() as HomeLoaderData | undefined;
-  const featuredImg =
-    loaderData?.featured?.previewImage ??
-    loaderData?.featured?.images?.[0] ??
-    null;
-  const homeOgImage = featuredImg
-    ? urlFor(featuredImg)
+  const heroImages = loaderData?.homeMedia?.heroImages ?? [];
+  const ogImageSrc = loaderData?.homeMedia?.ogImage ?? null;
+  const homeOgImage = ogImageSrc
+    ? urlFor(ogImageSrc)
         .width(1200)
         .height(630)
         .fit('fill')
@@ -214,13 +213,14 @@ export default function Home() {
         description="Original acrylic paintings by Yosi Cohen — rabbis, exodus, retro, movies, and one-of-a-kind originals. Painted with intent."
         image={homeOgImage}
       />
-      {/* Hero — full-bleed, with cross-fading featured paintings behind
-          and an animated headline up front. */}
+      {/* Hero — full-bleed, with the cycling images from
+          `homeMedia.heroImages` cross-fading behind, and an animated
+          headline up front. */}
       <section
         ref={sectionRef}
         className="relative overflow-hidden min-h-[calc(100svh-72px)] flex items-center"
       >
-        <HeroCarousel className="absolute inset-0" />
+        <HeroCarousel images={heroImages} className="absolute inset-0" />
 
         <motion.div
           style={{ opacity: heroOpacity, y: heroY }}

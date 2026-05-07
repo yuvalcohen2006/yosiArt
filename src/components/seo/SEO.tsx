@@ -5,7 +5,6 @@ const SITE_TAGLINE = 'Acrylic on canvas';
 const SITE_BASE_URL = 'https://yosiart.vercel.app';
 const DEFAULT_DESCRIPTION =
   'Original acrylic paintings by Yosi Cohen. Rabbis, Exodus, Retro, Movies, and one-of-a-kind originals.';
-const DEFAULT_OG_IMAGE = `${SITE_BASE_URL}/og-default.jpg`;
 
 type Props = {
   /** Page title — gets suffixed with " · YosiArt" automatically. Pass
@@ -16,8 +15,11 @@ type Props = {
   /** Path of the current page, e.g. "/works" or "/work/exodus-splitting-the-sea".
    *  Used to build the canonical URL + og:url. */
   path: string;
-  /** Absolute URL of the OG / twitter image (1200×630 recommended).
-   *  Falls back to the site-wide default. */
+  /** Absolute URL of the OG / twitter image (1200×630 recommended). When
+   *  omitted the page renders without an `og:image` tag (link previews
+   *  will show a text-only card). The home page and painting pages
+   *  always pass one — set the home OG via the `homeMedia.ogImage`
+   *  field in Sanity. */
   image?: string;
   /** OpenGraph type. "article" for paintings, otherwise "website". */
   type?: 'website' | 'article';
@@ -41,7 +43,7 @@ export default function SEO({
   title,
   description = DEFAULT_DESCRIPTION,
   path,
-  image = DEFAULT_OG_IMAGE,
+  image,
   type = 'website',
   jsonLd,
 }: Props) {
@@ -66,16 +68,19 @@ export default function SEO({
       <meta property="og:url" content={url} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
-      <meta property="og:image" content={image} />
-      <meta property="og:image:width" content="1200" />
-      <meta property="og:image:height" content="630" />
+      {image && <meta property="og:image" content={image} />}
+      {image && <meta property="og:image:width" content="1200" />}
+      {image && <meta property="og:image:height" content="630" />}
 
       {/* Twitter card — separate spec but same data; both are needed
           for full coverage across platforms. */}
-      <meta name="twitter:card" content="summary_large_image" />
+      <meta
+        name="twitter:card"
+        content={image ? 'summary_large_image' : 'summary'}
+      />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={image} />
+      {image && <meta name="twitter:image" content={image} />}
 
       {/* JSON-LD structured data — invisible markup that tells search
           engines what kind of thing this page is (e.g. a painting). */}

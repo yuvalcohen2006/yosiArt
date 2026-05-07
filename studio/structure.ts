@@ -17,6 +17,14 @@ export const deskStructure = (S: StructureBuilder) =>
             .schemaType('siteSettings')
             .documentId('siteSettings'),
         ),
+      S.listItem()
+        .title('Home Media')
+        .id('homeMedia')
+        .child(
+          S.document()
+            .schemaType('homeMedia')
+            .documentId('homeMedia'),
+        ),
       S.divider(),
       S.documentTypeListItem('painting').title('Paintings'),
       S.documentTypeListItem('category').title('Categories'),
