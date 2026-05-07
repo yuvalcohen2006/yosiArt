@@ -70,8 +70,11 @@ export default function HeroCarousel({ className = '' }: Props) {
           transition={{ duration: FADE_S, ease: [0.22, 0.61, 0.36, 1] }}
         />
       </AnimatePresence>
-      {/* Scrim: keeps headline legible without flattening the painting. */}
-      <div className="absolute inset-0 bg-gradient-to-b from-paper/50 via-paper/40 to-paper/90" />
+      {/* Scrim — barely-there at the top, transparent through the
+          middle so the painting reads at full strength behind the
+          headline, then tightening at the bottom to keep the "View
+          Works / About the artist" links legible. */}
+      <div className="absolute inset-0 bg-gradient-to-b from-paper/20 via-paper/5 to-paper/55" />
     </div>
   );
 }
