@@ -78,21 +78,24 @@ export default function PaintingDetail({ painting }: Props) {
   // detail image. Sized to OG's recommended 1200×630 with a focal-point
   // crop so the hotspot from the studio stays in frame.
   const ogSource = painting.previewImage ?? heroImage;
-  // OG image — letterbox the painting into a 1200×630 landscape banner
-  // with black bars on the sides (or top+bottom). `ignoreImageParams()`
-  // disables Sanity's auto-applied focal-point crop, otherwise the
-  // builder silently switches "fit fill" back to "crop" to match the
-  // target aspect ratio.
-  const ogImage = ogSource
-    ? urlFor(ogSource)
-        .ignoreImageParams()
-        .width(1200)
-        .height(630)
-        .fit('fill')
-        .bg('000000')
-        .auto('format')
-        .url()
-    : undefined;
+  // OG image — prefer the artist's pre-composed 1200×630 share card if
+  // they uploaded one (served at native size, no transform). Otherwise
+  // letterbox the painting itself onto a 1200×630 black canvas.
+  // `ignoreImageParams()` disables Sanity's auto-applied focal-point
+  // crop, which would otherwise silently turn `fit=fill` back into
+  // `fit=crop` and chop the painting.
+  const ogImage = painting.ogImage
+    ? urlFor(painting.ogImage).ignoreImageParams().auto('format').url()
+    : ogSource
+      ? urlFor(ogSource)
+          .ignoreImageParams()
+          .width(1200)
+          .height(630)
+          .fit('fill')
+          .bg('000000')
+          .auto('format')
+          .url()
+      : undefined;
 
   // JSON-LD: tells Google "this page is a VisualArtwork" using
   // schema.org's vocabulary. Lets paintings show up cleanly in image

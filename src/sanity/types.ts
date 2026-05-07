@@ -46,6 +46,10 @@ export type Painting = {
   status: PaintingStatus;
   /** Tight crop for grid cards. Falls back to `images[0]` when not set. */
   previewImage?: SanityImage | null;
+  /** Pre-composed 1200×630 share-card image. Served as-is to OG link
+   *  bots when set; falls back to a letterboxed `previewImage` /
+   *  `images[0]` when unset. */
+  ogImage?: SanityImage | null;
   images: SanityImage[];
 };
 

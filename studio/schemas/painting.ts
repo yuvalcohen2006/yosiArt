@@ -34,6 +34,22 @@ export default defineType({
       ],
     }),
     defineField({
+      name: 'ogImage',
+      title: 'Share image — pre-composed (optional)',
+      group: 'core',
+      type: 'image',
+      description:
+        'Used as the preview card when this painting URL is pasted into WhatsApp / IG / FB. Upload a 1200×630 image with whatever framing you want — black bars, white bars, asymmetric, custom typography overlay, etc. Optional: if left blank, the painting itself is letterboxed onto a 1200×630 black canvas.',
+      options: { hotspot: true },
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt text',
+          type: 'string',
+        }),
+      ],
+    }),
+    defineField({
       name: 'images',
       title: 'Detail images',
       group: 'core',

@@ -73,6 +73,7 @@ export const PAINTING_BY_SLUG_QUERY = /* groq */ `
     priceUSD,
     status,
     previewImage,
+    ogImage,
     images
   }
 `;

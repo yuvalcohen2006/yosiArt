@@ -7,21 +7,21 @@ import SEO from '@/components/seo/SEO';
   and dad will be able to edit it in the Studio.
 */
 const BIO_HE = `שלום,
-שמי יוסי, אמן צייר עצמאי המתמחה בצבעי אקריליק ורישומים צבעוניים.
+אני יוסי, אמן צייר ישראלי, מתמחה בציורי אקריליק ורישומים בעפרונות צבעוניים.
 
-עולם האמנות שלי מושפע מחיי היום-יום, מסצנות מסרטי קולנוע ומהאמונה היהודית. כל יצירה שלי היא ניסיון ללכוד רגע, רגש או זיכרון, ולהפוך אותם לכתמי צבע שמספרים סיפור.
+עולם האמנות שלי מושפע בעיקר מחיי היום-יום, ממפגשים עם דמויות, נופים וסיטואציות המובאות בסרטי קולנוע מפורסמים, מעולם הכדורגל ומהאמונה היהודית. כל יצירה שלי היא ניסיון ללכוד רגע, רגש או זיכרון, ולהפוך אותם לכתמי צבע שמספרים סיפור.
 
-אני מאמין שאמנות היא הדרך הטובה ביותר לתקשר מעבר למילים, והיא מייצרת חיבור עמוק וישיר עם הצופה. המטרה — לעורר רגשות, תחושות ומחשבות, ובעיקר ליהנות.
+אני מאמין שאמנות היא הדרך הטובה ביותר לתקשר מעבר למילים, והיא מייצרת חיבור עמוק וישיר עם הצופה. המטרה — לעורר רגשות, תחושות ומחשבות, ובעיקר ליהנות ולהתרגש.
 
-העבודות שלי משלבות בין שני סגנונות — היפר-ריאליזם ואבסטרקט — והתוצאה הסופית היא שילוב בין הצבעים והקומפוזיציה.`;
+העבודות שלי משלבות בין שני סגנונות — היפר-ריאליזם ואבסטרקט. התוצאה היא שילוב מושלם בין כתמי צבע וקומפוזיציה.`;
 
-const BIO_EN = `Hello — my name is Yosi. I'm a self-taught artist working primarily in acrylic paints and color drawings.
+const BIO_EN = `Hello — I'm Yosi, an Israeli painter specialising in acrylic paintings and coloured-pencil drawings.
 
-My world is shaped by everyday life, scenes from cinema, and Jewish faith. Every piece is an attempt to capture a moment, a feeling, or a memory and turn them into strokes of color that tell a story.
+My world is shaped mostly by everyday life: encounters with people, landscapes, and scenes drawn from famous films, from the world of football, and from the Jewish faith. Every piece is an attempt to capture a moment, a feeling, or a memory and turn them into strokes of colour that tell a story.
 
-I believe art is the most powerful way to communicate beyond words — it creates a deep, direct connection with the viewer. My goal is to stir emotions, sensations, and thoughts, and above all, to bring joy.
+I believe art is the most powerful way to communicate beyond words — it creates a deep, direct connection with the viewer. The goal: to stir emotions, sensations, and thoughts, and above all, to bring joy and wonder.
 
-My work moves between two languages — hyper-realism and abstraction — and the result is a balance of color and composition that I'm always chasing.`;
+My work moves between two languages — hyper-realism and abstraction. The result is a perfect balance of colour and composition.`;
 
 export default function About() {
   const { t, locale } = useLocale();

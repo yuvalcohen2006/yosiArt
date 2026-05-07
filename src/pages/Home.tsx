@@ -225,7 +225,7 @@ export default function Home() {
 
         <motion.div
           style={{ opacity: heroOpacity, y: heroY }}
-          className="relative z-10 mx-auto max-w-5xl w-full px-6 md:px-12 lg:px-16"
+          className="relative z-10 mx-auto max-w-5xl w-full px-8 sm:px-10 md:px-12 lg:px-16"
         >
           <p className="text-[14px] uppercase tracking-[0.176em] text-ink/55">
             {t('home.tagline')}
