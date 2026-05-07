@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLoaderData } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useLocale } from '@/hooks/useLocale';
 import { useCategories } from '@/hooks/useCategories';
@@ -10,7 +10,11 @@ import Spinner from '@/components/fx/Spinner';
 import HeroCarousel from '@/components/hero/HeroCarousel';
 import AnimatedHeadline from '@/components/hero/AnimatedHeadline';
 import SEO from '@/components/seo/SEO';
-import type { SanityImage } from '@/sanity/types';
+import type { Painting, SanityImage } from '@/sanity/types';
+
+type HomeLoaderData = {
+  featured: Pick<Painting, '_id' | 'previewImage' | 'images'> | null;
+};
 
 /**
  * One card in the categories teaser grid on the home page. Each card
@@ -105,6 +109,25 @@ export default function Home() {
   const { t, locale } = useLocale();
   const categoriesState = useCategories();
 
+  // Build-time loader provides a featured painting; we use its image
+  // as the OG card source so shared yosiart.vercel.app links show a
+  // real painting (with black-bar letterbox to fit 1200x630). Falls
+  // back to the static /og-default.jpg when nothing is featured.
+  const loaderData = useLoaderData() as HomeLoaderData | undefined;
+  const featuredImg =
+    loaderData?.featured?.previewImage ??
+    loaderData?.featured?.images?.[0] ??
+    null;
+  const homeOgImage = featuredImg
+    ? urlFor(featuredImg)
+        .width(1200)
+        .height(630)
+        .fit('fill')
+        .bg('000000')
+        .auto('format')
+        .url()
+    : undefined;
+
   // Parallax on the hero text — fades and lifts as you scroll past.
   const { scrollY } = useScroll();
   const heroOpacity = useTransform(scrollY, [0, 480], [1, 0.15]);
@@ -189,6 +212,7 @@ export default function Home() {
       <SEO
         path="/"
         description="Original acrylic paintings by Yosi Cohen — rabbis, exodus, retro, movies, and one-of-a-kind originals. Painted with intent."
+        image={homeOgImage}
       />
       {/* Hero — full-bleed, with cross-fading featured paintings behind
           and an animated headline up front. */}

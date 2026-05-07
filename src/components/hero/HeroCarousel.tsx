@@ -57,7 +57,11 @@ export default function HeroCarousel({ className = '' }: Props) {
   if (!image) return null;
 
   return (
-    <div className={`relative overflow-hidden ${className}`} aria-hidden>
+    // Note: don't add `relative` here — Home.tsx passes
+    // `absolute inset-0`, and Tailwind's `.relative` is defined after
+    // `.absolute` in the compiled CSS, so both together resolve to
+    // `position: relative` and the carousel collapses to 0×0.
+    <div className={`overflow-hidden ${className}`} aria-hidden>
       <AnimatePresence mode="sync" initial={false}>
         <motion.img
           key={current._id}

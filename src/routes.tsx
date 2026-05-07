@@ -38,7 +38,28 @@ export const routes: RouteRecord[] = [
   {
     element: <Layout />,
     children: [
-      { path: '/', element: <Home /> },
+      {
+        path: '/',
+        element: <Home />,
+        loader: async () => {
+          // Pull the most-recent featured painting at build time so
+          // the home page's OG card has a real painting in it (instead
+          // of falling back to the static /og-default.jpg, which can
+          // be the wrong size / aspect for WhatsApp's big-banner
+          // preview format).
+          const featured = await sanityClient.fetch<Pick<
+            Painting,
+            '_id' | 'previewImage' | 'images'
+          > | null>(
+            `*[_type == "painting" && featured == true && status != "sold"] | order(_createdAt desc)[0]{
+              _id,
+              previewImage,
+              images
+            }`,
+          );
+          return { featured };
+        },
+      },
       { path: '/works', element: <Works /> },
       {
         path: '/works/:category',
