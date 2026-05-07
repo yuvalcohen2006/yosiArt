@@ -117,21 +117,15 @@ export default function Home() {
   const loaderData = useLoaderData() as HomeLoaderData | undefined;
   const heroImages = loaderData?.homeMedia?.heroImages ?? [];
   const ogImageSrc = loaderData?.homeMedia?.ogImage ?? null;
-  // `ignoreImageParams()` is what actually produces a letterbox: without
-  // it, Sanity auto-applies a focal-point crop to match the target
-  // aspect ratio, which silently turns "fill + bg" into "crop". With it,
-  // the original image keeps its aspect and the leftover canvas gets
-  // filled with the bg colour — black bars on the sides for a portrait
-  // upload, top/bottom for a landscape one.
+  // The home OG image is hand-composed by the artist at exactly 1200×630
+  // (white bar on the left, painting in the middle, black bar on the
+  // right — whatever asymmetric framing they want). We serve it through
+  // Sanity's CDN at native size with no transformation — `ignoreImageParams`
+  // skips any auto-applied focal-point crop, and `auto('format')` lets
+  // the CDN deliver WebP/AVIF to browsers that ask for it (link-preview
+  // bots get the original JPEG/PNG via content negotiation).
   const homeOgImage = ogImageSrc
-    ? urlFor(ogImageSrc)
-        .ignoreImageParams()
-        .width(1200)
-        .height(630)
-        .fit('fill')
-        .bg('000000')
-        .auto('format')
-        .url()
+    ? urlFor(ogImageSrc).ignoreImageParams().auto('format').url()
     : undefined;
 
   // Parallax on the hero text — fades and lifts as you scroll past.
