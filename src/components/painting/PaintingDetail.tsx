@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLocale } from '@/hooks/useLocale';
@@ -6,6 +6,8 @@ import { pickLocale } from '@/lib/pickLocale';
 import { urlFor } from '@/sanity/imageUrl';
 import { useRelatedPaintings } from '@/hooks/usePainting';
 import Reveal from '@/components/fx/Reveal';
+import Spinner from '@/components/fx/Spinner';
+import { getImageDims } from '@/lib/sanityImageMeta';
 import PaintingCard from '@/components/gallery/PaintingCard';
 import PriceTag from './PriceTag';
 import InquireButtons from './InquireButtons';
@@ -39,6 +41,16 @@ export default function PaintingDetail({ painting }: Props) {
     : '';
 
   const heroImage = painting.images?.[0];
+  // Intrinsic dimensions parsed from the Sanity asset reference. Used
+  // as <img width/height> attributes so the browser reserves the
+  // correct aspect-ratio'd box before the image bytes arrive (no more
+  // text jumping when the image lands).
+  const heroDims = getImageDims(heroImage);
+  const heroImgRef = useRef<HTMLImageElement>(null);
+  const [heroLoaded, setHeroLoaded] = useState(false);
+  useEffect(() => {
+    if (heroImgRef.current?.complete) setHeroLoaded(true);
+  }, []);
   const meta = [
     painting.year ? String(painting.year) : null,
     medium || null,
@@ -146,10 +158,32 @@ export default function PaintingDetail({ painting }: Props) {
               className="relative block overflow-hidden cursor-pointer"
               aria-label={t('painting.viewLarger')}
             >
+              {/* Loading skeleton — sized to the image's actual aspect
+                  ratio so the rest of the page (title, meta, price,
+                  buttons) sits at its final position from the first
+                  paint. Fades out as soon as the image is decoded. */}
+              <div
+                aria-hidden
+                className={[
+                  'absolute inset-0 flex items-center justify-center bg-mist/30 transition-opacity duration-500',
+                  heroLoaded
+                    ? 'opacity-0 pointer-events-none'
+                    : 'opacity-100 animate-pulse',
+                ].join(' ')}
+              >
+                <Spinner className="h-8 w-8 text-ink/40" />
+              </div>
               <img
+                ref={heroImgRef}
                 src={urlFor(heroImage).width(1400).auto('format').url()}
                 alt={heroImage.alt ?? title}
-                className="block w-auto max-w-full max-h-[70vh] object-contain"
+                width={heroDims?.width}
+                height={heroDims?.height}
+                onLoad={() => setHeroLoaded(true)}
+                className={[
+                  'block w-auto max-w-full max-h-[70vh] object-contain transition-opacity duration-500',
+                  heroLoaded ? 'opacity-100' : 'opacity-0',
+                ].join(' ')}
               />
             </motion.button>
           </div>

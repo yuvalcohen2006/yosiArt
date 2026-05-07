@@ -11,7 +11,7 @@ import type { Painting } from '@/sanity/types';
  * and JSON-LD that link-preview bots and crawlers need.
  */
 export default function PaintingPage() {
-  const painting = useLoaderData() as Painting | null;
+  const painting = (useLoaderData() as Painting | null | undefined) ?? null;
   const { t } = useLocale();
 
   if (!painting) {

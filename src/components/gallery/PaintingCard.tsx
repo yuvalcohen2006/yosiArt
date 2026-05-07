@@ -1,15 +1,18 @@
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLocale } from '@/hooks/useLocale';
 import { pickLocale } from '@/lib/pickLocale';
 import { urlFor } from '@/sanity/imageUrl';
+import Spinner from '@/components/fx/Spinner';
 import type { Painting } from '@/sanity/types';
 
 type Props = { painting: Painting };
 
 /**
  * Single card in the works grid. Image fills a 4:5 portrait aspect
- * (works for most acrylic canvases). On hover the image scales gently
- * and the title shifts to teal. Links to the painting detail page.
+ * (works for most acrylic canvases). While the image loads we show a
+ * pulsing placeholder + a small circle spinner so the card never looks
+ * empty. On hover the image scales gently and the title shifts to teal.
  */
 export default function PaintingCard({ painting }: Props) {
   const { locale } = useLocale();
@@ -23,18 +26,48 @@ export default function PaintingCard({ painting }: Props) {
   const image = painting.previewImage ?? painting.images?.[0];
   const isSold = painting.status === 'sold';
 
+  // Track image load state so the placeholder can fade out once the
+  // bytes arrive. Handle the cached / SSR case via the `complete` flag
+  // — onLoad doesn't fire if the image was already loaded before React
+  // attached its handler.
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    if (imgRef.current?.complete) setLoaded(true);
+  }, []);
+
   return (
     <Link
       to={`/work/${painting.slug}`}
       className="group block relative overflow-hidden bg-mist/40 aspect-[4/5]"
       aria-label={title}
     >
+      {/* Loading skeleton — a soft pulsing wash with a tiny spinner
+          centred. Fades out as soon as the image is ready. */}
+      <div
+        aria-hidden
+        className={[
+          'absolute inset-0 flex items-center justify-center bg-mist/40 transition-opacity duration-500',
+          loaded ? 'opacity-0 pointer-events-none' : 'opacity-100 animate-pulse',
+        ].join(' ')}
+      >
+        <Spinner className="h-5 w-5 text-ink/35" />
+      </div>
+
       {image && (
         <img
+          ref={imgRef}
           src={urlFor(image).width(800).height(1000).auto('format').url()}
           alt={image.alt ?? title}
           loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover transition-[transform,filter] duration-700 ease-gallery contrast-[1.06] saturate-[1.12] group-hover:scale-[1.04] group-hover:contrast-[1.1] group-hover:saturate-[1.22] group-hover:brightness-[1.04]"
+          width={800}
+          height={1000}
+          onLoad={() => setLoaded(true)}
+          className={[
+            'absolute inset-0 h-full w-full object-cover transition-[transform,filter,opacity] duration-700 ease-gallery contrast-[1.06] saturate-[1.12]',
+            'group-hover:scale-[1.04] group-hover:contrast-[1.1] group-hover:saturate-[1.22] group-hover:brightness-[1.04]',
+            loaded ? 'opacity-100' : 'opacity-0',
+          ].join(' ')}
         />
       )}
 

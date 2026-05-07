@@ -14,9 +14,12 @@ type LoaderData = {
 export default function Category() {
   const { t, locale } = useLocale();
   const { category: categorySlug } = useParams<{ category: string }>();
-  // Build-time loader hands the matched category in directly so the
-  // SEO block has the title before render.
-  const { current: currentCategory } = useLoaderData() as LoaderData;
+  // Build-time loader hands the matched category in directly so the SEO
+  // block has the title before render. We default to `null` if the
+  // loader hasn't run yet (e.g. dev-mode HMR replacing the component
+  // without re-registering the route's loader).
+  const loaderData = useLoaderData() as LoaderData | undefined;
+  const currentCategory = loaderData?.current ?? null;
 
   const paintingsState = usePaintings(categorySlug);
   const paintings =

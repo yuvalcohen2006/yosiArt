@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useLocale } from '@/hooks/useLocale';
@@ -6,9 +6,92 @@ import { useCategories } from '@/hooks/useCategories';
 import { pickLocale } from '@/lib/pickLocale';
 import { urlFor } from '@/sanity/imageUrl';
 import Reveal from '@/components/fx/Reveal';
+import Spinner from '@/components/fx/Spinner';
 import HeroCarousel from '@/components/hero/HeroCarousel';
 import AnimatedHeadline from '@/components/hero/AnimatedHeadline';
 import SEO from '@/components/seo/SEO';
+import type { SanityImage } from '@/sanity/types';
+
+/**
+ * One card in the categories teaser grid on the home page. Each card
+ * tracks its own image-loaded state so the placeholder + spinner only
+ * stay until that specific card's image arrives.
+ */
+type TeaserCard = {
+  id: string;
+  slug: string;
+  label: string;
+  coverImage: SanityImage | undefined;
+};
+
+function CategoryTeaserCard({
+  card,
+  viewWorksLabel,
+}: {
+  card: TeaserCard;
+  viewWorksLabel: string;
+}) {
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    if (imgRef.current?.complete) setLoaded(true);
+  }, []);
+
+  return (
+    <Link
+      to={`/works/${card.slug}`}
+      className="group relative block aspect-[3/4] overflow-hidden bg-ink/10 border border-ink/10 transition-colors duration-500 hover:border-ink/30"
+    >
+      {/* Loading skeleton — paper-textured pulse + small light spinner.
+          Fades out as soon as the cover image finishes loading. */}
+      <div
+        aria-hidden
+        className={[
+          'absolute inset-0 flex items-center justify-center bg-ink/20 transition-opacity duration-500',
+          loaded ? 'opacity-0 pointer-events-none' : 'opacity-100 animate-pulse',
+        ].join(' ')}
+      >
+        <Spinner className="h-6 w-6 text-paper/50" />
+      </div>
+      {card.coverImage && (
+        <img
+          ref={imgRef}
+          src={urlFor(card.coverImage).width(600).height(800).auto('format').url()}
+          alt=""
+          loading="lazy"
+          width={600}
+          height={800}
+          onLoad={() => setLoaded(true)}
+          className={[
+            'absolute inset-0 h-full w-full object-cover transition-[transform,filter,opacity] duration-700 ease-gallery group-hover:scale-[1.06] group-hover:brightness-105 group-hover:saturate-110',
+            loaded ? 'opacity-100' : 'opacity-0',
+          ].join(' ')}
+        />
+      )}
+      {/* Bottom-only scrim — keeps the label legible without
+          muddying the upper two-thirds of the artwork. */}
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-ink/90 via-ink/20 to-transparent" />
+
+      {/* Bottom row: label (with optional eyebrow on hover) + arrow */}
+      <div className="absolute inset-x-0 bottom-0 p-5 flex items-end justify-between gap-3">
+        <div className="transition-transform duration-500 ease-gallery group-hover:-translate-y-1.5">
+          <span className="block text-[10px] uppercase tracking-[0.176em] text-paper/70 opacity-0 group-hover:opacity-100 transition-opacity duration-500 mb-1">
+            {viewWorksLabel}
+          </span>
+          <span className="font-display text-xl md:text-2xl text-paper">
+            {card.label}
+          </span>
+        </div>
+        <span
+          aria-hidden
+          className="inline-block text-paper text-2xl opacity-0 -translate-x-3 rtl:translate-x-3 rtl:rotate-180 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-gallery"
+        >
+          →
+        </span>
+      </div>
+    </Link>
+  );
+}
 
 const FALLBACK_CATEGORY_KEYS = [
   'originals',
@@ -225,46 +308,10 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-8">
             {cards.map((card, i) => (
               <Reveal key={card.id} delay={i * 0.06}>
-                <Link
-                  to={`/works/${card.slug}`}
-                  className="group relative block aspect-[3/4] overflow-hidden bg-ink/10 border border-ink/10 transition-colors duration-500 hover:border-ink/30"
-                >
-                  {card.coverImage && (
-                    <img
-                      src={urlFor(card.coverImage)
-                        .width(600)
-                        .height(800)
-                        .auto('format')
-                        .url()}
-                      alt=""
-                      loading="lazy"
-                      className="absolute inset-0 h-full w-full object-cover transition-[transform,filter] duration-700 ease-gallery group-hover:scale-[1.06] group-hover:brightness-105 group-hover:saturate-110"
-                    />
-                  )}
-                  {/* Bottom-only scrim — keeps the label legible without
-                      muddying the upper two-thirds of the artwork. The
-                      gradient ends well before the midpoint so foggy /
-                      low-contrast paintings still read true. */}
-                  <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-ink/90 via-ink/20 to-transparent" />
-
-                  {/* Bottom row: label (with optional eyebrow on hover) + arrow */}
-                  <div className="absolute inset-x-0 bottom-0 p-5 flex items-end justify-between gap-3">
-                    <div className="transition-transform duration-500 ease-gallery group-hover:-translate-y-1.5">
-                      <span className="block text-[10px] uppercase tracking-[0.176em] text-paper/70 opacity-0 group-hover:opacity-100 transition-opacity duration-500 mb-1">
-                        {t('home.viewWorks')}
-                      </span>
-                      <span className="font-display text-xl md:text-2xl text-paper">
-                        {card.label}
-                      </span>
-                    </div>
-                    <span
-                      aria-hidden
-                      className="inline-block text-paper text-2xl opacity-0 -translate-x-3 rtl:translate-x-3 rtl:rotate-180 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-gallery"
-                    >
-                      →
-                    </span>
-                  </div>
-                </Link>
+                <CategoryTeaserCard
+                  card={card}
+                  viewWorksLabel={t('home.viewWorks')}
+                />
               </Reveal>
             ))}
           </div>
