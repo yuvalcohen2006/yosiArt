@@ -78,14 +78,14 @@ export default function PaintingDetail({ painting }: Props) {
   // detail image. Sized to OG's recommended 1200×630 with a focal-point
   // crop so the hotspot from the studio stays in frame.
   const ogSource = painting.previewImage ?? heroImage;
-  // OG image — fit the painting into a 1200×630 landscape banner and
-  // pad the leftover space with solid black. WhatsApp/IG only show the
-  // big-banner preview format when the OG image is wider than tall, so
-  // we MUST end up at 1200×630, but `fit=crop` chopped portrait
-  // paintings unhelpfully — `fit=fill` + `bg=000000` letterboxes the
-  // full painting in the middle with black bars on either side.
+  // OG image — letterbox the painting into a 1200×630 landscape banner
+  // with black bars on the sides (or top+bottom). `ignoreImageParams()`
+  // disables Sanity's auto-applied focal-point crop, otherwise the
+  // builder silently switches "fit fill" back to "crop" to match the
+  // target aspect ratio.
   const ogImage = ogSource
     ? urlFor(ogSource)
+        .ignoreImageParams()
         .width(1200)
         .height(630)
         .fit('fill')

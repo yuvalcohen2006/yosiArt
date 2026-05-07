@@ -117,8 +117,15 @@ export default function Home() {
   const loaderData = useLoaderData() as HomeLoaderData | undefined;
   const heroImages = loaderData?.homeMedia?.heroImages ?? [];
   const ogImageSrc = loaderData?.homeMedia?.ogImage ?? null;
+  // `ignoreImageParams()` is what actually produces a letterbox: without
+  // it, Sanity auto-applies a focal-point crop to match the target
+  // aspect ratio, which silently turns "fill + bg" into "crop". With it,
+  // the original image keeps its aspect and the leftover canvas gets
+  // filled with the bg colour — black bars on the sides for a portrait
+  // upload, top/bottom for a landscape one.
   const homeOgImage = ogImageSrc
     ? urlFor(ogImageSrc)
+        .ignoreImageParams()
         .width(1200)
         .height(630)
         .fit('fill')
