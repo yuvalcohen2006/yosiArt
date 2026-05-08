@@ -219,7 +219,7 @@ export default function Home() {
           headline up front. */}
       <section
         ref={sectionRef}
-        className="relative overflow-hidden min-h-[calc(100svh-72px)] flex items-center"
+        className="relative overflow-hidden min-h-[calc(100dvh-72px)] flex items-center"
       >
         <HeroCarousel images={heroImages} className="absolute inset-0" />
 

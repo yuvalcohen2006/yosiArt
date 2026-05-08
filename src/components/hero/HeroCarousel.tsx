@@ -95,9 +95,11 @@ export default function HeroCarousel({
   return (
     <div className={`overflow-hidden ${className}`} aria-hidden>
       {/* Inner frame — centred, padded from the section edges, with
-          rounded corners. The image sits inside this. */}
+          rounded corners. The image sits inside this. On large screens
+          the vertical padding shrinks so more of the painting is
+          visible at top + bottom while the side gutters stay generous. */}
       <div
-        className="absolute inset-6 sm:inset-10 md:inset-16 lg:inset-20 overflow-hidden rounded-3xl"
+        className="absolute inset-6 sm:inset-10 md:inset-16 lg:inset-x-20 lg:inset-y-12 overflow-hidden rounded-3xl"
         style={{
           maskImage: softEdgeMask,
           WebkitMaskImage: softEdgeMask,

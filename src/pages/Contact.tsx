@@ -17,6 +17,17 @@ const LINK_CLASS = [
 export default function Contact() {
   const { t } = useLocale();
 
+  // Prefilled message + subject/body so the recipient knows the
+  // contact came in from the website. Same pattern the painting-page
+  // Inquire buttons use, just locale-aware copy without painting
+  // metadata.
+  const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+    t('contact.generalWhatsappMessage'),
+  )}`;
+  const emailHref = `mailto:${EMAIL}?subject=${encodeURIComponent(
+    t('contact.generalEmailSubject'),
+  )}&body=${encodeURIComponent(t('contact.generalEmailBody'))}`;
+
   return (
     <section className="px-6 md:px-12 lg:px-16 pt-8 md:pt-12 pb-20 md:pb-28">
       <SEO
@@ -66,7 +77,7 @@ export default function Contact() {
               {t('contact.email')}
             </p>
             <a
-              href={`mailto:${EMAIL}`}
+              href={emailHref}
               dir="ltr"
               className={LINK_CLASS}
             >
@@ -78,7 +89,7 @@ export default function Contact() {
               {t('contact.whatsapp')}
             </p>
             <a
-              href={`https://wa.me/${WHATSAPP_NUMBER}`}
+              href={whatsappHref}
               target="_blank"
               rel="noreferrer noopener"
               dir="ltr"
