@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLocale } from '@/hooks/useLocale';
 import { pickLocale } from '@/lib/pickLocale';
+import { pickAlt } from '@/lib/pickAlt';
 import { urlFor } from '@/sanity/imageUrl';
 import { useRelatedPaintings } from '@/hooks/usePainting';
 import Reveal from '@/components/fx/Reveal';
@@ -191,7 +192,7 @@ export default function PaintingDetail({ painting }: Props) {
               <img
                 ref={heroImgRef}
                 src={urlFor(heroImage).width(1400).auto('format').url()}
-                alt={heroImage.alt ?? title}
+                alt={pickAlt(heroImage, locale, title)}
                 width={heroDims?.width}
                 height={heroDims?.height}
                 onLoad={() => setHeroLoaded(true)}

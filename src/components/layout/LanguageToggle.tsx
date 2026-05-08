@@ -17,6 +17,7 @@ export default function LanguageToggle() {
         type="button"
         onClick={() => setLocale('en')}
         aria-pressed={locale === 'en'}
+        aria-label="Switch site language to English"
         className={[
           'transition-colors duration-300 hover:text-ink',
           locale === 'en' ? 'text-ink' : 'text-ink/35',
@@ -31,6 +32,7 @@ export default function LanguageToggle() {
         type="button"
         onClick={() => setLocale('he')}
         aria-pressed={locale === 'he'}
+        aria-label="החלף את שפת האתר לעברית"
         className={[
           'font-sans transition-colors duration-300 hover:text-ink',
           locale === 'he' ? 'text-ink' : 'text-ink/35',

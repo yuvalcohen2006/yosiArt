@@ -14,6 +14,25 @@
     scroll-behavior: smooth;
   }
 
+  /*
+    Visible focus ring for keyboard navigation. Uses `:focus-visible`
+    (not `:focus`) so it only appears for keyboard / assistive-tech
+    focus — clicking with a mouse keeps the existing hover-state look
+    with nothing extra on top.
+
+    Teal matches the accent colour the site uses for hover states on
+    nav links + painting card hovers, so the ring reads as "this is
+    the same kind of state, just triggered by a different input".
+  */
+  :focus {
+    outline: none;
+  }
+  :focus-visible {
+    outline: 2px solid theme('colors.teal');
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
   html[dir='rtl'] {
     /* Hebrew typography reads slightly cleaner with a touch of tracking. */
     letter-spacing: 0.005em;

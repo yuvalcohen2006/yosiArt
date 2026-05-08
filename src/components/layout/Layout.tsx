@@ -14,8 +14,18 @@ export default function Layout() {
     <div className="min-h-screen flex flex-col">
       <ScrollToTop />
       <PaperBackground />
+      {/* Skip-to-content — hidden until keyboard focus, then jumps the
+          user past the header straight into the main page content.
+          Lets screen-reader / keyboard users avoid tabbing through
+          the nav on every page. */}
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2 focus:bg-ink focus:text-paper focus:text-sm focus:uppercase focus:tracking-[0.176em] focus:rounded"
+      >
+        Skip to content
+      </a>
       <Header />
-      <main className="flex-1">
+      <main id="main" className="flex-1">
         <AnimatedOutlet />
       </main>
       <Footer />

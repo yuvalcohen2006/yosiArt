@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import Logo from './Logo';
 import LanguageToggle from './LanguageToggle';
@@ -41,6 +41,19 @@ export default function Header() {
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
+
+  // Make the closed mobile-menu fully inert: `pointer-events-none` +
+  // `aria-hidden` already cover mouse and screen-reader visibility,
+  // but Tab can still focus through it. The `inert` attribute removes
+  // those links from the focus order. Set imperatively because React
+  // 18 doesn't type `inert` on HTML props.
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = mobileMenuRef.current;
+    if (!el) return;
+    if (mobileOpen) el.removeAttribute('inert');
+    else el.setAttribute('inert', '');
+  }, [mobileOpen]);
 
   return (
     <>
@@ -109,6 +122,7 @@ export default function Header() {
 
       {/* Mobile menu overlay */}
       <div
+        ref={mobileMenuRef}
         aria-hidden={!mobileOpen}
         className={[
           'md:hidden fixed inset-0 z-30 bg-paper transition-opacity duration-300 ease-gallery',

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLocale } from '@/hooks/useLocale';
 import { pickLocale } from '@/lib/pickLocale';
+import { pickAlt } from '@/lib/pickAlt';
 import { urlFor } from '@/sanity/imageUrl';
 import Spinner from '@/components/fx/Spinner';
 import type { Painting } from '@/sanity/types';
@@ -58,7 +59,7 @@ export default function PaintingCard({ painting }: Props) {
         <img
           ref={imgRef}
           src={urlFor(image).width(800).height(1000).auto('format').url()}
-          alt={image.alt ?? title}
+          alt={pickAlt(image, locale, title)}
           loading="lazy"
           width={800}
           height={1000}
