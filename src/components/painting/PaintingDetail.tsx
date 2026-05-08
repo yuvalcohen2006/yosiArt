@@ -189,9 +189,21 @@ export default function PaintingDetail({ painting }: Props) {
               >
                 <Spinner className="h-8 w-8 text-ink/40" />
               </div>
+              {/* srcSet so phones pull a smaller variant. The
+                  rendered size (`max-w-full max-h-[70vh] object-contain`)
+                  doesn't change — the browser just downloads less data
+                  on small viewports. `sizes` reflects the column cap
+                  (max-w-2xl = 672px) on desktop and 92vw on mobile. */}
               <img
                 ref={heroImgRef}
                 src={urlFor(heroImage).width(1400).auto('format').url()}
+                srcSet={[700, 1400, 2000]
+                  .map(
+                    (w) =>
+                      `${urlFor(heroImage).width(w).auto('format').url()} ${w}w`,
+                  )
+                  .join(', ')}
+                sizes="(max-width: 768px) 92vw, 672px"
                 alt={pickAlt(heroImage, locale, title)}
                 width={heroDims?.width}
                 height={heroDims?.height}

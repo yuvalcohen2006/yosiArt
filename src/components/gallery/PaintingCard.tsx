@@ -58,7 +58,19 @@ export default function PaintingCard({ painting }: Props) {
       {image && (
         <img
           ref={imgRef}
+          // Three resolution variants — phones at low DPR pull the
+          // 400w version (~25 KB), tablets / mid-DPR phones get 800w,
+          // hi-DPR / desktop hover-zoom gets 1200w. CSS rendering is
+          // unchanged: the visual layout is still controlled by the
+          // surrounding aspect-[4/5] box + object-cover.
           src={urlFor(image).width(800).height(1000).auto('format').url()}
+          srcSet={[400, 800, 1200]
+            .map(
+              (w) =>
+                `${urlFor(image).width(w).height(Math.round(w * 1.25)).auto('format').url()} ${w}w`,
+            )
+            .join(', ')}
+          sizes="(max-width: 768px) 50vw, 25vw"
           alt={pickAlt(image, locale, title)}
           loading="lazy"
           width={800}
