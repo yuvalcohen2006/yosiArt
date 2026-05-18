@@ -223,6 +223,14 @@ export default function Home() {
       >
         <HeroCarousel images={heroImages} className="absolute inset-0" />
 
+        {/* Bottom fade — eases the painting toward the paper texture
+            across the lower portion of the hero, so the small "View
+            works / About the artist" links read clearly against it. */}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-paper via-paper/45 to-transparent pointer-events-none"
+        />
+
         <motion.div
           style={{ opacity: heroOpacity, y: heroY }}
           className="relative z-10 mx-auto max-w-5xl w-full px-10 sm:px-12 md:px-14 lg:px-16"
@@ -251,7 +259,7 @@ export default function Home() {
           </h1>
           <motion.div
             className={[
-              'mt-12 flex items-center gap-6 flex-wrap',
+              'mt-20 sm:mt-16 md:mt-12 flex items-center gap-6 flex-wrap',
               ctaReady ? '' : 'pointer-events-none',
             ].join(' ')}
             initial={{ opacity: 0, y: 12 }}
