@@ -38,6 +38,8 @@ export type Painting = {
   description?: LocalizedText | null;
   year?: number | null;
   medium?: LocalizedString | null;
+  /** Whether the piece is a canvas painting or a paper drawing. */
+  surface?: 'canvas' | 'paper' | null;
   dimensions?: { widthCm?: number | null; heightCm?: number | null } | null;
   // Sanity returns `null` (not `undefined`) for empty number fields, so
   // models that talk to the CDN need to admit `null` explicitly.

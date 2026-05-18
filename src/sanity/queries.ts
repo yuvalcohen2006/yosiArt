@@ -68,6 +68,7 @@ export const PAINTING_BY_SLUG_QUERY = /* groq */ `
     description,
     year,
     medium,
+    surface,
     dimensions,
     priceILS,
     priceUSD,

@@ -133,10 +133,27 @@ export default defineType({
       },
     }),
     defineField({
+      name: 'surface',
+      title: 'Surface',
+      group: 'details',
+      type: 'string',
+      description:
+        'Is this a painting on canvas, or a drawing on paper? Shown as a small tag on the painting page.',
+      options: {
+        list: [
+          { title: 'Canvas — painting', value: 'canvas' },
+          { title: 'Paper — drawing', value: 'paper' },
+        ],
+        layout: 'radio',
+      },
+    }),
+    defineField({
       name: 'dimensions',
       title: 'Dimensions',
       group: 'details',
       type: 'object',
+      description:
+        'Always enter the size in centimetres — the website shows a cm / inches toggle and converts automatically.',
       fields: [
         defineField({
           name: 'widthCm',

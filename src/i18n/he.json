@@ -53,7 +53,11 @@
     "viewLarger": "להגדלה",
     "related": "עוד מהאוסף",
     "loading": "טוען…",
-    "notFound": "ציור לא נמצא"
+    "notFound": "ציור לא נמצא",
+    "surfaceCanvas": "קנבס",
+    "surfacePaper": "נייר",
+    "unitCm": "ס״מ",
+    "unitIn": "אינץ׳"
   },
   "about": {
     "tagline": "האמן",

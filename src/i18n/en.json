@@ -53,7 +53,11 @@
     "viewLarger": "Click to enlarge",
     "related": "More in this collection",
     "loading": "Loading…",
-    "notFound": "Painting not found"
+    "notFound": "Painting not found",
+    "surfaceCanvas": "Canvas",
+    "surfacePaper": "Paper",
+    "unitCm": "cm",
+    "unitIn": "in"
   },
   "about": {
     "tagline": "The artist",

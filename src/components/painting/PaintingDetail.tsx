@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLocale } from '@/hooks/useLocale';
+import { useUnit, formatDimensions } from '@/hooks/useUnit';
 import { pickLocale } from '@/lib/pickLocale';
 import { pickAlt } from '@/lib/pickAlt';
 import { urlFor } from '@/sanity/imageUrl';
@@ -31,6 +32,7 @@ type Props = { painting: Painting };
  */
 export default function PaintingDetail({ painting }: Props) {
   const { t, locale } = useLocale();
+  const { unit, setUnit } = useUnit();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
@@ -52,13 +54,28 @@ export default function PaintingDetail({ painting }: Props) {
   useEffect(() => {
     if (heroImgRef.current?.complete) setHeroLoaded(true);
   }, []);
-  const meta = [
+  // Year + medium share the meta line; dimensions render separately
+  // because they carry an interactive cm / in unit toggle.
+  const metaText = [
     painting.year ? String(painting.year) : null,
     medium || null,
-    painting.dimensions?.widthCm && painting.dimensions?.heightCm
-      ? `${painting.dimensions.widthCm} × ${painting.dimensions.heightCm} cm`
-      : null,
-  ].filter(Boolean) as string[];
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  // Canvas-vs-paper tag.
+  const surfaceLabel = painting.surface
+    ? t(
+        painting.surface === 'canvas'
+          ? 'painting.surfaceCanvas'
+          : 'painting.surfacePaper',
+      )
+    : '';
+
+  // Dimensions — stored in cm, shown in the active unit via useUnit.
+  const widthCm = painting.dimensions?.widthCm;
+  const heightCm = painting.dimensions?.heightCm;
+  const hasDimensions = widthCm != null && heightCm != null;
 
   const relatedState = useRelatedPaintings(
     painting.category?.slug,
@@ -232,9 +249,62 @@ export default function PaintingDetail({ painting }: Props) {
             <h1 className="mt-5 font-display text-5xl md:text-6xl tracking-tightest leading-[1.05]">
               {title}
             </h1>
-            {meta.length > 0 && (
-              <p className="mt-6 text-[11px] uppercase tracking-[0.176em] text-ink/55">
-                {meta.join(' · ')}
+
+            {/* Meta row — surface tag (pill) + year · medium. */}
+            {(surfaceLabel || metaText) && (
+              <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+                {surfaceLabel && (
+                  <span className="inline-flex items-center border border-ink/25 rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.176em] text-ink/65">
+                    {surfaceLabel}
+                  </span>
+                )}
+                {metaText && (
+                  <span className="text-[11px] uppercase tracking-[0.176em] text-ink/55">
+                    {metaText}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* Dimensions — shown in the active unit, with a cm / in
+                toggle styled like the header's language / currency
+                switches. Always entered in cm in the studio. */}
+            {hasDimensions && (
+              <p className="mt-3 flex items-center gap-3 text-[11px] uppercase tracking-[0.176em] text-ink/55">
+                <span>{formatDimensions(widthCm, heightCm, unit)}</span>
+                <span
+                  role="group"
+                  aria-label="Measurement unit"
+                  className="inline-flex items-center"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setUnit('cm')}
+                    aria-pressed={unit === 'cm'}
+                    aria-label="Show dimensions in centimetres"
+                    className={[
+                      'transition-colors duration-300 hover:text-ink',
+                      unit === 'cm' ? 'text-ink' : 'text-ink/35',
+                    ].join(' ')}
+                  >
+                    {t('painting.unitCm')}
+                  </button>
+                  <span aria-hidden className="mx-1.5 text-ink/25">
+                    /
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setUnit('in')}
+                    aria-pressed={unit === 'in'}
+                    aria-label="Show dimensions in inches"
+                    className={[
+                      'transition-colors duration-300 hover:text-ink',
+                      unit === 'in' ? 'text-ink' : 'text-ink/35',
+                    ].join(' ')}
+                  >
+                    {t('painting.unitIn')}
+                  </button>
+                </span>
               </p>
             )}
           </Reveal>
