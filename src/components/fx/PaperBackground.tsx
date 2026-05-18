@@ -1,18 +1,26 @@
 /**
- * Notebook-style background — one continuous sheet of paper covering the
- * entire viewport. The container is `fixed inset-0`, so the texture stays
- * locked to the viewport during scroll (no `background-attachment: fixed`
- * required, which avoids the iOS Safari jank that flag is famous for).
+ * Notebook-style background — one continuous sheet of paper behind the
+ * whole site.
  *
- * `background-size: cover` makes a single image fill the viewport, so
- * there's never a tiling seam — the page reads as one unified sheet.
+ * The container is `position: fixed`, anchored to the top, and sized to
+ * `100lvh` (large viewport height — the viewport at its tallest, with
+ * the mobile address bar hidden). Sizing to the *largest* possible
+ * viewport rather than `inset-0` means it can never leave an uncovered
+ * white strip at the bottom when a fast scroll collapses the address
+ * bar faster than a viewport-tracking element can repaint. When the bar
+ * is showing, the sheet simply overflows below the fold — harmless.
+ *
+ * `background-size: cover` keeps the texture filling the sheet at its
+ * own aspect ratio (no stretch, no tiling seam). `fixed` keeps it from
+ * moving on scroll without `background-attachment: fixed`, which is
+ * famous for iOS Safari jank.
  *
  * Replace the texture file at `public/paper-texture.jpg`.
  */
 export default function PaperBackground() {
   return (
     <div
-      className="fixed inset-0 -z-10 pointer-events-none overflow-hidden"
+      className="fixed inset-x-0 top-0 h-[100lvh] -z-10 pointer-events-none overflow-hidden"
       aria-hidden
     >
       {/* The single, unified paper sheet. */}
