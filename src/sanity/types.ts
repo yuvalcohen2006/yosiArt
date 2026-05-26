@@ -46,12 +46,10 @@ export type Painting = {
   priceILS?: number | null;
   priceUSD?: number | null;
   status: PaintingStatus;
-  /** Tight crop for grid cards. Falls back to `images[0]` when not set. */
+  /** Tight crop for grid cards — also used as the OG share image,
+   *  letterboxed onto a 1200×630 black canvas. Falls back to
+   *  `images[0]` when not set. */
   previewImage?: SanityImage | null;
-  /** Pre-composed 1200×630 share-card image. Served as-is to OG link
-   *  bots when set; falls back to a letterboxed `previewImage` /
-   *  `images[0]` when unset. */
-  ogImage?: SanityImage | null;
   images: SanityImage[];
 };
 
