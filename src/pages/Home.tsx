@@ -143,17 +143,24 @@ export default function Home() {
 
   // Anchor the scroll cue to the hero title's geometry: vertically the
   // line spans the full height of both headline lines (plus a touch),
-  // horizontally it sits at the midpoint of the gap between the title's
-  // right edge and the screen's right edge.
+  // horizontally it sits in the empty band between the title and the
+  // screen edge. In LTR that band is on the right of the title; in
+  // RTL (Hebrew) the title is right-justified, so the band is on the
+  // left. We position with `right` or `left` accordingly.
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const line1Ref = useRef<HTMLSpanElement>(null);
   const line2Ref = useRef<HTMLSpanElement>(null);
   const [cueGeom, setCueGeom] = useState<{
     top: number;
-    right: number;
+    /** Distance from the active side of the viewport (right in LTR,
+     *  left in RTL). The render branch reads this into the matching
+     *  CSS property. */
+    sideOffset: number;
     height: number;
   } | null>(null);
+
+  const isRtl = locale === 'he';
 
   useLayoutEffect(() => {
     const measure = () => {
@@ -166,9 +173,14 @@ export default function Home() {
       const titleRect = title.getBoundingClientRect();
       const r1 = l1.getBoundingClientRect();
       const r2 = l2.getBoundingClientRect();
-      const titleRight = Math.max(r1.right, r2.right);
       const screenW = window.innerWidth;
-      const gap = screenW - titleRight;
+      // In LTR, measure the gap from the rightmost title edge to the
+      // screen's right edge. In RTL, the title hugs the right side, so
+      // the gap to use is on the LEFT — from the screen's left edge
+      // to the leftmost title edge.
+      const gap = isRtl
+        ? Math.min(r1.left, r2.left)
+        : screenW - Math.max(r1.right, r2.right);
       if (gap <= 0) {
         setCueGeom(null);
         return;
@@ -177,7 +189,7 @@ export default function Home() {
       const height = titleRect.height * 1.08;
       setCueGeom({
         top: titleRect.top - sectionRect.top - (height - titleRect.height) / 2,
-        right: gap / 2,
+        sideOffset: gap / 2,
         height,
       });
     };
@@ -190,7 +202,7 @@ export default function Home() {
       ro.disconnect();
       window.removeEventListener('resize', measure);
     };
-  }, [locale]);
+  }, [locale, isRtl]);
 
   const cards =
     categoriesState.status === 'success' && categoriesState.data.length > 0
@@ -283,18 +295,20 @@ export default function Home() {
           </motion.div>
         </motion.div>
 
-        {/* Scroll cue — a clean thin track aligned vertically to the hero
-            title (slightly taller than its two lines), centred horizontally
-            in the empty band between the title's right edge and the screen
-            edge. A black indicator slides down the track. Fades out as the
-            visitor scrolls past the hero. */}
+        {/* Scroll cue — a clean thin track aligned vertically to the
+            hero title (slightly taller than its two lines), centred
+            horizontally in the empty band between the title and the
+            screen edge. In LTR that band is on the right; in RTL the
+            title hugs the right side, so the band — and the cue —
+            mirror to the left. A black indicator slides down the
+            track. Fades out as the visitor scrolls past the hero. */}
         {cueGeom && (
           <motion.div
             aria-hidden
             style={{
               opacity: cueOpacity,
               top: cueGeom.top,
-              right: cueGeom.right,
+              [isRtl ? 'left' : 'right']: cueGeom.sideOffset,
               height: cueGeom.height,
             }}
             className="absolute z-10 hidden md:block pointer-events-none w-px bg-ink/25"

@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useLoaderData, useParams } from 'react-router-dom';
 import { useLocale } from '@/hooks/useLocale';
 import { usePaintings } from '@/hooks/usePaintings';
@@ -20,7 +21,16 @@ export default function Category() {
   // loader hasn't run yet (e.g. dev-mode HMR replacing the component
   // without re-registering the route's loader).
   const loaderData = useLoaderData() as LoaderData | undefined;
-  const currentCategory = loaderData?.current ?? null;
+  const liveCategory = loaderData?.current ?? null;
+
+  // During the exit phase of an AnimatePresence transition, react-router
+  // has already moved the matched route off this page — so `useLoaderData`
+  // returns `undefined` mid-exit and the localised title would briefly
+  // flash to the English slug fallback. Cache the last good category in
+  // a ref so the visible title stays stable while this page fades out.
+  const lastGoodCategoryRef = useRef<CategoryDoc | null>(null);
+  if (liveCategory) lastGoodCategoryRef.current = liveCategory;
+  const currentCategory = liveCategory ?? lastGoodCategoryRef.current;
 
   const paintingsState = usePaintings(categorySlug);
   const paintings =
