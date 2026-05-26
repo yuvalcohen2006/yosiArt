@@ -1,3 +1,5 @@
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import Header from './Header';
 import Footer from './Footer';
 import PaperBackground from '../fx/PaperBackground';
@@ -29,6 +31,14 @@ export default function Layout() {
         <AnimatedOutlet />
       </main>
       <Footer />
+      {/* Vercel Analytics — pageviews + referrers, privacy-friendly
+          (no cookies, no consent banner needed). Active only on the
+          live yosiart.vercel.app deployment; the scripts no-op during
+          dev / preview. */}
+      <Analytics />
+      {/* Vercel Speed Insights — Core Web Vitals from real visitors.
+          Same conditions as Analytics above. */}
+      <SpeedInsights />
     </div>
   );
 }
