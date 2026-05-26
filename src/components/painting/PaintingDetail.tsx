@@ -221,6 +221,10 @@ export default function PaintingDetail({ painting }: Props) {
                 alt={pickAlt(heroImage, locale, title)}
                 width={heroDims?.width}
                 height={heroDims?.height}
+                // LCP candidate on the painting page — fetch ahead of
+                // low-priority resources, decode off main thread.
+                fetchPriority="high"
+                decoding="async"
                 onLoad={() => setHeroLoaded(true)}
                 className={[
                   'block w-auto max-w-full max-h-[70vh] object-contain transition-opacity duration-500',

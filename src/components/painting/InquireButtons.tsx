@@ -10,8 +10,18 @@ import type { Painting } from '@/sanity/types';
 
 type Props = { painting: Painting };
 
-const buttonClass =
-  'flex-1 inline-flex items-center justify-center px-5 py-3 border border-ink/65 text-xs uppercase tracking-[0.176em] text-ink whitespace-nowrap hover:bg-ink hover:text-paper transition-colors duration-300';
+// Same border + hover-fill pattern as before, plus a quiet press
+// feedback: on `:active` (mouse-down or finger-tap) the button flips
+// to its filled state AND shrinks by 2 %, so the tap registers visually
+// before the external app (WhatsApp / mail client) takes over. No
+// toasts, no confirmation text — just the button reacting.
+const buttonClass = [
+  'flex-1 inline-flex items-center justify-center px-5 py-3',
+  'border border-ink/65 text-xs uppercase tracking-[0.176em] text-ink whitespace-nowrap',
+  'hover:bg-ink hover:text-paper',
+  'active:bg-ink active:text-paper active:scale-[0.98]',
+  'transition duration-200',
+].join(' ');
 
 /**
  * The "Inquire" button row on the painting detail page. Two channels for

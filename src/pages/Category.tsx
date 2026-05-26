@@ -4,6 +4,7 @@ import { usePaintings } from '@/hooks/usePaintings';
 import { pickLocale } from '@/lib/pickLocale';
 import CategoryFilter from '@/components/gallery/CategoryFilter';
 import PaintingGrid from '@/components/gallery/PaintingGrid';
+import PaintingGridSkeleton from '@/components/gallery/PaintingGridSkeleton';
 import SEO from '@/components/seo/SEO';
 import type { Category as CategoryDoc } from '@/sanity/types';
 
@@ -69,7 +70,7 @@ export default function Category() {
           with comfortable margins on either side. */}
       <div className="mx-auto max-w-5xl">
         {paintingsState.status === 'loading' ? (
-          <div className="text-ink/50 py-20">{t('works.loading')}</div>
+          <PaintingGridSkeleton />
         ) : paintings.length === 0 ? (
           <div className="text-ink/50 py-20">{t('works.empty')}</div>
         ) : (

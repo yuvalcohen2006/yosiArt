@@ -18,9 +18,12 @@ type Props = {
 };
 
 /** Build the displayed source URL for a hero image. Centralised so the
- *  preloader and the rendered <img> can't drift apart. */
+ *  preloader and the rendered <img> can't drift apart. 1600 w is
+ *  enough to look sharp at desktop@1x and at mobile@3x (covers the
+ *  vast majority of devices) without wasting bandwidth on a 2400 w
+ *  file that nothing actually displays at native resolution. */
 const sourceFor = (image: SanityImage): string =>
-  urlFor(image).width(2400).auto('format').url();
+  urlFor(image).width(1600).auto('format').url();
 
 /**
  * Cinematic backdrop for the hero. Cross-fades through the supplied
@@ -110,6 +113,11 @@ export default function HeroCarousel({
             key={key}
             src={sourceFor(current)}
             alt=""
+            // First slide is the home page's LCP candidate — hint to
+            // the browser to fetch it ahead of low-priority resources.
+            // `decoding="async"` lets it decode off the main thread.
+            fetchPriority={index === 0 ? 'high' : 'auto'}
+            decoding="async"
             className="absolute inset-0 w-full h-full object-cover"
             initial={{ opacity: 0, scale: 1.04 }}
             animate={{ opacity: IMAGE_OPACITY, scale: 1 }}
