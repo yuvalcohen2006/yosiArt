@@ -354,13 +354,12 @@ export default function Home() {
             </div>
           </Reveal>
           {/* Categories grid — 3 columns on desktop, 2 rows for the 6
-              categories. Capped to `max-w-lg` and centred so each
-              tile is roughly half the size it used to be (~160 px on
-              desktop), giving the section a tighter, more curated
-              feel. Mobile keeps the 2-up arrangement but at viewport
-              width — `max-w-lg` doesn't constrain anything narrower
-              than 32 rem. */}
-          <div className="mx-auto max-w-lg grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
+              categories. Capped to `max-w-2xl` and centred so each
+              tile is ~200 px on desktop (≈ 65 % of the original
+              full-width sizing). Gaps bumped to `gap-6 md:gap-8` so
+              the bigger tiles breathe. Mobile keeps the 2-up
+              arrangement at viewport width. */}
+          <div className="mx-auto max-w-2xl grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
             {cards.map((card, i) => (
               <Reveal key={card.id} delay={i * 0.06}>
                 <CategoryTeaserCard
