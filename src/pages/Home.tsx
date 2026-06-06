@@ -31,9 +31,13 @@ type TeaserCard = {
 function CategoryTeaserCard({
   card,
   viewWorksLabel,
+  compact = false,
 }: {
   card: TeaserCard;
   viewWorksLabel: string;
+  /** Tight variant used by the "6 in a row" layout — square aspect +
+   *  smaller label sizing so the cards read as a clean strip. */
+  compact?: boolean;
 }) {
   const imgRef = useRef<HTMLImageElement>(null);
   const [loaded, setLoaded] = useState(false);
@@ -44,7 +48,10 @@ function CategoryTeaserCard({
   return (
     <Link
       to={`/works/${card.slug}`}
-      className="group relative block aspect-[3/4] overflow-hidden bg-ink/10 border border-ink/10 transition-colors duration-500 hover:border-ink/30"
+      className={[
+        'group relative block overflow-hidden bg-ink/10 border border-ink/10 transition-colors duration-500 hover:border-ink/30',
+        compact ? 'aspect-square' : 'aspect-[3/4]',
+      ].join(' ')}
     >
       {/* Loading skeleton — paper-textured pulse + small light spinner.
           Fades out as soon as the cover image finishes loading. */}
@@ -76,22 +83,38 @@ function CategoryTeaserCard({
           muddying the upper two-thirds of the artwork. */}
       <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-ink/90 via-ink/20 to-transparent" />
 
-      {/* Bottom row: label (with optional eyebrow on hover) + arrow */}
-      <div className="absolute inset-x-0 bottom-0 p-5 flex items-end justify-between gap-3">
+      {/* Bottom row: label (with optional eyebrow on hover) + arrow.
+          Compact variant tightens padding + label sizing so the small
+          "6 in a row" tiles don't look squashed. */}
+      <div
+        className={[
+          'absolute inset-x-0 bottom-0 flex items-end justify-between gap-3',
+          compact ? 'p-3' : 'p-5',
+        ].join(' ')}
+      >
         <div className="transition-transform duration-500 ease-gallery group-hover:-translate-y-1.5">
-          <span className="block text-[10px] uppercase tracking-[0.176em] text-paper/70 opacity-0 group-hover:opacity-100 transition-opacity duration-500 mb-1">
-            {viewWorksLabel}
-          </span>
-          <span className="font-display text-xl md:text-2xl text-paper">
+          {!compact && (
+            <span className="block text-[10px] uppercase tracking-[0.176em] text-paper/70 opacity-0 group-hover:opacity-100 transition-opacity duration-500 mb-1">
+              {viewWorksLabel}
+            </span>
+          )}
+          <span
+            className={[
+              'font-display text-paper',
+              compact ? 'text-sm md:text-base' : 'text-xl md:text-2xl',
+            ].join(' ')}
+          >
             {card.label}
           </span>
         </div>
-        <span
-          aria-hidden
-          className="inline-block text-paper text-2xl opacity-0 -translate-x-3 rtl:translate-x-3 rtl:rotate-180 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-gallery"
-        >
-          →
-        </span>
+        {!compact && (
+          <span
+            aria-hidden
+            className="inline-block text-paper text-2xl opacity-0 -translate-x-3 rtl:translate-x-3 rtl:rotate-180 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-gallery"
+          >
+            →
+          </span>
+        )}
       </div>
     </Link>
   );
@@ -105,9 +128,17 @@ const FALLBACK_CATEGORY_KEYS = [
   'movies',
 ] as const;
 
+/** Temporary construction toggle for the categories grid. Two layouts
+ *  to compare: 3-up big tiles in two rows, or a single row of 6 small
+ *  tiles. State lives in the component (no persistence) — once a
+ *  layout is picked the toggle goes away. */
+type CategoriesLayout = 'big' | 'small';
+
 export default function Home() {
   const { t, locale } = useLocale();
   const categoriesState = useCategories();
+  const [categoriesLayout, setCategoriesLayout] =
+    useState<CategoriesLayout>('big');
 
   // Build-time loader provides the homeMedia singleton (hero carousel
   // images + OG share image, both editable in Sanity). The OG image
@@ -341,23 +372,50 @@ export default function Home() {
               <h2 className="font-display text-3xl md:text-4xl tracking-tight">
                 {t('home.bodiesOfWork')}
               </h2>
-              <Link
-                to="/works"
-                className="text-xs uppercase tracking-[0.176em] text-ink/55 hover:text-teal transition-colors duration-300"
-              >
-                {t('home.seeAll')}{' '}
-                <span aria-hidden className="inline-block rtl:rotate-180">
-                  →
-                </span>
-              </Link>
+              <div className="flex items-center gap-5">
+                {/* CONSTRUCTION: temporary layout toggle for the
+                    categories grid. Remove once a layout is chosen. */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setCategoriesLayout((l) =>
+                      l === 'big' ? 'small' : 'big',
+                    )
+                  }
+                  className="text-xs uppercase tracking-[0.176em] text-ink/55 hover:text-teal transition-colors duration-300 border border-ink/25 rounded px-2 py-1"
+                >
+                  Layout: {categoriesLayout === 'big' ? '3×2' : '6×1'}
+                </button>
+                <Link
+                  to="/works"
+                  className="text-xs uppercase tracking-[0.176em] text-ink/55 hover:text-teal transition-colors duration-300"
+                >
+                  {t('home.seeAll')}{' '}
+                  <span aria-hidden className="inline-block rtl:rotate-180">
+                    →
+                  </span>
+                </Link>
+              </div>
             </div>
           </Reveal>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-8">
+          <div
+            className={
+              categoriesLayout === 'big'
+                ? // 3 big tiles per row on desktop (2 rows for 6
+                  // categories). Mobile stays 2-up so the tiles don't
+                  // get squashed.
+                  'grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8'
+                : // 6 small tiles in one row on desktop. Mobile gets
+                  // 3-up so it stays usable.
+                  'grid grid-cols-3 md:grid-cols-6 gap-3 md:gap-4'
+            }
+          >
             {cards.map((card, i) => (
               <Reveal key={card.id} delay={i * 0.06}>
                 <CategoryTeaserCard
                   card={card}
                   viewWorksLabel={t('home.viewWorks')}
+                  compact={categoriesLayout === 'small'}
                 />
               </Reveal>
             ))}
