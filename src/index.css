@@ -79,4 +79,14 @@
   .hairline-accent {
     @apply h-px w-full bg-teal/50;
   }
+
+  /* Hide the native scrollbar on horizontally-scrolling carousels.
+     The carousel still scrolls — just no visible bar. */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
 }
