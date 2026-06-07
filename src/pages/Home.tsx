@@ -154,12 +154,18 @@ export default function Home() {
       >
         <HeroCarousel images={heroImages} className="absolute inset-0" />
 
-        {/* Bottom fade — eases the painting toward the paper texture
-            across the lower portion of the hero, so the small "View
-            works / About the artist" links read clearly against it. */}
+        {/* Bottom fade — covers the lower portion of the hero so the
+            small "View works / About the artist" links read cleanly,
+            but fades *back* to transparent at the very bottom so the
+            section doesn't end on a hard white edge above the paper-
+            textured page underneath. */}
         <div
           aria-hidden
-          className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-paper via-paper/45 to-transparent pointer-events-none"
+          className="absolute inset-x-0 bottom-0 h-1/2 pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(to top, rgba(255,255,255,0) 0%, #ffffff 18%, rgba(255,255,255,0.45) 75%, rgba(255,255,255,0) 100%)',
+          }}
         />
 
         <motion.div

@@ -21,7 +21,13 @@ type Props = {
 /** Auto-drift speed in pixels per second. Slow enough to read as
  *  "alive" rather than marquee — about half the pace of an unhurried
  *  read. */
-const AUTO_SPEED_PX_PER_S = 38;
+const AUTO_SPEED_PX_PER_S = 30;
+
+/** Quiet window after the last user input before auto-drift resumes.
+ *  Long enough that touch-momentum has mostly decayed before our
+ *  motion joins back in, short enough that the carousel feels like
+ *  it picks up again right after the visitor lets go. */
+const RESUME_AFTER_INTERACTION_MS = 1000;
 
 /** Soft fade at each edge so cards dissolve into the paper texture
  *  instead of cutting at a hard rectangle. */
@@ -49,7 +55,13 @@ export default function CategoryCarousel({ cards, viewWorksLabel }: Props) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const inView = useInView(sectionRef, { amount: 0.3 });
   const reducedMotion = useReducedMotion();
-  const [userTookOver, setUserTookOver] = useState(false);
+  // The hint caption fades the first time the visitor interacts and
+  // stays faded — re-fading it back in on every auto-resume would
+  // feel naggy.
+  const [hintFaded, setHintFaded] = useState(false);
+  // Stamped on every interaction. Auto-drift waits
+  // RESUME_AFTER_INTERACTION_MS past this before advancing again.
+  const lastInteractionRef = useRef(0);
 
   // 3 copies of the cards so we can warp the scroll position by one
   // set-width without anyone noticing — there's always a copy of the
@@ -95,9 +107,13 @@ export default function CategoryCarousel({ cards, viewWorksLabel }: Props) {
   // Auto-drift loop. Accumulator pattern so motion at <1 px per
   // frame still advances — assigning `scrollLeft += 0.4` does
   // nothing because the browser rounds the new value to the same
-  // integer it had before.
+  // integer it had before. We don't stop the RAF on interaction;
+  // we just gate the per-frame advance on whether the quiet window
+  // has elapsed since the visitor last touched the carousel. That
+  // way the auto-drift can pick up again automatically once they
+  // settle, without us re-mounting effects every time.
   useEffect(() => {
-    if (!inView || userTookOver || reducedMotion) return;
+    if (!inView || reducedMotion) return;
     const el = scrollerRef.current;
     if (!el) return;
 
@@ -108,20 +124,32 @@ export default function CategoryCarousel({ cards, viewWorksLabel }: Props) {
     const tick = (now: number) => {
       const dt = (now - last) / 1000;
       last = now;
-      acc += AUTO_SPEED_PX_PER_S * dt;
-      if (acc >= 1) {
-        const whole = Math.floor(acc);
-        el.scrollLeft += whole;
-        acc -= whole;
+      const sinceInteraction = now - lastInteractionRef.current;
+      if (sinceInteraction >= RESUME_AFTER_INTERACTION_MS) {
+        acc += AUTO_SPEED_PX_PER_S * dt;
+        if (acc >= 1) {
+          const whole = Math.floor(acc);
+          el.scrollLeft += whole;
+          acc -= whole;
+        }
+      } else {
+        // Quiet window — drop any accumulated motion so we don't
+        // burst-advance the second the visitor releases.
+        acc = 0;
       }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [inView, userTookOver, reducedMotion]);
+  }, [inView, reducedMotion]);
 
-  // Any user input permanently hands control to them.
-  const handTakeOver = () => setUserTookOver(true);
+  // Any user input resets the quiet window. We also listen for
+  // `touchmove` so an in-progress drag keeps the timer pinned, and
+  // for `wheel` so a continuous scroll gesture does the same.
+  const handInteraction = () => {
+    lastInteractionRef.current = performance.now();
+    if (!hintFaded) setHintFaded(true);
+  };
 
   return (
     <div ref={sectionRef} className="relative">
@@ -132,9 +160,10 @@ export default function CategoryCarousel({ cards, viewWorksLabel }: Props) {
         // semantics across browsers (some go negative, some don't),
         // which would break the warp loop.
         dir="ltr"
-        onTouchStart={handTakeOver}
-        onMouseDown={handTakeOver}
-        onWheel={handTakeOver}
+        onTouchStart={handInteraction}
+        onTouchMove={handInteraction}
+        onMouseDown={handInteraction}
+        onWheel={handInteraction}
         className="flex overflow-x-auto no-scrollbar gap-5 md:gap-7"
         style={{
           maskImage: EDGE_MASK,
@@ -150,12 +179,13 @@ export default function CategoryCarousel({ cards, viewWorksLabel }: Props) {
         ))}
       </div>
 
-      {/* Affordance hint — fades out the moment the user takes over. */}
+      {/* Affordance hint — fades out the moment the user takes over,
+          stays faded even after auto-drift resumes. */}
       <div
         aria-hidden
         className={[
           'mt-10 flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.176em] text-ink/40 transition-opacity duration-700',
-          userTookOver ? 'opacity-0' : 'opacity-100',
+          hintFaded ? 'opacity-0' : 'opacity-100',
         ].join(' ')}
       >
         <span className="inline-block">‹</span>
