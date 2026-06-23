@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  YosiArt theme — clean editorial palette.
+  Colors live in tailwind.config.ts (paper / ink / mist / teal / deep)
+  and are usable as Tailwind classes site-wide (e.g. bg-paper, text-ink,
+  bg-teal/20 for arbitrary opacity).
+*/
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /*
+    Visible focus ring for keyboard navigation. Uses `:focus-visible`
+    (not `:focus`) so it only appears for keyboard / assistive-tech
+    focus — clicking with a mouse keeps the existing hover-state look
+    with nothing extra on top.
+
+    Teal matches the accent colour the site uses for hover states on
+    nav links + painting card hovers, so the ring reads as "this is
+    the same kind of state, just triggered by a different input".
+  */
+  :focus {
+    outline: none;
+  }
+  :focus-visible {
+    outline: 2px solid theme('colors.teal');
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  html[dir='rtl'] {
+    /* Hebrew typography reads slightly cleaner with a touch of tracking. */
+    letter-spacing: 0.005em;
+  }
+
+  /*
+    Hebrew letterforms (Heebo / Frank Ruhl Libre fallbacks) render
+    visually smaller than Latin at the same px size — same em, smaller
+    apparent size. To keep small UI text — eyebrows, nav links, labels,
+    "see all" links — looking the same size as the English version,
+    bump the small text utilities just for RTL. Body copy (text-lg /
+    text-base) is large enough already and is left alone so Hebrew
+    paragraphs don't grow out of their column.
+  */
+  html[dir='rtl'] .text-\[10px\] { font-size: 12px; }
+  html[dir='rtl'] .text-\[11px\] { font-size: 13px; }
+  html[dir='rtl'] .text-\[13px\] { font-size: 15px; }
+  html[dir='rtl'] .text-\[14px\] { font-size: 16px; }
+  html[dir='rtl'] .text-xs { font-size: 0.875rem; }   /* 12 → 14 */
+  html[dir='rtl'] .text-sm { font-size: 1rem; }       /* 14 → 16 */
+
+  body {
+    @apply bg-paper text-ink font-sans antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight;
+    /* Cormorant looks better with slightly opened tracking on big sizes. */
+    font-feature-settings: 'liga', 'dlig';
+  }
+
+  ::selection {
+    @apply bg-teal/25 text-ink;
+  }
+}
+
+@layer utilities {
+  /* A hairline divider in muted mist — used for section breaks. */
+  .hairline {
+    @apply h-px w-full bg-mist;
+  }
+
+  /* A subtle deep-teal hairline used as a more deliberate accent. */
+  .hairline-accent {
+    @apply h-px w-full bg-teal/50;
+  }
+
+  /* Hide the native scrollbar on horizontally-scrolling carousels.
+     The carousel still scrolls — just no visible bar. */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
