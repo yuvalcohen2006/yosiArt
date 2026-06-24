@@ -20,13 +20,13 @@ export default function CurrencyToggle() {
         aria-pressed={currency === 'USD'}
         aria-label="Show prices in US dollars"
         className={[
-          'transition-colors duration-300 hover:text-ink',
-          currency === 'USD' ? 'text-ink' : 'text-ink/35',
+          'transition-opacity duration-300 hover:opacity-100',
+          currency === 'USD' ? 'opacity-100' : 'opacity-40',
         ].join(' ')}
       >
         $
       </button>
-      <span aria-hidden className="mx-2 text-ink/25">
+      <span aria-hidden className="mx-2 opacity-30">
         /
       </span>
       <button
@@ -35,8 +35,8 @@ export default function CurrencyToggle() {
         aria-pressed={currency === 'ILS'}
         aria-label="Show prices in Israeli shekels"
         className={[
-          'transition-colors duration-300 hover:text-ink',
-          currency === 'ILS' ? 'text-ink' : 'text-ink/35',
+          'transition-opacity duration-300 hover:opacity-100',
+          currency === 'ILS' ? 'opacity-100' : 'opacity-40',
         ].join(' ')}
       >
         ₪

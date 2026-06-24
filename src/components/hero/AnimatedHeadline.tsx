@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 type Props = {
   text: string;
@@ -15,8 +15,13 @@ type Props = {
  * cleanly, and in RTL the visual order naturally flows right-to-left
  * because character 0 sits on the right.
  *
- * Accessibility: the parent span carries the full label; per-character
- * spans are aria-hidden so screen readers read the word, not 7 letters.
+ * Spaces are rendered as fixed-width empty spans rather than a literal space
+ * inside an inline-block (which collapses to zero width and runs multi-word
+ * headlines together).
+ *
+ * Accessibility: the parent span carries the full label; per-character spans
+ * are aria-hidden so screen readers read the word, not 7 letters. Honours
+ * prefers-reduced-motion by rendering the final state immediately.
  */
 export default function AnimatedHeadline({
   text,
@@ -25,24 +30,33 @@ export default function AnimatedHeadline({
   staggerPer = 0.04,
 }: Props) {
   const chars = Array.from(text);
+  const reduce = useReducedMotion();
   return (
     <span className={className} aria-label={text}>
-      {chars.map((c, i) => (
-        <motion.span
-          key={`${i}-${c}`}
-          aria-hidden
-          className="inline-block"
-          initial={{ opacity: 0, y: '0.4em' }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            delay: delay + i * staggerPer,
-            duration: 0.7,
-            ease: [0.22, 0.61, 0.36, 1],
-          }}
-        >
-          {c === ' ' ? ' ' : c}
-        </motion.span>
-      ))}
+      {chars.map((c, i) =>
+        c === ' ' ? (
+          <span key={`${i}-sp`} aria-hidden className="inline-block w-[0.3em]" />
+        ) : (
+          <motion.span
+            key={`${i}-${c}`}
+            aria-hidden
+            className="inline-block"
+            initial={reduce ? false : { opacity: 0, y: '0.4em' }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={
+              reduce
+                ? { duration: 0 }
+                : {
+                    delay: delay + i * staggerPer,
+                    duration: 0.7,
+                    ease: [0.22, 0.61, 0.36, 1],
+                  }
+            }
+          >
+            {c}
+          </motion.span>
+        ),
+      )}
     </span>
   );
 }

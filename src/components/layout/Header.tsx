@@ -12,16 +12,20 @@ const NAV: { to: string; key: 'nav.works' | 'nav.about' | 'nav.contact' }[] = [
 ];
 
 /**
- * Plain nav link. No underline at rest — the line draws in left-to-right
- * on hover, fills permanently when the route is active.
+ * Nav link styled as a shadcn-style pill: a rounded item that lifts a soft
+ * tint on hover and stays tinted when its route is active. Over the dark
+ * landing hero (`onDark`) it flips to light-on-dark so it stays legible.
  */
-const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+const navLinkClass = (isActive: boolean, onDark: boolean) =>
   [
-    'relative font-display font-medium text-[13px] uppercase tracking-[0.2em] transition-colors duration-300',
-    isActive ? 'text-ink' : 'text-slate hover:text-ink',
-    'after:absolute after:left-0 after:rtl:left-auto after:rtl:right-0 after:-bottom-1.5',
-    'after:h-[2px] after:bg-accent after:transition-all after:duration-300 after:ease-gallery',
-    isActive ? 'after:w-full' : 'after:w-0 hover:after:w-full',
+    'rounded-full px-4 py-2 font-display text-sm font-medium tracking-wide transition-colors duration-200',
+    onDark
+      ? isActive
+        ? 'bg-white/15 text-sea-100'
+        : 'text-sea-100/75 hover:bg-white/10 hover:text-sea-100'
+      : isActive
+        ? 'bg-ink/[0.06] text-ink'
+        : 'text-slate hover:bg-ink/[0.05] hover:text-ink',
   ].join(' ');
 
 export default function Header() {
@@ -55,6 +59,13 @@ export default function Header() {
     else el.setAttribute('inert', '');
   }, [mobileOpen]);
 
+  // On the landing page, the header floats over the dark deep-sea hero until
+  // the user scrolls (or opens the mobile menu, whose overlay is light). In
+  // that "over hero" state the chrome flips to light-on-dark so it's legible.
+  const onHero =
+    location.pathname === '/' && !scrolled && !mobileOpen;
+  const barColor = onHero ? 'bg-sea-100' : 'bg-ink';
+
   return (
     <>
       <header
@@ -72,47 +83,65 @@ export default function Header() {
             scrolled ? 'py-3' : 'py-5',
           ].join(' ')}
         >
-          <Logo />
+          <Logo onDark={onHero} />
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-9">
+          {/* Desktop nav — pills sit close together like a shadcn nav. */}
+          <nav className="hidden md:flex items-center gap-1">
             {NAV.map((item) => (
-              <NavLink key={item.to} to={item.to} className={navLinkClass}>
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) => navLinkClass(isActive, onHero)}
+              >
                 {t(item.key)}
               </NavLink>
             ))}
           </nav>
 
-          {/* Desktop toggles */}
-          <div className="hidden md:flex items-center gap-6">
+          {/* Desktop toggles — colour inherited so they flip over the hero. */}
+          <div
+            className={[
+              'hidden md:flex items-center gap-6 transition-colors duration-300',
+              onHero ? 'text-sea-100' : 'text-ink',
+            ].join(' ')}
+          >
             <LanguageToggle />
-            <span aria-hidden className="block h-3 w-px bg-mist" />
+            <span
+              aria-hidden
+              className={[
+                'block h-3 w-px',
+                onHero ? 'bg-sea-100/30' : 'bg-mist',
+              ].join(' ')}
+            />
             <CurrencyToggle />
           </div>
 
           {/* Mobile menu button */}
           <button
             type="button"
-            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            aria-label={mobileOpen ? t('nav.closeMenu') : t('nav.openMenu')}
             aria-expanded={mobileOpen}
             onClick={() => setMobileOpen((v) => !v)}
             className="md:hidden flex flex-col items-end justify-center gap-1.5 p-2 -mr-2"
           >
             <span
               className={[
-                'block h-px w-6 bg-ink transition-transform duration-300 ease-gallery origin-right',
+                'block h-px w-6 transition-transform duration-300 ease-gallery origin-right',
+                barColor,
                 mobileOpen ? '-rotate-45 -translate-y-px' : '',
               ].join(' ')}
             />
             <span
               className={[
-                'block h-px bg-ink transition-all duration-300 ease-gallery',
+                'block h-px transition-all duration-300 ease-gallery',
+                barColor,
                 mobileOpen ? 'w-6 opacity-0' : 'w-4 opacity-100',
               ].join(' ')}
             />
             <span
               className={[
-                'block h-px w-6 bg-ink transition-transform duration-300 ease-gallery origin-right',
+                'block h-px w-6 transition-transform duration-300 ease-gallery origin-right',
+                barColor,
                 mobileOpen ? 'rotate-45 translate-y-px' : '',
               ].join(' ')}
             />

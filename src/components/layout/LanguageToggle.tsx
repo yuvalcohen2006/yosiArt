@@ -19,13 +19,13 @@ export default function LanguageToggle() {
         aria-pressed={locale === 'en'}
         aria-label="Switch site language to English"
         className={[
-          'transition-colors duration-300 hover:text-ink',
-          locale === 'en' ? 'text-ink' : 'text-ink/35',
+          'transition-opacity duration-300 hover:opacity-100',
+          locale === 'en' ? 'opacity-100' : 'opacity-40',
         ].join(' ')}
       >
         EN
       </button>
-      <span aria-hidden className="mx-2 text-ink/25">
+      <span aria-hidden className="mx-2 opacity-30">
         /
       </span>
       <button
@@ -34,8 +34,8 @@ export default function LanguageToggle() {
         aria-pressed={locale === 'he'}
         aria-label="החלף את שפת האתר לעברית"
         className={[
-          'font-sans transition-colors duration-300 hover:text-ink',
-          locale === 'he' ? 'text-ink' : 'text-ink/35',
+          'font-sans transition-opacity duration-300 hover:opacity-100',
+          locale === 'he' ? 'opacity-100' : 'opacity-40',
         ].join(' ')}
       >
         עב

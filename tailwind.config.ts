@@ -2,37 +2,30 @@ import type { Config } from 'tailwindcss';
 
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
-  darkMode: 'class',
   theme: {
     extend: {
-      // Aurora background drift (Aceternity UI). Paired with the
-      // animated `after:` layer in AuroraBackground.tsx + the colour
-      // CSS variables in src/index.css.
-      animation: {
-        aurora: 'aurora 60s linear infinite',
-      },
-      keyframes: {
-        aurora: {
-          from: { backgroundPosition: '50% 50%, 50% 50%' },
-          to: { backgroundPosition: '350% 50%, 350% 50%' },
-        },
-      },
       // Direct hex values — Tailwind 3.4+ generates per-opacity variants
       // automatically (e.g. bg-paper/50 works), so we don't need the
       // <alpha-value> CSS-variable indirection at the theme layer.
       colors: {
-        // Grey-forward editorial palette. Legacy token names (paper/ink/mist/
-        // teal/deep) are kept and re-pointed to greys so every existing
-        // component re-themes with zero class changes.
-        paper: '#f4f3f1', // warm off-white page surface
-        ink: '#1a1a1a', // headline + body ink — ~15.8:1 on paper (AAA)
-        mist: '#dcdad6', // card backings / skeletons (decorative)
-        teal: '#5c5c5c', // legacy accent name → mid-grey, ~6.3:1 (text-safe)
-        deep: '#4a4a4a', // legacy "Sold"/price accent → darker grey, ~7.4:1
-        // New editorial tokens:
-        accent: '#3f3f3f', // single swappable "pop" grey — text-safe; one line to change later
-        line: '#c9c7c2', // structural grid / baseline rules (decorative)
-        slate: '#5c5c5c', // secondary readable body text, ~6.3:1
+        // Deep-sea palette — the site's core colour system.
+        sea: {
+          900: '#0d1b2a', // deepest navy (hero field / ink)
+          800: '#1b263b', // dark sea
+          600: '#415a77', // mid sea blue (accent)
+          400: '#778da9', // muted sea blue
+          100: '#e0e1dd', // pale sea mist (light text on dark)
+        },
+        // Semantic tokens — names kept so existing components re-theme for
+        // free; re-pointed onto the deep-sea palette.
+        paper: '#f5f6f7', // cool near-white page surface
+        ink: '#0d1b2a', // deep-navy headlines + body (very high contrast)
+        mist: '#dfe1e4', // card backings / skeletons (decorative)
+        teal: '#415a77', // legacy accent name -> deep-sea blue
+        deep: '#1b263b', // legacy "Sold"/price accent -> dark sea
+        accent: '#415a77', // swappable accent -> deep-sea blue (~6.4:1 text-safe)
+        line: '#cfd4da', // structural grid / baseline rules (decorative)
+        slate: '#415a77', // secondary readable text (~6.4:1)
       },
       fontFamily: {
         // Big titles / oversized Swiss-editorial headlines — Heebo, run heavy

@@ -2,20 +2,19 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import Header from './Header';
 import Footer from './Footer';
-import AuroraBackground from '../fx/AuroraBackground';
 import AnimatedOutlet from '../fx/AnimatedOutlet';
 import ScrollToTop from '../fx/ScrollToTop';
 
 /**
  * Root layout. Sticky header, page content via AnimatedOutlet (cross-fade
- * route transitions), footer below. AuroraBackground sits behind everything
- * via -z-10 — an animated aurora gradient drifting over the paper surface.
+ * route transitions), footer below. The landing page supplies its own
+ * deep-sea WebGL hero backdrop; the rest of the site sits on the light
+ * `paper` surface (body background).
  */
 export default function Layout() {
   return (
     <div className="min-h-screen flex flex-col">
       <ScrollToTop />
-      <AuroraBackground />
       {/* Skip-to-content — hidden until keyboard focus, then jumps the
           user past the header straight into the main page content.
           Lets screen-reader / keyboard users avoid tabbing through

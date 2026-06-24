@@ -2,13 +2,17 @@
   "nav": {
     "works": "Works",
     "about": "About",
-    "contact": "Contact"
+    "contact": "Contact",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "footer": {
     "tagline": "Original acrylic paintings on canvas. Each piece is one of a kind."
   },
   "home": {
     "tagline": "Acrylic on canvas",
+    "heroTitle": "Tradition in a new color",
+    "heroSubtitle": "Yosi Cohen · Acrylic paintings",
     "headline1": "Painted",
     "headline2": "with intent.",
     "viewWorks": "View works",

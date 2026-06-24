@@ -1,6 +1,8 @@
 import type { RouteRecord } from 'vite-react-ssg';
 import Layout from './components/layout/Layout';
-import Home from './pages/Home';
+// Re-innovated landing page (deep-sea WebGL hero). The previous Home.tsx is
+// kept in the repo, unused, until the new design is locked at deployment.
+import HomeLanding from './pages/HomeLanding';
 import Works from './pages/Works';
 import Category from './pages/Category';
 import PaintingPage from './pages/PaintingPage';
@@ -49,7 +51,7 @@ export const routes: RouteRecord[] = [
     children: [
       {
         path: '/',
-        element: <Home />,
+        element: <HomeLanding />,
         loader: async () => {
           // Pull the homeMedia singleton at build time. Provides the
           // hero carousel images (cycle behind the headline) and the
