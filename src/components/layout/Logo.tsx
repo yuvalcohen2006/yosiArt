@@ -9,7 +9,7 @@ type Props = {
  * Brand mark — Yosi's hand-drawn signature.
  * `mix-blend-multiply` is a defensive pick: if there are any near-white
  * anti-alias artifacts at the edges of the PNG, they vanish into the
- * paper-textured background instead of showing as a halo.
+ * light background instead of showing as a halo.
  */
 export default function Logo({ variant = 'header' }: Props) {
   const isFooter = variant === 'footer';

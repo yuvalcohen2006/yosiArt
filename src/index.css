@@ -3,6 +3,23 @@
 @tailwind utilities;
 
 /*
+  Aurora background colour stops (Aceternity UI). The component references
+  these as CSS variables; we declare just the handful it uses (rather than
+  flattening the whole Tailwind palette via a plugin). Values are the
+  default Tailwind hexes for blue/indigo/violet.
+*/
+:root {
+  --white: #ffffff;
+  --black: #000000;
+  --transparent: transparent;
+  --blue-300: #93c5fd;
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --indigo-300: #a5b4fc;
+  --violet-200: #ddd6fe;
+}
+
+/*
   YosiArt theme — clean editorial palette.
   Colors live in tailwind.config.ts (paper / ink / mist / teal / deep)
   and are usable as Tailwind classes site-wide (e.g. bg-paper, text-ink,
@@ -28,7 +45,7 @@
     outline: none;
   }
   :focus-visible {
-    outline: 2px solid theme('colors.teal');
+    outline: 2px solid theme('colors.accent');
     outline-offset: 3px;
     border-radius: 2px;
   }
@@ -60,12 +77,10 @@
 
   h1, h2, h3, h4 {
     @apply font-display tracking-tight;
-    /* Cormorant looks better with slightly opened tracking on big sizes. */
-    font-feature-settings: 'liga', 'dlig';
   }
 
   ::selection {
-    @apply bg-teal/25 text-ink;
+    @apply bg-accent/25 text-ink;
   }
 }
 
@@ -75,9 +90,9 @@
     @apply h-px w-full bg-mist;
   }
 
-  /* A subtle deep-teal hairline used as a more deliberate accent. */
+  /* A subtle hairline used as a more deliberate accent. */
   .hairline-accent {
-    @apply h-px w-full bg-teal/50;
+    @apply h-px w-full bg-accent/40;
   }
 
   /* Hide the native scrollbar on horizontally-scrolling carousels.
@@ -88,5 +103,29 @@
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
+  }
+}
+
+@layer components {
+  /*
+    Editorial / Swiss primitives — the shared type + structure vocabulary.
+    Centralizes patterns that were repeated inline across many components so
+    the redesign has single levers for the system.
+  */
+
+  /* Small-caps Swiss label / kicker. Replaces the repeated
+     `text-[14px] uppercase tracking-[0.176em] text-ink/55` markup. */
+  .eyebrow {
+    @apply text-[14px] font-medium uppercase tracking-[0.176em] text-slate;
+  }
+
+  /* A structural baseline rule — the grey grid line of the editorial system. */
+  .rule {
+    @apply h-px w-full bg-line;
+  }
+
+  /* Consistent editorial content column + responsive gutters. */
+  .editorial-container {
+    @apply mx-auto w-full max-w-7xl px-6 md:px-12 lg:px-16;
   }
 }

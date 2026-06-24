@@ -74,7 +74,7 @@ export function useRelatedPaintings(
         slug: currentSlug,
       })
       .then((data) => {
-        if (!cancelled) setState({ status: 'success', data });
+        if (!cancelled) setState({ status: 'success', data: data ?? [] });
       })
       .catch((error) => {
         if (!cancelled) {

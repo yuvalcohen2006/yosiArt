@@ -2,20 +2,20 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import Header from './Header';
 import Footer from './Footer';
-import PaperBackground from '../fx/PaperBackground';
+import AuroraBackground from '../fx/AuroraBackground';
 import AnimatedOutlet from '../fx/AnimatedOutlet';
 import ScrollToTop from '../fx/ScrollToTop';
 
 /**
  * Root layout. Sticky header, page content via AnimatedOutlet (cross-fade
- * route transitions), footer below. PaperBackground sits behind everything
- * via -z-10 — paper texture + scattered ink strokes for the notebook feel.
+ * route transitions), footer below. AuroraBackground sits behind everything
+ * via -z-10 — an animated aurora gradient drifting over the paper surface.
  */
 export default function Layout() {
   return (
     <div className="min-h-screen flex flex-col">
       <ScrollToTop />
-      <PaperBackground />
+      <AuroraBackground />
       {/* Skip-to-content — hidden until keyboard focus, then jumps the
           user past the header straight into the main page content.
           Lets screen-reader / keyboard users avoid tabbing through

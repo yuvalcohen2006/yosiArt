@@ -34,16 +34,21 @@ export default function About() {
         title="About"
         description="Yosi Cohen — a self-taught acrylic painter. A few words on the work, the practice, and what drives every piece."
       />
-      <div className="mx-auto max-w-3xl">
-        <p className="text-[14px] uppercase tracking-[0.176em] text-ink/55">
+      {/* Asymmetric editorial layout: a wide oversized title band, then
+          the bio in a measured reading column offset to one side. */}
+      <div className="editorial-container">
+        <p className="eyebrow">
+          <span aria-hidden className="text-accent">— </span>
           {t('about.tagline')}
         </p>
-        <h1 className="mt-6 font-display text-5xl md:text-7xl tracking-tightest">
+        <h1 className="mt-6 font-display font-black text-6xl md:text-8xl lg:text-9xl tracking-tight leading-none">
           {t('about.title')}
         </h1>
-        <div className="hairline mt-12 mb-12" />
-        <div className="space-y-6 text-ink/80 text-lg leading-[1.8] whitespace-pre-line">
-          {bio}
+        <div className="rule mt-12 mb-12" />
+        <div className="grid lg:grid-cols-12 gap-10 lg:gap-16">
+          <div className="lg:col-span-7 lg:col-start-6 space-y-6 text-ink/80 text-lg leading-[1.8] whitespace-pre-line">
+            {bio}
+          </div>
         </div>
       </div>
     </section>

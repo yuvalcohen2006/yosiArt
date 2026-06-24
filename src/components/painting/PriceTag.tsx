@@ -21,8 +21,8 @@ export default function PriceTag({ priceILS, priceUSD, status }: Props) {
 
   if (status === 'sold') {
     return (
-      <span className="inline-flex items-center text-xs uppercase tracking-[0.176em] text-deep">
-        <span className="mr-2 h-1 w-1 rounded-full bg-deep" />
+      <span className="inline-flex items-center gap-2 eyebrow text-xs text-deep">
+        <span className="h-1 w-1 rounded-full bg-deep" />
         {t('painting.statusSold')}
       </span>
     );
@@ -34,14 +34,14 @@ export default function PriceTag({ priceILS, priceUSD, status }: Props) {
   // fields, but TypeScript's `?:` only models `undefined`. Catch both.
   if (price == null) {
     return (
-      <span className="font-display text-2xl text-ink/80">
+      <span className="font-display font-semibold text-2xl text-slate">
         {t('painting.inquireForPrice')}
       </span>
     );
   }
 
   return (
-    <span className="font-display text-3xl text-ink">
+    <span className="font-display font-black text-4xl text-ink">
       {formatPrice(price, currency)}
     </span>
   );

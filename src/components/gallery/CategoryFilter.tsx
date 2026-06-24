@@ -7,10 +7,10 @@ import { pickLocale } from '@/lib/pickLocale';
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   [
-    'inline-flex items-center text-[11px] uppercase tracking-[0.176em] px-4 py-2 rounded-full border transition-colors duration-300',
+    'inline-flex items-center font-display font-medium text-[11px] uppercase tracking-[0.2em] px-4 py-2 border transition-colors duration-300',
     isActive
       ? 'bg-ink text-paper border-ink'
-      : 'border-mist text-ink/65 hover:border-teal hover:text-teal',
+      : 'border-line text-slate hover:border-ink hover:text-ink',
   ].join(' ');
 
 // Distance over which the white stripe transitions from fully visible to
@@ -106,7 +106,7 @@ export default function CategoryFilter() {
           maskImage: EDGE_MASK,
           WebkitMaskImage: EDGE_MASK,
         }}
-        className="absolute inset-0 bg-paper/80 backdrop-blur-md border-b border-mist/60 pointer-events-none"
+        className="absolute inset-0 bg-paper/80 backdrop-blur-md border-b border-line pointer-events-none"
       />
       <motion.div
         style={{ opacity: barOpacity, pointerEvents: barPointerEvents }}

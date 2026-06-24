@@ -29,7 +29,7 @@ export function usePaintings(categorySlug?: string) {
     sanityClient
       .fetch<Painting[]>(query, params)
       .then((data) => {
-        if (!cancelled) setState({ status: 'success', data });
+        if (!cancelled) setState({ status: 'success', data: data ?? [] });
       })
       .catch((error) => {
         if (!cancelled) {

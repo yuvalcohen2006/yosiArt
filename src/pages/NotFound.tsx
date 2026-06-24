@@ -12,20 +12,20 @@ export default function NotFound() {
         description="That page doesn't exist (yet)."
       />
       <div className="mx-auto max-w-3xl">
-        <p className="text-[11px] uppercase tracking-[0.176em] text-teal">
+        <p className="eyebrow text-[11px] text-accent">
           {t('notFound.tagline')}
         </p>
-        <h1 className="mt-6 font-display text-6xl md:text-8xl tracking-tightest leading-[1.05]">
-          <span className="italic font-light text-ink/70">
+        <h1 className="mt-6 font-display text-6xl md:text-8xl tracking-tight leading-none">
+          <span className="font-light text-slate">
             {t('notFound.title1')}
           </span>{' '}
-          {t('notFound.title2')}
+          <span className="font-black">{t('notFound.title2')}</span>
         </h1>
-        <div className="hairline mt-12 max-w-xs" />
-        <p className="mt-10 text-ink/65 text-lg">{t('notFound.subtitle')}</p>
+        <div className="rule mt-12 max-w-xs" />
+        <p className="mt-10 text-slate text-lg">{t('notFound.subtitle')}</p>
         <Link
           to="/"
-          className="mt-10 inline-flex items-center gap-3 text-sm uppercase tracking-[0.176em] text-ink hover:text-teal transition-colors duration-300"
+          className="mt-10 inline-flex items-center gap-3 font-display font-medium text-sm uppercase tracking-[0.2em] text-ink hover:text-accent transition-colors duration-300"
         >
           <span aria-hidden className="block h-px w-12 bg-current" />
           <span>{t('notFound.back')}</span>

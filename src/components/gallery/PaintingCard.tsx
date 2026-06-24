@@ -7,15 +7,25 @@ import { urlFor } from '@/sanity/imageUrl';
 import Spinner from '@/components/fx/Spinner';
 import type { Painting } from '@/sanity/types';
 
-type Props = { painting: Painting };
+type Props = {
+  painting: Painting;
+  /** Aspect ratio of the image well — varies per card to build the
+   *  asymmetric magazine wall. Defaults to the portrait 4:5. */
+  aspectClass?: string;
+};
 
 /**
- * Single card in the works grid. Image fills a 4:5 portrait aspect
- * (works for most acrylic canvases). While the image loads we show a
- * pulsing placeholder + a small circle spinner so the card never looks
- * empty. On hover the image scales gently and the title shifts to teal.
+ * Single card in the works grid. The image sits in a variable-aspect well
+ * (set by the grid) with a structured caption block beneath it — title,
+ * category, and a "sold" marker — in the Swiss/editorial type system. While
+ * the image loads a pulsing placeholder + spinner keeps the card from
+ * looking empty. On hover the image scales gently and the title shifts to
+ * the accent grey. The artwork stays in full colour — colour is the point.
  */
-export default function PaintingCard({ painting }: Props) {
+export default function PaintingCard({
+  painting,
+  aspectClass = 'aspect-[4/5]',
+}: Props) {
   const { locale } = useLocale();
   const title = pickLocale(painting.title, locale, painting.slug);
   const categoryTitle = painting.category
@@ -40,77 +50,68 @@ export default function PaintingCard({ painting }: Props) {
   return (
     <Link
       to={`/work/${painting.slug}`}
-      className="group block relative overflow-hidden bg-mist/40 aspect-[4/5]"
+      className="group block"
       aria-label={title}
     >
-      {/* Loading skeleton — a soft pulsing wash with a tiny spinner
-          centred. Fades out as soon as the image is ready. */}
       <div
-        aria-hidden
         className={[
-          'absolute inset-0 flex items-center justify-center bg-mist/40 transition-opacity duration-500',
-          loaded ? 'opacity-0 pointer-events-none' : 'opacity-100 animate-pulse',
+          'relative overflow-hidden bg-mist/40 border border-line transition-colors duration-500 group-hover:border-ink',
+          aspectClass,
         ].join(' ')}
       >
-        <Spinner className="h-5 w-5 text-ink/35" />
+        {/* Loading skeleton — a soft pulsing wash with a tiny spinner
+            centred. Fades out as soon as the image is ready. */}
+        <div
+          aria-hidden
+          className={[
+            'absolute inset-0 flex items-center justify-center bg-mist/40 transition-opacity duration-500',
+            loaded
+              ? 'opacity-0 pointer-events-none'
+              : 'opacity-100 animate-pulse',
+          ].join(' ')}
+        >
+          <Spinner className="h-5 w-5 text-ink/35" />
+        </div>
+
+        {image && (
+          <img
+            ref={imgRef}
+            // Three resolution variants — phones at low DPR pull the
+            // 400w version (~25 KB), tablets / mid-DPR phones get 800w,
+            // hi-DPR / desktop hover-zoom gets 1200w.
+            src={urlFor(image).width(800).height(1000).auto('format').url()}
+            srcSet={[400, 800, 1200]
+              .map(
+                (w) =>
+                  `${urlFor(image).width(w).height(Math.round(w * 1.25)).auto('format').url()} ${w}w`,
+              )
+              .join(', ')}
+            sizes="(max-width: 768px) 50vw, 25vw"
+            alt={pickAlt(image, locale, title)}
+            loading="lazy"
+            width={800}
+            height={1000}
+            onLoad={() => setLoaded(true)}
+            className={[
+              'absolute inset-0 h-full w-full object-cover transition-[transform,filter,opacity] duration-700 ease-gallery',
+              'group-hover:scale-[1.03] group-hover:brightness-[1.03]',
+              loaded ? 'opacity-100' : 'opacity-0',
+            ].join(' ')}
+          />
+        )}
       </div>
 
-      {image && (
-        <img
-          ref={imgRef}
-          // Three resolution variants — phones at low DPR pull the
-          // 400w version (~25 KB), tablets / mid-DPR phones get 800w,
-          // hi-DPR / desktop hover-zoom gets 1200w. CSS rendering is
-          // unchanged: the visual layout is still controlled by the
-          // surrounding aspect-[4/5] box + object-cover.
-          src={urlFor(image).width(800).height(1000).auto('format').url()}
-          srcSet={[400, 800, 1200]
-            .map(
-              (w) =>
-                `${urlFor(image).width(w).height(Math.round(w * 1.25)).auto('format').url()} ${w}w`,
-            )
-            .join(', ')}
-          sizes="(max-width: 768px) 50vw, 25vw"
-          alt={pickAlt(image, locale, title)}
-          loading="lazy"
-          width={800}
-          height={1000}
-          onLoad={() => setLoaded(true)}
-          className={[
-            'absolute inset-0 h-full w-full object-cover transition-[transform,filter,opacity] duration-700 ease-gallery contrast-[1.06] saturate-[1.12]',
-            'group-hover:scale-[1.04] group-hover:contrast-[1.1] group-hover:saturate-[1.22] group-hover:brightness-[1.04]',
-            loaded ? 'opacity-100' : 'opacity-0',
-          ].join(' ')}
-        />
-      )}
-
-      {/* Glossy top-down sheen — a faint translucent highlight on the
-          upper portion of the card. Catches the eye like light grazing
-          a varnished canvas. */}
-      <div
-        aria-hidden
-        className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-paper/30 via-paper/5 to-transparent pointer-events-none mix-blend-overlay"
-      />
-      {/* Bottom-only scrim — kept short so the upper two-thirds of the
-          painting render at full strength. Only enough to keep the title
-          and category label legible against any image. */}
-      <div
-        aria-hidden
-        className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-paper/95 to-transparent pointer-events-none"
-      />
-
-      <div className="absolute inset-x-0 bottom-0 p-4 flex flex-col gap-1">
+      {/* Caption block — structured editorial label beneath the image. */}
+      <div className="mt-3 flex flex-col gap-1 rtl:text-right">
         {categoryTitle && (
-          <span className="text-[10px] uppercase tracking-[0.176em] text-ink/55">
-            {categoryTitle}
-          </span>
+          <span className="eyebrow text-[10px]">{categoryTitle}</span>
         )}
-        <span className="font-display text-xl text-ink group-hover:text-teal transition-colors duration-300">
+        <span className="font-display font-semibold text-lg leading-snug text-ink group-hover:text-accent transition-colors duration-300">
           {title}
         </span>
         {isSold && (
-          <span className="mt-1 inline-flex items-center text-[10px] uppercase tracking-[0.176em] text-deep">
-            <span className="mr-2 h-1 w-1 rounded-full bg-deep" />
+          <span className="mt-0.5 inline-flex items-center gap-2 eyebrow text-[10px] text-deep">
+            <span className="h-1 w-1 rounded-full bg-deep" />
             Sold
           </span>
         )}

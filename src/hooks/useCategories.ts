@@ -21,7 +21,7 @@ export function useCategories() {
     sanityClient
       .fetch<Category[]>(CATEGORIES_QUERY)
       .then((data) => {
-        if (!cancelled) setState({ status: 'success', data });
+        if (!cancelled) setState({ status: 'success', data: data ?? [] });
       })
       .catch((error) => {
         if (!cancelled) {

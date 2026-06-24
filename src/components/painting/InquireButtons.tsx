@@ -16,8 +16,8 @@ type Props = { painting: Painting };
 // before the external app (WhatsApp / mail client) takes over. No
 // toasts, no confirmation text — just the button reacting.
 const buttonClass = [
-  'flex-1 inline-flex items-center justify-center px-5 py-3',
-  'border border-ink/65 text-xs uppercase tracking-[0.176em] text-ink whitespace-nowrap',
+  'flex-1 inline-flex items-center justify-center px-5 py-3.5',
+  'border border-ink font-display font-medium text-xs uppercase tracking-[0.2em] text-ink whitespace-nowrap',
   'hover:bg-ink hover:text-paper',
   'active:bg-ink active:text-paper active:scale-[0.98]',
   'transition duration-200',

@@ -17,10 +17,10 @@ const NAV: { to: string; key: 'nav.works' | 'nav.about' | 'nav.contact' }[] = [
  */
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
-    'relative text-[13px] uppercase tracking-[0.176em] transition-colors duration-300',
-    isActive ? 'text-ink' : 'text-ink/55 hover:text-ink',
+    'relative font-display font-medium text-[13px] uppercase tracking-[0.2em] transition-colors duration-300',
+    isActive ? 'text-ink' : 'text-slate hover:text-ink',
     'after:absolute after:left-0 after:rtl:left-auto after:rtl:right-0 after:-bottom-1.5',
-    'after:h-px after:bg-teal after:transition-all after:duration-300 after:ease-gallery',
+    'after:h-[2px] after:bg-accent after:transition-all after:duration-300 after:ease-gallery',
     isActive ? 'after:w-full' : 'after:w-0 hover:after:w-full',
   ].join(' ');
 
@@ -61,7 +61,7 @@ export default function Header() {
         className={[
           'sticky top-0 z-40 w-full transition-all duration-300 ease-gallery',
           scrolled
-            ? 'bg-paper/85 backdrop-blur-md border-b border-mist/70'
+            ? 'bg-paper/85 backdrop-blur-md border-b border-line'
             : 'bg-paper/0 border-b border-transparent',
         ].join(' ')}
       >
@@ -131,7 +131,7 @@ export default function Header() {
             : 'opacity-0 pointer-events-none',
         ].join(' ')}
       >
-        <nav className="h-full flex flex-col items-center justify-center gap-10 pt-10">
+        <nav className="h-full flex flex-col items-stretch justify-center gap-6 px-10">
           {NAV.map((item, i) => (
             <NavLink
               key={item.to}
@@ -139,17 +139,23 @@ export default function Header() {
               onClick={() => setMobileOpen(false)}
               className={({ isActive }) =>
                 [
-                  'font-display text-4xl tracking-tight transition-all duration-500 ease-gallery',
-                  isActive ? 'text-ink' : 'text-ink/55 hover:text-ink',
+                  'group flex items-baseline gap-4 font-display font-black text-6xl tracking-tight leading-none transition-all duration-500 ease-gallery',
+                  isActive ? 'text-ink' : 'text-ink/70 hover:text-ink',
                   mobileOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3',
                 ].join(' ')
               }
               style={{ transitionDelay: mobileOpen ? `${100 + i * 80}ms` : '0ms' }}
             >
+              <span
+                aria-hidden
+                className="font-display text-sm font-medium tracking-[0.2em] text-accent self-start mt-2"
+              >
+                {String(i + 1).padStart(2, '0')}
+              </span>
               {t(item.key)}
             </NavLink>
           ))}
-          <div className="mt-6 flex items-center gap-6">
+          <div className="mt-10 flex items-center gap-6">
             <LanguageToggle />
             <span aria-hidden className="block h-3 w-px bg-mist" />
             <CurrencyToggle />

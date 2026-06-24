@@ -28,14 +28,18 @@ import type {
 */
 
 async function paintingSlugs(): Promise<string[]> {
-  return sanityClient.fetch<string[]>(
-    `*[_type == "painting" && defined(slug.current)].slug.current`,
+  return (
+    (await sanityClient.fetch<string[]>(
+      `*[_type == "painting" && defined(slug.current)].slug.current`,
+    )) ?? []
   );
 }
 
 async function categorySlugs(): Promise<string[]> {
-  return sanityClient.fetch<string[]>(
-    `*[_type == "category" && defined(slug.current)].slug.current`,
+  return (
+    (await sanityClient.fetch<string[]>(
+      `*[_type == "category" && defined(slug.current)].slug.current`,
+    )) ?? []
   );
 }
 
@@ -66,7 +70,7 @@ export const routes: RouteRecord[] = [
           // current category's title and feed the filter strip — single
           // round trip to Sanity instead of two.
           const categories =
-            await sanityClient.fetch<CategoryDoc[]>(CATEGORIES_QUERY);
+            (await sanityClient.fetch<CategoryDoc[]>(CATEGORIES_QUERY)) ?? [];
           const current =
             categories.find((c) => c.slug === params.category) ?? null;
           return { categories, current };

@@ -11,8 +11,9 @@ const isBrowser = typeof window !== 'undefined';
 
 const init = i18n.use(initReactI18next);
 // LanguageDetector reads localStorage / navigator. Skip it during SSG —
-// the server-rendered HTML always uses the canonical English copy, and
-// the client takes over to switch the language post-hydration.
+// the server-rendered HTML always uses the canonical Hebrew copy, and
+// the client takes over to switch the language post-hydration. A returning
+// visitor's stored choice (or their browser language) still wins on the client.
 if (isBrowser) init.use(LanguageDetector);
 
 void init.init({
@@ -20,8 +21,8 @@ void init.init({
     en: { translation: en },
     he: { translation: he },
   },
-  lng: isBrowser ? undefined : 'en',
-  fallbackLng: 'en',
+  lng: isBrowser ? undefined : 'he',
+  fallbackLng: 'he',
   supportedLngs: SUPPORTED_LOCALES,
   interpolation: { escapeValue: false },
   detection: {
@@ -32,7 +33,7 @@ void init.init({
 });
 
 /** Mirror the active language onto <html lang> + <html dir>. Browser-only —
- *  the static HTML is emitted with `lang="en" dir="ltr"` already. */
+ *  the static HTML is emitted with `lang="he" dir="rtl"` already. */
 const applyDir = (lng: string) => {
   if (!isBrowser) return;
   const isHe = lng.startsWith('he');
@@ -41,6 +42,6 @@ const applyDir = (lng: string) => {
 };
 
 i18n.on('languageChanged', applyDir);
-applyDir(i18n.resolvedLanguage ?? 'en');
+applyDir(i18n.resolvedLanguage ?? 'he');
 
 export default i18n;

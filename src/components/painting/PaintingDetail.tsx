@@ -145,12 +145,12 @@ export default function PaintingDetail({ painting }: Props) {
         type="article"
         jsonLd={jsonLd}
       />
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-7xl">
         {/* Breadcrumb back link */}
-        <div className="mb-8">
+        <div className="mb-10">
           <Link
             to={painting.category ? `/works/${painting.category.slug}` : '/works'}
-            className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.176em] text-ink/55 hover:text-teal transition-colors duration-300"
+            className="inline-flex items-center gap-2 font-display font-medium text-xs uppercase tracking-[0.2em] text-slate hover:text-accent transition-colors duration-300"
           >
             <span aria-hidden className="inline-block rtl:rotate-180">
               ←
@@ -159,19 +159,19 @@ export default function PaintingDetail({ painting }: Props) {
           </Link>
         </div>
 
-        {/* Hero image + view-larger cue. The outer wrapper uses `w-fit`
-            so it shrinks to the painting's actual rendered width — that
-            way the cue above lines up with the painting's true left
-            edge instead of the column's max-width edge. Hovering the
-            wrapper fades the cue in. */}
+        {/* Asymmetric two-column: image block on one side, structured
+            meta / price / inquire column on the other. Stacks on mobile. */}
+        <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+        {/* Image column */}
+        <div className="lg:col-span-7">
         {heroImage && (
-          <div className="group mx-auto block w-fit max-w-full">
-            {/* Cue — sits above the painting at its top-left, with the
-                soft dark pill that fades in on hover. */}
+          <div className="group block w-full">
+            {/* Cue — sits above the painting, with a soft dark pill that
+                fades in on hover. */}
             <div className="mb-3">
               <span
                 aria-hidden
-                className="inline-flex items-center text-[11px] uppercase tracking-[0.176em] text-paper/0 bg-ink/0 group-hover:text-paper group-hover:bg-ink/40 backdrop-blur-sm px-3 py-1.5 rounded-full transition-all duration-300"
+                className="inline-flex items-center font-display font-medium text-[11px] uppercase tracking-[0.2em] text-paper/0 bg-ink/0 group-hover:text-paper group-hover:bg-ink/50 backdrop-blur-sm px-3 py-1.5 transition-all duration-300"
               >
                 {t('painting.viewLarger')}
               </span>
@@ -217,7 +217,7 @@ export default function PaintingDetail({ painting }: Props) {
                       `${urlFor(heroImage).width(w).auto('format').url()} ${w}w`,
                   )
                   .join(', ')}
-                sizes="(max-width: 768px) 92vw, 672px"
+                sizes="(max-width: 1024px) 92vw, 742px"
                 alt={pickAlt(heroImage, locale, title)}
                 width={heroDims?.width}
                 height={heroDims?.height}
@@ -227,27 +227,27 @@ export default function PaintingDetail({ painting }: Props) {
                 decoding="async"
                 onLoad={() => setHeroLoaded(true)}
                 className={[
-                  'block w-auto max-w-full max-h-[70vh] object-contain transition-opacity duration-500',
+                  'block w-full max-h-[82vh] object-contain transition-opacity duration-500',
                   heroLoaded ? 'opacity-100' : 'opacity-0',
                 ].join(' ')}
               />
             </motion.button>
           </div>
         )}
+        </div>
 
-        {/* Body — only mounted once the hero image has loaded, so all
-            of the text below (title, meta, price, inquire buttons)
-            arrives in one moment along with the image rather than
-            shuffling around as different parts settle. The Reveal
-            wrappers inside still play their normal fade-up animation
-            on mount, so the entrance is preserved. */}
+        {/* Meta column — only mounted once the hero image has loaded, so
+            the title, meta, price and inquire buttons all arrive in one
+            moment with the image rather than shuffling as parts settle.
+            The Reveal wrappers still play their fade-up on mount. */}
         {heroLoaded && (
-        <div className="max-w-2xl mt-16 md:mt-20">
+        <div className="lg:col-span-5">
           <Reveal>
-            <p className="text-[14px] uppercase tracking-[0.176em] text-ink/55">
+            <p className="eyebrow">
+              <span aria-hidden className="text-accent">— </span>
               {categoryTitle || t('painting.tagline')}
             </p>
-            <h1 className="mt-5 font-display text-5xl md:text-6xl tracking-tightest leading-[1.05]">
+            <h1 className="mt-5 font-display font-black text-5xl md:text-6xl tracking-tight leading-[1.02]">
               {title}
             </h1>
 
@@ -255,12 +255,12 @@ export default function PaintingDetail({ painting }: Props) {
             {(surfaceLabel || metaText) && (
               <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2">
                 {surfaceLabel && (
-                  <span className="inline-flex items-center border border-ink/25 rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.176em] text-ink/65">
+                  <span className="inline-flex items-center border border-line px-3 py-1 eyebrow text-[10px]">
                     {surfaceLabel}
                   </span>
                 )}
                 {metaText && (
-                  <span className="text-[11px] uppercase tracking-[0.176em] text-ink/55">
+                  <span className="eyebrow text-[11px]">
                     {metaText}
                   </span>
                 )}
@@ -271,7 +271,7 @@ export default function PaintingDetail({ painting }: Props) {
                 toggle styled like the header's language / currency
                 switches. Always entered in cm in the studio. */}
             {hasDimensions && (
-              <p className="mt-3 flex items-center gap-3 text-[11px] uppercase tracking-[0.176em] text-ink/55">
+              <p className="mt-3 flex items-center gap-3 eyebrow text-[11px]">
                 <span>{formatDimensions(widthCm, heightCm, unit)}</span>
                 <span
                   role="group"
@@ -285,12 +285,12 @@ export default function PaintingDetail({ painting }: Props) {
                     aria-label="Show dimensions in centimetres"
                     className={[
                       'transition-colors duration-300 hover:text-ink',
-                      unit === 'cm' ? 'text-ink' : 'text-ink/35',
+                      unit === 'cm' ? 'text-ink' : 'text-slate',
                     ].join(' ')}
                   >
                     {t('painting.unitCm')}
                   </button>
-                  <span aria-hidden className="mx-1.5 text-ink/25">
+                  <span aria-hidden className="mx-1.5 text-line">
                     /
                   </span>
                   <button
@@ -300,7 +300,7 @@ export default function PaintingDetail({ painting }: Props) {
                     aria-label="Show dimensions in inches"
                     className={[
                       'transition-colors duration-300 hover:text-ink',
-                      unit === 'in' ? 'text-ink' : 'text-ink/35',
+                      unit === 'in' ? 'text-ink' : 'text-slate',
                     ].join(' ')}
                   >
                     {t('painting.unitIn')}
@@ -312,8 +312,8 @@ export default function PaintingDetail({ painting }: Props) {
 
           {description && (
             <Reveal delay={0.1}>
-              <div className="hairline mt-12" />
-              <p className="mt-10 text-ink/75 text-lg leading-relaxed whitespace-pre-line">
+              <div className="rule mt-12" />
+              <p className="mt-10 text-ink/80 text-lg leading-relaxed whitespace-pre-line">
                 {description}
               </p>
             </Reveal>
@@ -332,13 +332,16 @@ export default function PaintingDetail({ painting }: Props) {
           </Reveal>
         </div>
         )}
+        </div>
 
-        {/* Related paintings strip — also gated on heroLoaded so the
-            entire below-hero region appears together. */}
+        {/* Related paintings strip — full width below the two-column
+            block, also gated on heroLoaded so the entire below-hero
+            region appears together. */}
         {heroLoaded && related.length > 0 && (
           <section className="mt-32">
             <Reveal>
-              <h2 className="font-display text-2xl md:text-3xl tracking-tight mb-10">
+              <div className="rule mb-8" />
+              <h2 className="font-display font-black text-3xl md:text-4xl tracking-tight mb-10">
                 {t('painting.related')}
               </h2>
             </Reveal>

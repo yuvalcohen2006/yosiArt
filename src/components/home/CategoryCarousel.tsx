@@ -184,7 +184,7 @@ export default function CategoryCarousel({ cards, viewWorksLabel }: Props) {
       <div
         aria-hidden
         className={[
-          'mt-10 flex items-center justify-center gap-3 text-[10px] uppercase tracking-[0.176em] text-ink/40 transition-opacity duration-700',
+          'mt-10 flex items-center justify-center gap-3 eyebrow text-[10px] transition-opacity duration-700',
           hintFaded ? 'opacity-0' : 'opacity-100',
         ].join(' ')}
       >
@@ -218,7 +218,7 @@ function CarouselCard({
       aria-label={`${viewWorksLabel} — ${card.label}`}
       className="group shrink-0 w-56 md:w-72"
     >
-      <div className="relative aspect-[3/4] overflow-hidden bg-ink/10 border border-ink/10 transition-colors duration-500 group-hover:border-ink/35">
+      <div className="relative aspect-[3/4] overflow-hidden bg-mist border border-line transition-colors duration-500 group-hover:border-ink">
         <div
           aria-hidden
           className={[
@@ -244,13 +244,13 @@ function CarouselCard({
             height={800}
             onLoad={() => setLoaded(true)}
             className={[
-              'absolute inset-0 h-full w-full object-cover transition-[transform,filter,opacity] duration-700 ease-gallery group-hover:scale-[1.04] group-hover:brightness-105 group-hover:saturate-110',
+              'absolute inset-0 h-full w-full object-cover transition-[transform,filter,opacity] duration-700 ease-gallery group-hover:scale-[1.03] group-hover:brightness-[1.03]',
               loaded ? 'opacity-100' : 'opacity-0',
             ].join(' ')}
           />
         )}
       </div>
-      <p className="mt-4 text-center font-display text-lg md:text-xl text-ink transition-colors duration-300 group-hover:text-teal">
+      <p className="mt-4 font-display font-semibold text-sm uppercase tracking-[0.15em] text-ink transition-colors duration-300 group-hover:text-accent rtl:text-right">
         {card.label}
       </p>
     </Link>

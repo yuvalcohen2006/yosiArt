@@ -22,68 +22,63 @@ export default function Footer() {
   const { t } = useLocale();
   const year = new Date().getFullYear();
 
+  const contacts = [
+    { label: t('contact.email'), value: EMAIL, href: `mailto:${EMAIL}`, ext: false },
+    {
+      label: t('contact.whatsapp'),
+      value: WHATSAPP_DISPLAY,
+      href: `https://wa.me/${WHATSAPP_NUMBER}`,
+      ext: true,
+    },
+    {
+      label: t('contact.instagram'),
+      value: INSTAGRAM_HANDLE,
+      href: INSTAGRAM_URL,
+      ext: true,
+    },
+  ];
+
   return (
-    <footer className="mt-32 border-t border-ink/15">
-      <div className="mx-auto max-w-5xl px-6 md:px-12 lg:px-16 pt-16 pb-8">
+    <footer className="mt-32 border-t border-line">
+      <div className="editorial-container pt-16 pb-8">
         {/* Top: brand + contacts */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-16">
           <div className="md:col-span-6 lg:col-span-7 flex flex-col gap-5">
             <Logo variant="footer" />
-            <p className="text-sm text-ink/60 max-w-xs leading-relaxed">
+            <p className="text-sm text-slate max-w-xs leading-relaxed">
               {t('footer.tagline')}
             </p>
           </div>
 
-          <div className="md:col-span-6 lg:col-span-5">
-            {/* Vertical stack — each contact gets full column width so the
-                email and phone never wrap mid-line. */}
-            <ul className="flex flex-col gap-6">
-              <li>
-                <p className="text-[10px] uppercase tracking-[0.176em] text-ink/45 mb-1.5">
-                  {t('contact.email')}
-                </p>
+          {/* Contact grid — baseline-ruled rows, small-caps Heebo labels,
+              values in body type. */}
+          <ul className="md:col-span-6 lg:col-span-5 flex flex-col">
+            {contacts.map((c, i) => (
+              <li
+                key={c.label}
+                className={[
+                  'flex flex-col gap-1.5 py-5',
+                  i === 0 ? 'border-t border-line' : 'border-t border-line',
+                ].join(' ')}
+              >
+                <p className="eyebrow text-[10px]">{c.label}</p>
                 <a
-                  href={`mailto:${EMAIL}`}
+                  href={c.href}
                   dir="ltr"
-                  className="block text-sm text-ink/85 hover:text-teal transition-colors duration-300 whitespace-nowrap rtl:text-right"
+                  {...(c.ext
+                    ? { target: '_blank', rel: 'noreferrer noopener' }
+                    : {})}
+                  className="block text-base text-ink hover:text-accent transition-colors duration-300 whitespace-nowrap rtl:text-right"
                 >
-                  {EMAIL}
+                  {c.value}
                 </a>
               </li>
-              <li>
-                <p className="text-[10px] uppercase tracking-[0.176em] text-ink/45 mb-1.5">
-                  {t('contact.whatsapp')}
-                </p>
-                <a
-                  href={`https://wa.me/${WHATSAPP_NUMBER}`}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  dir="ltr"
-                  className="block text-sm text-ink/85 hover:text-teal transition-colors duration-300 whitespace-nowrap rtl:text-right"
-                >
-                  {WHATSAPP_DISPLAY}
-                </a>
-              </li>
-              <li>
-                <p className="text-[10px] uppercase tracking-[0.176em] text-ink/45 mb-1.5">
-                  {t('contact.instagram')}
-                </p>
-                <a
-                  href={INSTAGRAM_URL}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  dir="ltr"
-                  className="block text-sm text-ink/85 hover:text-teal transition-colors duration-300 whitespace-nowrap rtl:text-right"
-                >
-                  {INSTAGRAM_HANDLE}
-                </a>
-              </li>
-            </ul>
-          </div>
+            ))}
+          </ul>
         </div>
 
         {/* Bottom: copyright + attribution */}
-        <div className="mt-16 pt-6 border-t border-ink/10 flex flex-wrap items-center justify-between gap-3 text-[10px] uppercase tracking-[0.176em] text-ink/45">
+        <div className="mt-16 pt-6 border-t border-line flex flex-wrap items-center justify-between gap-3 eyebrow text-[10px]">
           <span>© {year} YosiArt</span>
           <span>Acrylic paintings by Yosi Cohen</span>
         </div>

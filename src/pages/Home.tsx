@@ -164,7 +164,7 @@ export default function Home() {
           className="absolute inset-x-0 bottom-0 h-1/2 pointer-events-none"
           style={{
             background:
-              'linear-gradient(to top, rgba(255,255,255,0) 0%, #ffffff 18%, rgba(255,255,255,0.45) 75%, rgba(255,255,255,0) 100%)',
+              'linear-gradient(to top, rgba(244,243,241,0) 0%, #f4f3f1 18%, rgba(244,243,241,0.45) 75%, rgba(244,243,241,0) 100%)',
           }}
         />
 
@@ -172,19 +172,20 @@ export default function Home() {
           style={{ opacity: heroOpacity, y: heroY }}
           className="relative z-10 mx-auto max-w-5xl w-full px-10 sm:px-12 md:px-14 lg:px-16"
         >
-          <p className="text-[14px] uppercase tracking-[0.176em] text-ink/55">
+          <p className="eyebrow">
+            <span aria-hidden className="text-accent">01 — </span>
             {t('home.tagline')}
           </p>
           <h1
             ref={titleRef}
-            className="mt-7 font-hero tracking-tight leading-[0.98] text-ink"
+            className="mt-7 font-hero tracking-tight leading-[0.9] text-ink"
           >
-            <span className="block text-6xl sm:text-7xl md:text-8xl lg:text-[8rem]">
+            <span className="block font-black text-7xl sm:text-8xl md:text-9xl lg:text-[9.5rem]">
               <span ref={line1Ref} className="inline-block">
                 <AnimatedHeadline text={t('home.headline1')} />
               </span>
             </span>
-            <span className="block text-6xl sm:text-7xl md:text-8xl lg:text-[8rem] italic">
+            <span className="block font-light text-7xl sm:text-8xl md:text-9xl lg:text-[9.5rem] text-slate">
               <span ref={line2Ref} className="inline-block">
                 <AnimatedHeadline
                   text={t('home.headline2')}
@@ -206,14 +207,14 @@ export default function Home() {
           >
             <Link
               to="/works"
-              className="text-sm uppercase tracking-[0.176em] text-ink hover:text-teal transition-colors duration-300"
+              className="font-display font-medium text-sm uppercase tracking-[0.2em] text-ink hover:text-accent transition-colors duration-300"
             >
               {t('home.viewWorks')}
             </Link>
-            <span aria-hidden className="block h-px w-12 bg-ink/45" />
+            <span aria-hidden className="block h-px w-12 bg-line" />
             <Link
               to="/about"
-              className="text-sm uppercase tracking-[0.176em] text-ink/55 hover:text-ink transition-colors duration-300"
+              className="font-display font-medium text-sm uppercase tracking-[0.2em] text-slate hover:text-ink transition-colors duration-300"
             >
               {t('home.aboutTheArtist')}
             </Link>
@@ -236,10 +237,10 @@ export default function Home() {
               [isRtl ? 'left' : 'right']: cueGeom.sideOffset,
               height: cueGeom.height,
             }}
-            className="absolute z-10 hidden md:block pointer-events-none w-px bg-ink/25"
+            className="absolute z-10 hidden md:block pointer-events-none w-px bg-line"
           >
             <motion.div
-              className="absolute left-1/2 -translate-x-1/2 w-px bg-ink"
+              className="absolute left-1/2 -translate-x-1/2 w-px bg-accent"
               style={{ height: '32px' }}
               animate={{ top: ['-12%', '112%'], opacity: [0, 1, 1, 0] }}
               transition={{
@@ -260,15 +261,19 @@ export default function Home() {
         <div className="mx-auto max-w-5xl">
           {/* Section break — visual transition out of the animated hero
               and into the editorial body of the page. */}
-          <div className="hairline mb-24" />
+          <div className="rule mb-12" />
           <Reveal>
+            <p className="eyebrow mb-5">
+              <span aria-hidden className="text-accent">02 — </span>
+              {t('nav.works')}
+            </p>
             <div className="flex items-baseline justify-between mb-12">
-              <h2 className="font-display text-3xl md:text-4xl tracking-tight">
+              <h2 className="font-display font-black text-5xl md:text-7xl tracking-tight leading-none">
                 {t('home.bodiesOfWork')}
               </h2>
               <Link
                 to="/works"
-                className="text-xs uppercase tracking-[0.176em] text-ink/55 hover:text-teal transition-colors duration-300"
+                className="font-display font-medium text-xs uppercase tracking-[0.2em] text-slate hover:text-accent transition-colors duration-300 whitespace-nowrap"
               >
                 {t('home.seeAll')}{' '}
                 <span aria-hidden className="inline-block rtl:rotate-180">

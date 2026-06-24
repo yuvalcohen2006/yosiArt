@@ -9,9 +9,9 @@ import { SUPPORTED_LOCALES, type Locale } from '@/i18n';
  */
 export function useLocale() {
   const { i18n, t } = useTranslation();
-  const raw = i18n.resolvedLanguage ?? 'en';
+  const raw = i18n.resolvedLanguage ?? 'he';
   const locale: Locale = (
-    SUPPORTED_LOCALES.includes(raw as Locale) ? raw : 'en'
+    SUPPORTED_LOCALES.includes(raw as Locale) ? raw : 'he'
   ) as Locale;
 
   const setLocale = (next: Locale) => {

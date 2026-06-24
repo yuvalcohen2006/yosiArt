@@ -66,23 +66,24 @@ export default function Category() {
       {/* Header + filter — both centered to the narrower column so the
           filter strip ends up the same width as the hairline above it. */}
       <div className="mx-auto max-w-3xl">
-        <p className="text-[14px] uppercase tracking-[0.176em] text-ink/55">
+        <p className="eyebrow">
+          <span aria-hidden className="text-accent">— </span>
           {t('category.tagline')}
         </p>
-        <h1 className="mt-6 font-display text-5xl md:text-7xl tracking-tightest">
+        <h1 className="mt-6 font-display font-black text-6xl md:text-8xl tracking-tight leading-none">
           {title}
         </h1>
-        <div className="hairline mt-12 mb-12" />
+        <div className="rule mt-12 mb-12" />
         <CategoryFilter />
       </div>
 
-      {/* Painting grid — wider column so we can fit four cards per row
-          with comfortable margins on either side. */}
-      <div className="mx-auto max-w-5xl">
+      {/* Painting grid — wider column so the asymmetric magazine wall has
+          room for up to four cards across with comfortable margins. */}
+      <div className="mx-auto max-w-7xl">
         {paintingsState.status === 'loading' ? (
           <PaintingGridSkeleton />
         ) : paintings.length === 0 ? (
-          <div className="text-ink/50 py-20">{t('works.empty')}</div>
+          <div className="text-slate py-20">{t('works.empty')}</div>
         ) : (
           <PaintingGrid paintings={paintings} />
         )}

@@ -9,7 +9,7 @@ import {
 import SEO from '@/components/seo/SEO';
 
 const LINK_CLASS = [
-  'mt-3 block text-lg leading-[1.8] text-ink/80 hover:text-teal',
+  'mt-3 block text-lg leading-[1.8] text-ink hover:text-accent',
   'break-all rtl:text-right',
   'transition-colors duration-300',
 ].join(' ');
@@ -36,7 +36,8 @@ export default function Contact() {
         description="Reach out to Yosi about a piece, a commission, or just to say hello — every message lands directly with the artist."
       />
       <div className="mx-auto max-w-3xl">
-        <p className="text-[14px] uppercase tracking-[0.176em] text-ink/55">
+        <p className="eyebrow">
+          <span aria-hidden className="text-accent">— </span>
           {t('contact.tagline')}
         </p>
 
@@ -46,7 +47,7 @@ export default function Contact() {
             the row height and offset the title vertically. RTL flips
             the icon to the opposite side. */}
         <div className="relative">
-          <h1 className="mt-6 font-display text-5xl md:text-7xl tracking-tightest">
+          <h1 className="mt-6 font-display font-black text-6xl md:text-8xl tracking-tight leading-none">
             {t('contact.title')}
           </h1>
           {/* SVG lives at /public/link-icon.svg and is preloaded from
@@ -62,32 +63,24 @@ export default function Contact() {
           />
         </div>
 
-        <div className="hairline mt-12 mb-12" />
+        <div className="rule mt-12 mb-12" />
 
         <p className="text-lg leading-[1.8] text-ink/80 max-w-2xl mb-14">
           {t('contact.intro')}
         </p>
 
-        {/* Three contact channels — flex row with justify-between gives
-            evenly distributed gaps regardless of how wide each value
-            is. Stacks on mobile. */}
-        <div className="flex flex-col gap-10 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-6">
-          <div className="flex flex-col">
-            <p className="text-[14px] uppercase tracking-[0.176em] text-ink/55">
-              {t('contact.email')}
-            </p>
-            <a
-              href={emailHref}
-              dir="ltr"
-              className={LINK_CLASS}
-            >
+        {/* Three contact channels — a baseline-ruled grid: each channel
+            sits under its own rule with a small-caps label and the value
+            below. Stacks to one column on mobile. */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-8">
+          <div className="flex flex-col border-t border-line pt-5">
+            <p className="eyebrow">{t('contact.email')}</p>
+            <a href={emailHref} dir="ltr" className={LINK_CLASS}>
               {EMAIL}
             </a>
           </div>
-          <div className="flex flex-col">
-            <p className="text-[14px] uppercase tracking-[0.176em] text-ink/55">
-              {t('contact.whatsapp')}
-            </p>
+          <div className="flex flex-col border-t border-line pt-5">
+            <p className="eyebrow">{t('contact.whatsapp')}</p>
             <a
               href={whatsappHref}
               target="_blank"
@@ -98,10 +91,8 @@ export default function Contact() {
               {WHATSAPP_DISPLAY}
             </a>
           </div>
-          <div className="flex flex-col">
-            <p className="text-[14px] uppercase tracking-[0.176em] text-ink/55">
-              {t('contact.instagram')}
-            </p>
+          <div className="flex flex-col border-t border-line pt-5">
+            <p className="eyebrow">{t('contact.instagram')}</p>
             <a
               href={INSTAGRAM_URL}
               target="_blank"
