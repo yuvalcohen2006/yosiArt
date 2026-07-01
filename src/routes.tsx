@@ -9,6 +9,7 @@ import PaintingPage from './pages/PaintingPage';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
+import NavbarDemo from './pages/NavbarDemo';
 import { sanityClient } from './sanity/client';
 import {
   CATEGORIES_QUERY,
@@ -100,6 +101,7 @@ export const routes: RouteRecord[] = [
       },
       { path: '/about', element: <About /> },
       { path: '/contact', element: <Contact /> },
+      { path: '/navbar-demo', element: <NavbarDemo /> },
       { path: '*', element: <NotFound /> },
     ],
   },

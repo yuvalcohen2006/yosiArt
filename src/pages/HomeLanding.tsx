@@ -1,154 +1,165 @@
-import { lazy, Suspense } from 'react';
-import { Link, useLoaderData } from 'react-router-dom';
-import { useLocale } from '@/hooks/useLocale';
-import { useCategories } from '@/hooks/useCategories';
-import { pickLocale } from '@/lib/pickLocale';
-import { urlFor } from '@/sanity/imageUrl';
-import Reveal from '@/components/fx/Reveal';
-import AnimatedHeadline from '@/components/hero/AnimatedHeadline';
-import CategoryCarousel from '@/components/home/CategoryCarousel';
+import { useEffect, useLayoutEffect, useRef } from 'react';
+import { gsap } from 'gsap';
 import SEO from '@/components/seo/SEO';
-import { LiquidButton } from '@/components/ui/liquid-glass-button';
+import Tabnavbar from '@/components/ui/navbar';
+import { useLocale } from '@/hooks/useLocale';
+import { GetStartedButton } from '@/components/ui/get-started-button';
+import { useLoaderData } from 'react-router-dom';
+import HeroArtworkCarousel from '@/components/hero/HeroArtworkCarousel';
 import type { HomeMedia } from '@/sanity/types';
 
-// Lazy-load the WebGL hero so three.js (~150KB) ships only with the landing
-// route, not on every page. A plain dark panel stands in until it mounts.
-const WebGLShader = lazy(() =>
-  import('@/components/ui/web-gl-shader').then((m) => ({
-    default: m.WebGLShader,
-  })),
-);
-
-type HomeLoaderData = {
-  homeMedia: HomeMedia | null;
-};
-
-const FALLBACK_CATEGORY_KEYS = [
-  'originals',
-  'exodus',
-  'rabbis',
-  'retro',
-  'movies',
-] as const;
+// useLayoutEffect on the client (run before paint), useEffect on the server
+// (SSG) to avoid the React warning.
+const useIsoLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 /**
- * Re-innovated landing page. A full-viewport deep-sea hero: a WebGL "light
- * string" that travels as one ink stroke through the centre and disperses
- * into the deep-sea palette toward the edges, with the headline centred over
- * it. Below the dark hero, the page fades into the light editorial body with
- * the bodies-of-work carousel.
+ * Hero headline — two lines in Frank Ruhl Libre (semibold), start-aligned in
+ * the frame's white centre.
  *
- * The previous Home.tsx is kept in the repo (unused) until we lock the new
- * design at deployment.
+ * Entrance animation ported ONLY from the reference component's `introTl`
+ * timeline (nothing else): the top line fades + moves up (blur/scale/tilt out),
+ * then the bottom line reveals via a clip-path wipe, overlapping. The same
+ * entrance re-plays whenever the language toggles (keyed on `locale`).
+ *
+ * Font / wording / weight are intentionally unchanged.
  */
-export default function HomeLanding() {
+function HeroHeadline() {
   const { t, locale } = useLocale();
-  const categoriesState = useCategories();
+  const line1 = t('hero.title1');
+  const line2 = t('hero.title2');
+  const rootRef = useRef<HTMLDivElement>(null);
+  const isRtl = locale === 'he';
 
-  const loaderData = useLoaderData() as HomeLoaderData | undefined;
-  const ogImageSrc = loaderData?.homeMedia?.ogImage ?? null;
-  const homeOgImage = ogImageSrc
-    ? urlFor(ogImageSrc).ignoreImageParams().auto('format').url()
-    : undefined;
+  useIsoLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      const reduce = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches;
 
-  const cards =
-    categoriesState.status === 'success' && categoriesState.data.length > 0
-      ? categoriesState.data.map((c) => ({
-          id: c._id,
-          slug: c.slug,
-          label: pickLocale(c.title, locale, c.slug),
-          coverImage: c.coverImage,
-        }))
-      : FALLBACK_CATEGORY_KEYS.map((slug) => ({
-          id: slug,
-          slug,
-          label: t(`categories.${slug}`),
-          coverImage: undefined,
-        }));
+      if (reduce) {
+        gsap.set(['.hero-l1', '.hero-l2', '.hero-cta'], {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          rotationX: 0,
+          filter: 'blur(0px)',
+          clipPath: 'inset(0 0% 0 0)',
+        });
+        return;
+      }
+
+      // top line: fades up (blur + scale + tilt resolve)
+      gsap.set('.hero-l1', {
+        autoAlpha: 0,
+        y: 60,
+        scale: 0.85,
+        filter: 'blur(20px)',
+        rotationX: -20,
+      });
+      // bottom line: visible but clipped, revealed by the wipe (mirror the wipe
+      // direction for RTL so it reveals from the reading start)
+      gsap.set('.hero-l2', {
+        autoAlpha: 1,
+        clipPath: isRtl ? 'inset(0 0 0 100%)' : 'inset(0 100% 0 0)',
+      });
+      // CTA starts hidden; it appears only as the final timeline step.
+      gsap.set('.hero-cta', { autoAlpha: 0, y: 20 });
+
+      gsap
+        .timeline({ delay: 0.3 })
+        .to('.hero-l1', {
+          duration: 1.8,
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          filter: 'blur(0px)',
+          rotationX: 0,
+          ease: 'expo.out',
+        })
+        .to(
+          '.hero-l2',
+          { duration: 1.4, clipPath: 'inset(0 0% 0 0)', ease: 'power4.inOut' },
+          '-=1.0',
+        )
+        // Appended AFTER the text entrance: the button fades in once BOTH lines
+        // have finished — reliably sequenced on the timeline, not a guessed delay.
+        .to('.hero-cta', {
+          duration: 0.7,
+          autoAlpha: 1,
+          y: 0,
+          ease: 'power2.out',
+        });
+    }, rootRef);
+    return () => ctx.revert();
+  }, [locale]);
 
   return (
-    <>
-      <SEO path="/" description={null} image={homeOgImage} />
+    <div ref={rootRef} className="absolute start-[17%] end-[10%] top-[23%]">
+      <h1 className="sr-only">{`${line1} ${line2}`}</h1>
+      <div
+        aria-hidden
+        className="text-start font-display text-[clamp(2rem,6.2vw,7.5rem)] font-semibold leading-[1.05] text-ink"
+        style={{ perspective: '800px' }}
+      >
+        <div className="hero-l1 invisible whitespace-nowrap">{line1}</div>
+        <div className="hero-l2 invisible whitespace-nowrap">
+          {line2}
+          <span className="text-primary">.</span>
+        </div>
+      </div>
+      {/* CTA — start-aligned under the lines; faded in by the timeline above. */}
+      <div className="hero-cta invisible mt-8 flex justify-start">
+        <GetStartedButton />
+      </div>
+    </div>
+  );
+}
 
-      {/* Hero — deep-sea WebGL light string with the headline centred. */}
-      <section className="relative isolate flex min-h-[100lvh] items-center justify-center overflow-hidden bg-sea-900">
-        <Suspense
-          fallback={<div aria-hidden className="absolute inset-0 -z-10 bg-sea-900" />}
-        >
-          <WebGLShader className="absolute inset-0 -z-10 h-full w-full" />
-        </Suspense>
-
-        {/* Radial scrim — keeps the headline + CTA legible across their full
-            width even over the bright core of the light string. */}
-        <div
-          aria-hidden
-          className="absolute inset-0 -z-10"
-          style={{
-            background:
-              'radial-gradient(ellipse 90% 65% at 50% 50%, rgba(13,27,42,0.9) 0%, rgba(13,27,42,0.6) 55%, transparent 92%)',
-          }}
+/**
+ * Landing — a scrolling page of full-width painted photos on a white field.
+ * Both photos have pure-white (#fff) backgrounds, so the join is just a plain
+ * 40px white gap.
+ *
+ *   navbar · landing-photo (headline in its white centre)
+ *          · 40px white gap
+ *          · secondary-photo
+ *
+ * (The original Home.tsx + the earlier shader backgrounds are still in the
+ * repo, unused, until the new design is locked.)
+ */
+export default function HomeLanding() {
+  // The '/' route loader already fetches the homeMedia singleton; reuse its
+  // hero-carousel image set (no new query, no hardcoded URLs).
+  const data = useLoaderData() as { homeMedia?: HomeMedia | null } | undefined;
+  const heroImages = data?.homeMedia?.heroImages ?? [];
+  return (
+    <div className="bg-white">
+      <SEO path="/" description={null} />
+      <Tabnavbar />
+      <section className="relative overflow-hidden">
+        <img
+          src="/assets/landing-photo.jpg"
+          alt=""
+          className="block w-full select-none"
+          draggable={false}
         />
-
-        <div className="relative z-10 mx-auto max-w-4xl px-6 text-center [text-shadow:_0_2px_24px_rgba(13,27,42,0.85)]">
-          <p className="eyebrow mb-7 text-sea-100/80">{t('home.heroSubtitle')}</p>
-          <h1 className="font-hero font-semibold tracking-tight leading-[1.05] text-sea-100 text-5xl sm:text-6xl lg:text-7xl">
-            <AnimatedHeadline text={t('home.heroTitle')} />
-          </h1>
-          <div className="mt-12 flex justify-center">
-            <LiquidButton
-              size="xl"
-              asChild
-              className="rounded-full border border-sea-100/30 text-sea-100"
-            >
-              <Link to="/works">{t('home.viewWorks')}</Link>
-            </LiquidButton>
+        <HeroHeadline />
+        {heroImages.length > 0 && (
+          <div className="absolute end-[15%] top-[25%] w-[22%] max-w-[340px]">
+            <HeroArtworkCarousel images={heroImages} />
           </div>
-        </div>
-
-        {/* Fade the dark hero into the light body below. */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-paper"
+        )}
+      </section>
+      <div aria-hidden className="h-10 bg-white" />
+      <section>
+        <img
+          src="/assets/secondary-photo.jpg"
+          alt=""
+          className="block w-full select-none"
+          draggable={false}
         />
       </section>
-
-      {/* Bodies of work — light editorial body. */}
-      <section className="bg-paper px-6 md:px-12 lg:px-16 pt-16 pb-8">
-        <div className="mx-auto max-w-5xl">
-          <Reveal>
-            <p className="eyebrow mb-5">
-              <span
-                aria-hidden
-                dir="ltr"
-                className="text-accent [unicode-bidi:isolate]"
-              >
-                01 —{' '}
-              </span>
-              {t('nav.works')}
-            </p>
-            <div className="flex items-baseline justify-between mb-12">
-              <h2 className="font-display font-black text-5xl md:text-7xl tracking-tight leading-none">
-                {t('home.bodiesOfWork')}
-              </h2>
-              <Link
-                to="/works"
-                className="font-display font-medium text-xs uppercase tracking-[0.2em] text-slate hover:text-accent transition-colors duration-300 whitespace-nowrap"
-              >
-                {t('home.seeAll')}{' '}
-                <span aria-hidden className="inline-block rtl:rotate-180">
-                  →
-                </span>
-              </Link>
-            </div>
-          </Reveal>
-        </div>
-
-        <div className="-mx-6 md:-mx-12 lg:-mx-16">
-          <Reveal>
-            <CategoryCarousel cards={cards} viewWorksLabel={t('home.viewWorks')} />
-          </Reveal>
-        </div>
-      </section>
-    </>
+    </div>
   );
 }

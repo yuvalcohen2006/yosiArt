@@ -38,3 +38,7 @@ studio/dist
 
 # misc
 *.tsbuildinfo
+
+# Playwright MCP visual-test artifacts
+.playwright-mcp/
+/*.png

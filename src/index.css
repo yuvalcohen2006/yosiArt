@@ -3,6 +3,33 @@
 @tailwind utilities;
 
 /*
+  shadcn/ui CSS variables (light theme defaults) — referenced by the pasted
+  shadcn navbar + its components (button / navigation-menu / input). Only the
+  semantic shadcn tokens live here; the project's deep-sea palette stays in
+  tailwind.config.ts.
+*/
+:root {
+  /* Aurora palette (see redesign/design-system/palette.md). primary = brand blue. */
+  --background: 0 0% 100%;
+  --foreground: 222 30% 15%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 30% 15%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 30% 15%;
+  --primary: 251 55% 56%; /* periwinkle #6750cc — hover/active + button fills (darkened from the pastel palette for AA contrast) */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 220 22% 96%;
+  --secondary-foreground: 222 30% 20%;
+  --muted: 220 22% 96%;
+  --muted-foreground: 220 14% 42%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 222 22% 91%;
+  --input: 222 22% 91%;
+  --ring: 251 55% 56%;
+}
+
+/*
   YosiArt theme — clean editorial palette.
   Colors live in tailwind.config.ts (paper / ink / mist / teal / deep)
   and are usable as Tailwind classes site-wide (e.g. bg-paper, text-ink,
@@ -49,7 +76,6 @@
   */
   html[dir='rtl'] .text-\[10px\] { font-size: 12px; }
   html[dir='rtl'] .text-\[11px\] { font-size: 13px; }
-  html[dir='rtl'] .text-\[13px\] { font-size: 15px; }
   html[dir='rtl'] .text-\[14px\] { font-size: 16px; }
   html[dir='rtl'] .text-xs { font-size: 0.875rem; }   /* 12 → 14 */
   html[dir='rtl'] .text-sm { font-size: 1rem; }       /* 14 → 16 */
@@ -112,3 +138,15 @@
     @apply mx-auto w-full max-w-7xl px-6 md:px-12 lg:px-16;
   }
 }
+
+/* Hero artwork carousel — the active progress segment fills over the image's
+   display duration (empty → full). */
+@keyframes heroCarouselFill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+

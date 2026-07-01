@@ -1,7 +1,9 @@
 import type { Config } from 'tailwindcss';
+import tailwindcssAnimate from 'tailwindcss-animate';
 
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
+  darkMode: ['class'],
   theme: {
     extend: {
       // Direct hex values — Tailwind 3.4+ generates per-opacity variants
@@ -16,26 +18,61 @@ export default {
           400: '#778da9', // muted sea blue
           100: '#e0e1dd', // pale sea mist (light text on dark)
         },
-        // Semantic tokens — names kept so existing components re-theme for
-        // free; re-pointed onto the deep-sea palette.
-        paper: '#f5f6f7', // cool near-white page surface
-        ink: '#0d1b2a', // deep-navy headlines + body (very high contrast)
-        mist: '#dfe1e4', // card backings / skeletons (decorative)
-        teal: '#415a77', // legacy accent name -> deep-sea blue
-        deep: '#1b263b', // legacy "Sold"/price accent -> dark sea
-        accent: '#415a77', // swappable accent -> deep-sea blue (~6.4:1 text-safe)
-        line: '#cfd4da', // structural grid / baseline rules (decorative)
-        slate: '#415a77', // secondary readable text (~6.4:1)
+        // ===== FIXED SITE PALETTE ("Aurora") — from the landing animation =====
+        // Brand trio (the three animated ribbons), tuned for cohesion + contrast.
+        brand: '#4863b8', // blue  — PRIMARY (CTAs, key actions, active)
+        teal: '#3c8fa0', // teal   — SECONDARY accent / link + hover highlight
+        indigo: '#6e5fae', // indigo — TERTIARY accent (sparingly)
+        // Surfaces + text.
+        paper: '#ffffff', // white base
+        ink: '#1c2333', // cool near-black — headlines + body (~13:1 on white)
+        slate: '#5a6478', // secondary text (~5.6:1)
+        mist: '#eef0f4', // card backings / skeletons (decorative)
+        line: '#e5e8ef', // cool light borders / rules
+        deep: '#3b539c', // darker brand blue — primary hover
+        // `accent` is the teal (object form so shadcn gets accent-foreground;
+        // existing `text-accent`/`bg-accent` now resolve to teal).
+        accent: { DEFAULT: '#3c8fa0', foreground: '#ffffff' },
+
+        // shadcn/ui semantic tokens (CSS-vars in src/index.css :root) — added
+        // so the pasted shadcn navbar + its components style correctly. These
+        // names don't collide with the project's tokens above.
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        primary: {
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
+        },
+        secondary: {
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))',
+        },
+        destructive: {
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))',
+        },
+        muted: {
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))',
+        },
+        popover: {
+          DEFAULT: 'hsl(var(--popover))',
+          foreground: 'hsl(var(--popover-foreground))',
+        },
+        card: {
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))',
+        },
       },
       fontFamily: {
-        // Big titles / oversized Swiss-editorial headlines — Heebo, run heavy
-        // (font-black / 900) for impact. Hebrew + Latin both in-family.
-        hero: ['"Heebo"', 'system-ui', 'sans-serif'],
-        // Section headings, page titles, logo wordmark, card titles — also Heebo
-        // so the typographic system is one family with weight-driven hierarchy.
-        display: ['"Heebo"', 'system-ui', 'sans-serif'],
-        // Running / body text — Alef (Heebo as a metrics-compatible fallback).
-        sans: ['"Alef"', '"Heebo"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        // Titles / headlines — Frank Ruhl Libre (elegant Hebrew + Latin serif).
+        hero: ['"Frank Ruhl Libre"', 'Georgia', 'serif'],
+        display: ['"Frank Ruhl Libre"', 'Georgia', 'serif'],
+        // Running / body + UI text — Assistant (full-weight Hebrew sans).
+        sans: ['"Assistant"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       letterSpacing: {
         tightest: '-0.04em',
@@ -45,5 +82,5 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [tailwindcssAnimate],
 } satisfies Config;

@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import Header from './Header';
@@ -7,11 +8,15 @@ import ScrollToTop from '../fx/ScrollToTop';
 
 /**
  * Root layout. Sticky header, page content via AnimatedOutlet (cross-fade
- * route transitions), footer below. The landing page supplies its own
- * deep-sea WebGL hero backdrop; the rest of the site sits on the light
- * `paper` surface (body background).
+ * route transitions), footer below.
+ *
+ * The landing ('/') is currently a blank canvas — just the full-screen
+ * animation — so we hide the header + footer there while we rebuild it
+ * element-by-element. Every other route keeps the full chrome.
  */
 export default function Layout() {
+  const path = useLocation().pathname;
+  const isLanding = path === '/' || path === '/navbar-demo';
   return (
     <div className="min-h-screen flex flex-col">
       <ScrollToTop />
@@ -25,11 +30,11 @@ export default function Layout() {
       >
         Skip to content
       </a>
-      <Header />
+      {!isLanding && <Header />}
       <main id="main" className="flex-1">
         <AnimatedOutlet />
       </main>
-      <Footer />
+      {!isLanding && <Footer />}
       {/* Vercel Analytics — pageviews + referrers, privacy-friendly
           (no cookies, no consent banner needed). Active only on the
           live yosiart.vercel.app deployment; the scripts no-op during

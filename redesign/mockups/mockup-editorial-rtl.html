@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>yosiArt — Editorial Storytelling (RTL mockup)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Secular+One&family=Alef:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              paper: '#F3F3F0',
+              ink: '#0D1B2A',
+              slate: '#3C5168',
+              accent: '#2F5D74',
+              line: '#D8DAD7',
+              mist: '#E6E7E3',
+              sea: {
+                900: '#0D1B2A',
+                800: '#1B263B',
+                600: '#415A77',
+                400: '#778DA9',
+                100: '#E0E1DD',
+              },
+            },
+            fontFamily: {
+              display: ['"Secular One"', 'system-ui', 'sans-serif'],
+              sans: ['"Alef"', 'system-ui', 'sans-serif'],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body { font-family: 'Alef', system-ui, sans-serif; }
+      .display { font-family: 'Secular One', system-ui, sans-serif; }
+      .eyebrow { font-size: 0.8125rem; letter-spacing: 0.18em; color: #3C5168; }
+      /* painterly placeholder so the mock reads as art without real photos */
+      .canvas { background:
+        radial-gradient(120% 90% at 20% 10%, #415A77 0%, transparent 55%),
+        radial-gradient(120% 90% at 80% 90%, #778DA9 0%, transparent 50%),
+        linear-gradient(135deg, #1B263B, #0D1B2A); }
+      .canvas-2 { background:
+        radial-gradient(120% 90% at 80% 10%, #778DA9 0%, transparent 55%),
+        radial-gradient(120% 90% at 20% 90%, #2F5D74 0%, transparent 50%),
+        linear-gradient(135deg, #415A77, #1B263B); }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { scrollbar-width: none; }
+    </style>
+  </head>
+  <body class="bg-paper text-ink antialiased">
+    <!-- scroll progress (inline-end) -->
+    <div class="fixed top-0 inset-x-0 h-[3px] bg-line/40 z-50">
+      <div class="h-full w-1/3 bg-accent"></div>
+    </div>
+
+    <!-- NAV -->
+    <header class="sticky top-0 z-40 bg-paper/80 backdrop-blur-md border-b border-line">
+      <div class="mx-auto max-w-7xl px-6 md:px-12 flex items-center justify-between py-5">
+        <a class="display text-2xl tracking-tight text-ink">יוסי כהן</a>
+        <nav class="hidden md:flex items-center gap-1">
+          <a class="rounded-full px-4 py-2 text-sm font-bold bg-ink/[0.06] text-ink">עבודות</a>
+          <a class="rounded-full px-4 py-2 text-sm text-slate hover:bg-ink/5 hover:text-ink transition">אודות</a>
+          <a class="rounded-full px-4 py-2 text-sm text-slate hover:bg-ink/5 hover:text-ink transition">צור קשר</a>
+        </nav>
+        <div class="flex items-center gap-4 text-sm text-slate">
+          <span><b class="text-ink">עב</b> / EN</span>
+          <span class="h-3 w-px bg-line"></span>
+          <span><b class="text-ink">₪</b> / $</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- HERO — oversized Hebrew headline, asymmetric -->
+    <section class="mx-auto max-w-7xl px-6 md:px-12 pt-20 md:pt-28 pb-16">
+      <div class="grid grid-cols-12 gap-6 items-end">
+        <div class="col-span-12 lg:col-span-9">
+          <p class="eyebrow mb-6"><span class="text-accent">01 —</span> יוסי כהן · ציורי אקריליק</p>
+          <h1 class="display leading-[0.92] tracking-tight text-ink" style="font-size: clamp(3.2rem, 12vw, 11rem);">
+            מסורת<br />בצבע <span class="text-accent">חדש</span>
+          </h1>
+        </div>
+        <div class="col-span-12 lg:col-span-3 lg:pb-4">
+          <p class="text-lg leading-[1.8] text-slate mb-6">
+            אמן צייר ישראלי. כל יצירה לוכדת רגע, רגש או זיכרון — והופכת אותם לכתמי צבע שמספרים סיפור.
+          </p>
+          <a class="inline-flex items-center gap-2 rounded-full bg-ink text-paper px-6 py-3 text-sm font-bold hover:bg-accent transition">
+            לכל העבודות
+            <span class="inline-block rotate-180">→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURE STRIP — a single wide painting as a graphic beat -->
+    <section class="mx-auto max-w-7xl px-6 md:px-12 pb-20">
+      <div class="canvas h-[42vh] md:h-[60vh] w-full rounded-sm"></div>
+      <div class="flex items-baseline justify-between mt-4">
+        <p class="eyebrow">יצירה נבחרת · 2024</p>
+        <p class="display text-xl">״ברדלס בכחול״ · אקריליק על בד</p>
+      </div>
+    </section>
+
+    <!-- BODIES OF WORK — RTL carousel -->
+    <section class="py-8">
+      <div class="mx-auto max-w-7xl px-6 md:px-12">
+        <div class="h-px w-full bg-line mb-10"></div>
+        <p class="eyebrow mb-4"><span class="text-accent">02 —</span> אוספים</p>
+        <div class="flex items-baseline justify-between mb-10">
+          <h2 class="display text-4xl md:text-6xl tracking-tight">אוספי עבודות</h2>
+          <a class="text-sm text-slate hover:text-accent transition">הצג הכל <span class="inline-block rotate-180">→</span></a>
+        </div>
+      </div>
+      <!-- RTL horizontal scroll: starts at the right, flows left -->
+      <div class="flex gap-6 overflow-x-auto no-scrollbar px-6 md:px-12 pb-4" dir="rtl">
+        <!-- card -->
+        <a class="group shrink-0 w-64 md:w-80">
+          <div class="canvas aspect-[3/4] w-full rounded-sm border border-line transition group-hover:opacity-95"></div>
+          <p class="display text-lg mt-3">אמנות יהודית ורוחנית</p>
+        </a>
+        <a class="group shrink-0 w-64 md:w-80">
+          <div class="canvas-2 aspect-[3/4] w-full rounded-sm border border-line"></div>
+          <p class="display text-lg mt-3">איקונות קולנוע</p>
+        </a>
+        <a class="group shrink-0 w-64 md:w-80">
+          <div class="canvas aspect-[3/4] w-full rounded-sm border border-line"></div>
+          <p class="display text-lg mt-3">אגדות ספורט</p>
+        </a>
+        <a class="group shrink-0 w-64 md:w-80">
+          <div class="canvas-2 aspect-[3/4] w-full rounded-sm border border-line"></div>
+          <p class="display text-lg mt-3">ריאליזם פופ</p>
+        </a>
+        <a class="group shrink-0 w-64 md:w-80">
+          <div class="canvas aspect-[3/4] w-full rounded-sm border border-line"></div>
+          <p class="display text-lg mt-3">מופשט</p>
+        </a>
+      </div>
+      <p class="eyebrow text-center mt-6 text-slate/70">‹ גררו לצדדים ›</p>
+    </section>
+
+    <!-- DARK EDITORIAL CHAPTER — drama beat -->
+    <section class="bg-sea-900 text-sea-100 my-20 py-24">
+      <div class="mx-auto max-w-5xl px-6 md:px-12 text-center">
+        <p class="eyebrow mb-8" style="color:#778DA9;">— פילוסופיית העבודה</p>
+        <p class="display leading-[1.15] tracking-tight" style="font-size: clamp(1.8rem, 5vw, 3.5rem);">
+          ״אמנות היא הדרך הטובה ביותר לתקשר מעבר למילים —<br class="hidden md:block" />
+          חיבור עמוק וישיר עם הצופה.״
+        </p>
+      </div>
+    </section>
+
+    <!-- WORKS GRID — asymmetric editorial masonry -->
+    <section class="mx-auto max-w-7xl px-6 md:px-12 py-8">
+      <p class="eyebrow mb-4"><span class="text-accent">03 —</span> מבחר</p>
+      <h2 class="display text-4xl md:text-6xl tracking-tight mb-10">עבודות אחרונות</h2>
+      <div class="grid grid-cols-12 gap-5">
+        <div class="col-span-12 md:col-span-7">
+          <div class="canvas aspect-[4/3] w-full rounded-sm border border-line"></div>
+          <div class="mt-3"><p class="eyebrow">קולנוע</p><p class="display text-xl">הברדלס הוורוד</p></div>
+        </div>
+        <div class="col-span-6 md:col-span-5">
+          <div class="canvas-2 aspect-[3/4] w-full rounded-sm border border-line"></div>
+          <div class="mt-3"><p class="eyebrow">רוחני</p><p class="display text-xl">תפילה</p></div>
+        </div>
+        <div class="col-span-6 md:col-span-4">
+          <div class="canvas-2 aspect-square w-full rounded-sm border border-line"></div>
+          <div class="mt-3"><p class="eyebrow">מופשט</p><p class="display text-xl">גלים</p></div>
+        </div>
+        <div class="col-span-6 md:col-span-4">
+          <div class="canvas aspect-square w-full rounded-sm border border-line"></div>
+          <div class="mt-3"><p class="eyebrow">ספורט</p><p class="display text-xl">האלוף</p></div>
+        </div>
+        <div class="col-span-12 md:col-span-4">
+          <div class="canvas aspect-[4/5] w-full rounded-sm border border-line"></div>
+          <div class="mt-3"><p class="eyebrow">פופ</p><p class="display text-xl">מיקי</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-line mt-20">
+      <div class="mx-auto max-w-7xl px-6 md:px-12 pt-16 pb-8">
+        <p class="display tracking-tight text-ink mb-12" style="font-size: clamp(2.5rem, 8vw, 6rem);">בואו נדבר.</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-x-8">
+          <div class="border-t border-line pt-5">
+            <p class="eyebrow">אימייל</p>
+            <a class="block text-base mt-1.5 hover:text-accent" dir="ltr" style="unicode-bidi:isolate;">Yosicohen164@gmail.com</a>
+          </div>
+          <div class="border-t border-line pt-5">
+            <p class="eyebrow">וואטסאפ</p>
+            <a class="block text-base mt-1.5 hover:text-accent" dir="ltr" style="unicode-bidi:isolate;">+972 54-524-1828</a>
+          </div>
+          <div class="border-t border-line pt-5">
+            <p class="eyebrow">אינסטגרם</p>
+            <a class="block text-base mt-1.5 hover:text-accent" dir="ltr" style="unicode-bidi:isolate;">@_cohen_art</a>
+          </div>
+        </div>
+        <div class="mt-16 pt-6 border-t border-line flex flex-wrap items-center justify-between gap-3 eyebrow">
+          <span>© 2026 יוסי כהן</span>
+          <span dir="ltr" style="unicode-bidi:isolate;">Acrylic paintings · YosiArt</span>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

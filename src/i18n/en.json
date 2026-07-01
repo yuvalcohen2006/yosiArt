@@ -3,8 +3,15 @@
     "works": "Works",
     "about": "About",
     "contact": "Contact",
+    "products": "Products",
+    "signIn": "Sign In",
+    "search": "Search for artwork...",
     "openMenu": "Open menu",
     "closeMenu": "Close menu"
+  },
+  "hero": {
+    "title1": "Tradition In",
+    "title2": "Living Colour"
   },
   "footer": {
     "tagline": "Original acrylic paintings on canvas. Each piece is one of a kind."
