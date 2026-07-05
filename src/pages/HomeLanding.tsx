@@ -95,7 +95,13 @@ function HeroHeadline() {
   }, [locale]);
 
   return (
-    <div ref={rootRef} className="absolute start-[17%] end-[10%] top-[23%]">
+    /* bottom-[35.77%] puts this box's bottom edge exactly on the hero
+       painting's bottom edge (24% top + 1.25 aspect × 17.96% width, in photo
+       coords) so the CTA below can bottom-align with the painting. */
+    <div
+      ref={rootRef}
+      className="absolute start-[17%] end-[10%] top-[23%] bottom-[35.77%]"
+    >
       <h1 className="sr-only">{`${line1} ${line2}`}</h1>
       <div
         aria-hidden
@@ -108,8 +114,9 @@ function HeroHeadline() {
           <span className="text-primary">.</span>
         </div>
       </div>
-      {/* CTA — start-aligned under the lines; faded in by the timeline above. */}
-      <div className="hero-cta invisible mt-8 flex justify-start">
+      {/* CTA — start-aligned, bottom pinned to the container's bottom edge
+          (= the painting's bottom edge); faded in by the timeline above. */}
+      <div className="hero-cta invisible absolute bottom-0 start-0">
         <GetStartedButton />
       </div>
     </div>
@@ -146,7 +153,12 @@ export default function HomeLanding() {
         />
         <HeroHeadline />
         {heroImages.length > 0 && (
-          <div className="absolute end-[15%] top-[25%] w-[22%] max-w-[340px]">
+          /* Painting mirrors the headline's measured spacing from the painted
+             frame: image top/bottom gaps = the text's top padding (~102px @1920),
+             end gap = the text's start padding (~100px), and the image height
+             fills the white centre minus those gaps (width follows the 4/5
+             aspect). Values solved by pixel-scanning the frame strokes. */
+          <div className="absolute end-[19.05%] top-[24%] w-[17.96%]">
             <HeroArtworkCarousel images={heroImages} />
           </div>
         )}

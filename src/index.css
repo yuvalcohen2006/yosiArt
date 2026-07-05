@@ -9,24 +9,24 @@
   tailwind.config.ts.
 */
 :root {
-  /* Aurora palette (see redesign/design-system/palette.md). primary = brand blue. */
+  /* Aurora palette (see redesign/design-system/palette.md). primary = accent orange. */
   --background: 0 0% 100%;
-  --foreground: 222 30% 15%;
+  --foreground: 34.3 5.8% 23.7%; /* dark taupe #403d39 (= flame-700) */
   --card: 0 0% 100%;
-  --card-foreground: 222 30% 15%;
+  --card-foreground: 34.3 5.8% 23.7%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222 30% 15%;
-  --primary: 251 55% 56%; /* periwinkle #6750cc — hover/active + button fills (darkened from the pastel palette for AA contrast) */
+  --popover-foreground: 34.3 5.8% 23.7%;
+  --primary: 16.6 83% 54%; /* burnt orange #eb5e28 — the site accent: hover/active, headline dot, button fills */
   --primary-foreground: 0 0% 100%;
   --secondary: 220 22% 96%;
-  --secondary-foreground: 222 30% 20%;
+  --secondary-foreground: 34.3 5.8% 20%;
   --muted: 220 22% 96%;
-  --muted-foreground: 220 14% 42%;
+  --muted-foreground: 34 8% 40%;
   --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 100%;
   --border: 222 22% 91%;
   --input: 222 22% 91%;
-  --ring: 251 55% 56%;
+  --ring: 16.6 83% 54%;
 }
 
 /*
@@ -57,7 +57,7 @@
   :focus-visible {
     outline: 2px solid theme('colors.accent');
     outline-offset: 3px;
-    border-radius: 2px;
+    border-radius: theme('borderRadius.md'); /* site-wide corner radius */
   }
 
   html[dir='rtl'] {

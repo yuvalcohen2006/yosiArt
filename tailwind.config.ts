@@ -10,7 +10,17 @@ export default {
       // automatically (e.g. bg-paper/50 works), so we don't need the
       // <alpha-value> CSS-variable indirection at the theme layer.
       colors: {
-        // Deep-sea palette — the site's core colour system.
+        // ===== FIXED SITE PALETTE ("Flame") — the current 5-color system. =====
+        // flame-500 is the accent and equals the shadcn --primary var.
+        flame: {
+          50: '#fffcf2', // floral white — light surfaces
+          300: '#ccc5b9', // timberwolf — muted secondary surfaces
+          500: '#eb5e28', // burnt orange — THE accent
+          700: '#403d39', // dark taupe — secondary dark
+          900: '#252422', // near-black — primary dark (fills, icons, text)
+        },
+        // Deep-sea palette — legacy colour system (old header/hero); do not
+        // use for new work.
         sea: {
           900: '#0d1b2a', // deepest navy (hero field / ink)
           800: '#1b263b', // dark sea
@@ -25,7 +35,7 @@ export default {
         indigo: '#6e5fae', // indigo — TERTIARY accent (sparingly)
         // Surfaces + text.
         paper: '#ffffff', // white base
-        ink: '#1c2333', // cool near-black — headlines + body (~13:1 on white)
+        ink: '#403d39', // dark taupe (= flame-700) — headlines + body (~10.8:1 on white)
         slate: '#5a6478', // secondary text (~5.6:1)
         mist: '#eef0f4', // card backings / skeletons (decorative)
         line: '#e5e8ef', // cool light borders / rules
