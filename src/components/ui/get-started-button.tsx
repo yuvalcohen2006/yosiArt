@@ -1,70 +1,93 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import type { MouseEvent as ReactMouseEvent } from 'react';
 import { ChevronRight, LoaderCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /**
- * "Get Started" CTA — large hero variant.
+ * "Get Started" CTA — ripple button in our Flame palette.
  *
- *  - Sizing: intentionally large, scaled off its own font size (padding, label
- *    offset, icon box + icon are all `em`-based), so it reads as a big button
- *    rather than a stretched small one.
- *  - Label font: `font-sans` (Assistant) — the same family/weight as the navbar
- *    Sign In button.
- *  - Fill: `flame-700` (palette dark taupe) with a `flame-50` label — the
- *    dark anchor of the fixed palette, so the CTA grounds the light canvas.
- *  - Expanding box (`<i>`): `primary` — it inherits the site accent (burnt
- *    orange #eb5e28 = flame-500) — with a `flame-900` chevron (dark on the
- *    mid-bright accent for contrast, ~4.5:1).
+ *  - Rest: grey outline + grey label (understated / inactive).
+ *  - Hover: outline + label lift to burnt-orange (`primary` = flame-500) with a
+ *    soft orange glow — the button "comes alive".
+ *  - Click: an orange ripple expands from the cursor to flood the whole box and
+ *    STAYS (the rippled colour is kept). The button dips a touch smaller and,
+ *    once the fill lands, swaps its label for a centred spinning cycle icon.
  *
- * Motion: hover expands the box across the button (width, 500ms) while the
- * label fades; pressing squeezes the box (scale, 250ms — deliberately twice
- * as fast as the expand). A click locks that squeezed state and swaps the
- * chevron for a spinner (single round-capped arc in the chevron's color,
- * 0.96em — 20% under the chevron — at ~3px rendered stroke, 1s/rev) until
- * the browser navigates away — no timeout, and hover no longer affects the
- * box while locked.
+ * Font / text / size / border weight are the current button's, unchanged.
  */
 export function GetStartedButton() {
   const [loading, setLoading] = useState(false);
+  const [showSpinner, setShowSpinner] = useState(false);
+  const [ripple, setRipple] = useState<{ x: number; y: number; size: number } | null>(null);
+
+  const handleClick = (e: ReactMouseEvent<HTMLButtonElement>) => {
+    if (loading) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    setRipple({
+      x: e.clientX - rect.left - size / 2,
+      y: e.clientY - rect.top - size / 2,
+      size,
+    });
+    setLoading(true);
+    // let the ripple flood the box first, then reveal the spinner
+    window.setTimeout(() => setShowSpinner(true), 380);
+  };
+
   return (
-    <Button
-      onClick={() => setLoading(true)}
+    <button
+      type="button"
+      onClick={handleClick}
       aria-busy={loading}
-      className="group relative h-auto overflow-hidden rounded-md border border-flame-700 bg-flame-700 px-[1.75em] py-[0.7em] font-sans text-[clamp(1.25rem,2vw,2.25rem)] text-flame-50 hover:bg-flame-700"
+      className={cn(
+        'relative inline-flex items-center justify-center overflow-hidden rounded-md bg-transparent',
+        'border-[4px] font-sans font-bold uppercase tracking-[0.12em]',
+        'px-[1.6em] py-[0.72em] text-[clamp(1rem,1.55vw,1.6rem)]',
+        '[transition:color_300ms_ease,border-color_300ms_ease,box-shadow_300ms_ease,transform_200ms_ease]',
+        loading
+          ? 'scale-[0.96] border-primary text-primary shadow-[0_0_26px_-3px_rgba(235,94,40,0.6)]'
+          : 'border-slate text-slate hover:border-primary hover:text-primary hover:shadow-[0_0_26px_-3px_rgba(235,94,40,0.6)]',
+      )}
     >
+      {/* orange ripple — expands from the click point to flood the box, then stays */}
+      {ripple && (
+        <span
+          aria-hidden
+          className="animate-rippling pointer-events-none absolute rounded-full bg-primary"
+          style={{
+            width: ripple.size,
+            height: ripple.size,
+            top: ripple.y,
+            left: ripple.x,
+          }}
+        />
+      )}
+
+      {/* label + chevron — fade out once the spinner takes over */}
       <span
         className={cn(
-          'mr-[2.3em] transition-opacity duration-500',
-          loading ? 'opacity-0' : 'group-hover:opacity-0',
+          'relative z-10 inline-flex items-center gap-[0.7em] transition-opacity duration-200',
+          showSpinner && 'opacity-0',
         )}
       >
-        Get Started
+        <span>Get Started</span>
+        <ChevronRight
+          aria-hidden
+          strokeWidth={2.5}
+          className="h-[1.1em] w-[1.1em]"
+        />
       </span>
-      <i
-        className={cn(
-          'absolute bottom-[0.35em] right-[0.35em] top-[0.35em] z-10 grid w-1/4 place-items-center rounded-md bg-primary text-flame-900 [transition:width_500ms_cubic-bezier(0.4,0,0.2,1),transform_250ms_cubic-bezier(0.4,0,0.2,1)]',
-          loading
-            ? 'w-[calc(100%-0.7em)] scale-95'
-            : 'group-hover:w-[calc(100%-0.7em)] group-active:scale-95',
-        )}
-      >
-        {loading ? (
-          /* strokeWidth 2.1 in the 24-unit viewBox ≈ 3px rendered at this
-             size — ~1.5× the old 2px ring. */
+
+      {/* spinner — centred on the rippled fill */}
+      {showSpinner && (
+        <span className="absolute inset-0 z-10 grid place-items-center">
           <LoaderCircle
-            aria-hidden="true"
-            strokeWidth={2.1}
-            className="h-[0.96em] w-[0.96em] animate-spin"
+            aria-hidden
+            strokeWidth={2.3}
+            className="h-[1.35em] w-[1.35em] animate-spin text-flame-50"
           />
-        ) : (
-          <ChevronRight
-            strokeWidth={2}
-            aria-hidden="true"
-            className="h-[1.2em] w-[1.2em]"
-          />
-        )}
-      </i>
-    </Button>
+        </span>
+      )}
+    </button>
   );
 }

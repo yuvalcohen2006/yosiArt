@@ -90,6 +90,17 @@ export default {
       transitionTimingFunction: {
         gallery: 'cubic-bezier(0.22, 0.61, 0.36, 1)',
       },
+      animation: {
+        // Click ripple that expands from the cursor to flood the button and
+        // stays put (fill-mode forwards) — the persistent "rippled" fill.
+        rippling: 'rippling 650ms ease-out forwards',
+      },
+      keyframes: {
+        rippling: {
+          '0%': { transform: 'scale(0)', opacity: '0.5' },
+          '100%': { transform: 'scale(2.8)', opacity: '1' },
+        },
+      },
     },
   },
   plugins: [tailwindcssAnimate],

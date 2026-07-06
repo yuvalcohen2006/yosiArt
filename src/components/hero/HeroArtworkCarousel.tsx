@@ -27,10 +27,11 @@ export default function HeroArtworkCarousel({
   const count = images.length;
   const tiltRef = useRef<HTMLDivElement>(null);
 
-  // Holographic-card style tilt (animation only, no glow): the card leans
-  // toward the cursor — rotation grows with distance from the centre — and
-  // eases back flat on leave. Mouse-only by nature; skipped for
-  // prefers-reduced-motion.
+  // Holographic-card style tilt (animation only, no glow): the card leans INTO
+  // the cursor — the corner under the pointer dips toward the viewer (like
+  // pressing it down), rotation growing with distance from the centre — then
+  // eases back flat on leave. A gentle amount (÷16). Mouse-only by nature;
+  // skipped for prefers-reduced-motion.
   const handleTiltMove = (e: ReactMouseEvent<HTMLDivElement>) => {
     const card = tiltRef.current;
     if (!card) return;
@@ -38,8 +39,8 @@ export default function HeroArtworkCarousel({
     const rect = card.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    const rotateX = (y - rect.height / 2) / 10;
-    const rotateY = (rect.width / 2 - x) / 10;
+    const rotateX = (rect.height / 2 - y) / 16;
+    const rotateY = (x - rect.width / 2) / 16;
     card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
   };
   const handleTiltLeave = () => {
