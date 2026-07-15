@@ -13,8 +13,50 @@
     "title1": "מסורת",
     "title2": "בצבע חדש"
   },
+  "heroCarousel": {
+    "prev": "היצירה הקודמת",
+    "next": "היצירה הבאה"
+  },
   "footer": {
-    "tagline": "ציורי אקריליק מקוריים על קנבס. כל יצירה היא יחידה במינה."
+    "tagline": "ציורי אקריליק מקוריים על קנבס. כל יצירה היא יחידה במינה.",
+    "navigate": "ניווט",
+    "legal": "מידע משפטי",
+    "contactTitle": "יצירת קשר",
+    "rights": "כל הזכויות שמורות.",
+    "credit": "ציורי אקריליק מאת יוסי כהן"
+  },
+  "legal": {
+    "privacy": "מדיניות פרטיות",
+    "accessibility": "הצהרת נגישות",
+    "terms": "תקנון",
+    "lastUpdated": "עדכון אחרון",
+    "eyebrow": "מידע משפטי"
+  },
+  "a11y": {
+    "open": "תפריט נגישות",
+    "close": "סגירת תפריט נגישות",
+    "title": "נגישות",
+    "textSize": "גודל טקסט",
+    "increaseText": "הגדלת טקסט",
+    "decreaseText": "הקטנת טקסט",
+    "highContrast": "ניגודיות גבוהה",
+    "highlightLinks": "הדגשת קישורים",
+    "stopAnimations": "עצירת אנימציות",
+    "readableFont": "גופן קריא",
+    "reset": "איפוס הגדרות",
+    "statement": "הצהרת נגישות"
+  },
+  "showcase": {
+    "eyebrow": "האוספים",
+    "title": "אוספי עבודות",
+    "subtitle": "דפדפו בין האוספים — כל אוסף נפתח לגלריה משלו.",
+    "explore": "לצפייה באוסף",
+    "worksCount_one": "יצירה אחת",
+    "worksCount_two": "שתי יצירות",
+    "worksCount_many": "{{count}} יצירות",
+    "worksCount_other": "{{count}} יצירות",
+    "prev": "האוסף הקודם",
+    "next": "האוסף הבא"
   },
   "home": {
     "tagline": "אקריליק על קנבס",

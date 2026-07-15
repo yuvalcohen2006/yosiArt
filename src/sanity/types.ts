@@ -25,6 +25,8 @@ export type Category = {
   description?: LocalizedText;
   order?: number;
   coverImage?: SanityImage;
+  /** GROQ-computed number of paintings referencing this category. */
+  count?: number;
 };
 
 export type PaintingStatus = 'available' | 'sold' | 'reserved';

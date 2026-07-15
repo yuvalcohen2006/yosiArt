@@ -50,6 +50,9 @@ const urls = [
   { loc: '/works', priority: '0.9', changefreq: 'weekly' },
   { loc: '/about', priority: '0.5', changefreq: 'monthly' },
   { loc: '/contact', priority: '0.5', changefreq: 'monthly' },
+  { loc: '/terms', priority: '0.3', changefreq: 'yearly' },
+  { loc: '/privacy', priority: '0.3', changefreq: 'yearly' },
+  { loc: '/accessibility', priority: '0.3', changefreq: 'yearly' },
   ...categorySlugs.map((slug) => ({
     loc: `/works/${slug}`,
     priority: '0.7',

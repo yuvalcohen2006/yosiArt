@@ -6,7 +6,9 @@ import { useLocale } from '@/hooks/useLocale';
 import { GetStartedButton } from '@/components/ui/get-started-button';
 import { useLoaderData } from 'react-router-dom';
 import HeroArtworkCarousel from '@/components/hero/HeroArtworkCarousel';
-import type { HomeMedia } from '@/sanity/types';
+import CategoryFocusRail from '@/components/home/CategoryFocusRail';
+import { motionStopped } from '@/components/a11y/useStopMotion';
+import type { Category, HomeMedia } from '@/sanity/types';
 
 // useLayoutEffect on the client (run before paint), useEffect on the server
 // (SSG) to avoid the React warning.
@@ -33,9 +35,11 @@ function HeroHeadline() {
 
   useIsoLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      const reduce = window.matchMedia(
-        '(prefers-reduced-motion: reduce)',
-      ).matches;
+      // OS preference OR the accessibility widget's "stop animations" mode
+      // (GSAP writes inline styles the CSS kill-switch can't reach).
+      const reduce =
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+        motionStopped();
 
       if (reduce) {
         gsap.set(['.hero-l1', '.hero-l2', '.hero-cta'], {
@@ -98,9 +102,13 @@ function HeroHeadline() {
     /* bottom-[35.77%] puts this box's bottom edge exactly on the hero
        painting's bottom edge (24% top + 1.25 aspect × 17.96% width, in photo
        coords) so the CTA below can bottom-align with the painting. */
+    /* z-20 keeps the headline above the coverflow's blurred side cards at
+       narrow widths; pointer-events-none lets clicks fall through the (mostly
+       empty) box to the carousel chevrons underneath — only the CTA opts back
+       in to the pointer. */
     <div
       ref={rootRef}
-      className="absolute start-[17%] end-[10%] top-[23%] bottom-[35.77%]"
+      className="pointer-events-none absolute start-[17%] end-[10%] top-[23%] bottom-[35.77%] z-20"
     >
       <h1 className="sr-only">{`${line1} ${line2}`}</h1>
       <div
@@ -116,7 +124,7 @@ function HeroHeadline() {
       </div>
       {/* CTA — start-aligned, bottom pinned to the container's bottom edge
           (= the painting's bottom edge); faded in by the timeline above. */}
-      <div className="hero-cta invisible absolute bottom-0 start-0">
+      <div className="hero-cta invisible pointer-events-auto absolute bottom-0 start-0">
         <GetStartedButton />
       </div>
     </div>
@@ -136,10 +144,14 @@ function HeroHeadline() {
  * repo, unused, until the new design is locked.)
  */
 export default function HomeLanding() {
-  // The '/' route loader already fetches the homeMedia singleton; reuse its
-  // hero-carousel image set (no new query, no hardcoded URLs).
-  const data = useLoaderData() as { homeMedia?: HomeMedia | null } | undefined;
+  // The '/' route loader fetches the homeMedia singleton (hero carousel
+  // image set) plus the category list (focus-rail showcase) in one pass —
+  // no client-side queries, no hardcoded URLs.
+  const data = useLoaderData() as
+    | { homeMedia?: HomeMedia | null; categories?: Category[] }
+    | undefined;
   const heroImages = data?.homeMedia?.heroImages ?? [];
+  const categories = data?.categories ?? [];
   return (
     <div className="bg-white">
       <SEO path="/" description={null} />
@@ -172,6 +184,9 @@ export default function HomeLanding() {
           draggable={false}
         />
       </section>
+      {/* Collections showcase — a full white screen between the painted
+          photos and the footer, carrying the 3D category focus rail. */}
+      <CategoryFocusRail categories={categories} />
     </div>
   );
 }

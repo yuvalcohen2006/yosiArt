@@ -11,10 +11,50 @@
   },
   "hero": {
     "title1": "Tradition In",
-    "title2": "Living Colour"
+    "title2": "Living Color"
+  },
+  "heroCarousel": {
+    "prev": "Previous artwork",
+    "next": "Next artwork"
   },
   "footer": {
-    "tagline": "Original acrylic paintings on canvas. Each piece is one of a kind."
+    "tagline": "Original acrylic paintings on canvas. Each piece is one of a kind.",
+    "navigate": "Explore",
+    "legal": "Legal",
+    "contactTitle": "Get in touch",
+    "rights": "All rights reserved.",
+    "credit": "Acrylic paintings by Yosi Cohen"
+  },
+  "legal": {
+    "privacy": "Privacy Policy",
+    "accessibility": "Accessibility Statement",
+    "terms": "Terms of Use",
+    "lastUpdated": "Last updated",
+    "eyebrow": "Legal"
+  },
+  "a11y": {
+    "open": "Accessibility menu",
+    "close": "Close accessibility menu",
+    "title": "Accessibility",
+    "textSize": "Text size",
+    "increaseText": "Increase text size",
+    "decreaseText": "Decrease text size",
+    "highContrast": "High contrast",
+    "highlightLinks": "Highlight links",
+    "stopAnimations": "Stop animations",
+    "readableFont": "Readable font",
+    "reset": "Reset settings",
+    "statement": "Accessibility statement"
+  },
+  "showcase": {
+    "eyebrow": "The collections",
+    "title": "Bodies of work",
+    "subtitle": "Slide through the rail — every collection opens into its own gallery.",
+    "explore": "Explore",
+    "worksCount_one": "One work",
+    "worksCount_other": "{{count}} works",
+    "prev": "Previous collection",
+    "next": "Next collection"
   },
   "home": {
     "tagline": "Acrylic on canvas",

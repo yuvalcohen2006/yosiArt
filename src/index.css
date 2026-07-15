@@ -150,3 +150,53 @@
   }
 }
 
+/*
+  ===== Accessibility widget modes =====
+  Toggled as classes on <html> by the floating widget
+  (src/components/a11y/AccessibilityWidget.tsx). Kept as plain CSS (not
+  Tailwind layers) so the overrides win the cascade with !important.
+*/
+
+/* Highlight links — thick underline that never relies on colour alone. */
+html.a11y-links a {
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* Stop animations — collapse every CSS transition/animation to a single
+   instant frame. JS-driven motion (carousel timers) checks for this class
+   before advancing. */
+html.a11y-stop-motion *,
+html.a11y-stop-motion *::before,
+html.a11y-stop-motion *::after {
+  transition-duration: 0.001ms !important;
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+}
+html.a11y-stop-motion {
+  scroll-behavior: auto !important;
+}
+
+/* Readable font — swap the display serif + tracked labels for a plain,
+   widely-legible sans across the board. */
+html.a11y-readable * {
+  font-family: Arial, 'Assistant', ui-sans-serif, sans-serif !important;
+  letter-spacing: 0 !important;
+}
+
+/* High contrast — near-black text on white surfaces. Elements that live on
+   dark fills (text-paper / text-white / text-flame-50 utilities, including
+   their variant forms like focus:text-paper) keep their light colour. */
+html.a11y-contrast body {
+  background: #fff;
+}
+html.a11y-contrast
+  :where(p, h1, h2, h3, h4, h5, h6, li, span, a, button, strong, em, td, th, dt, dd, time, figcaption, blockquote, label):not(
+    [class*='text-paper'],
+    [class*='text-white'],
+    [class*='text-flame-50']
+  ) {
+  color: #0a0a0a !important;
+}
+

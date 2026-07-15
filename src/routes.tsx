@@ -54,14 +54,19 @@ export const routes: RouteRecord[] = [
         path: '/',
         element: <HomeLanding />,
         loader: async () => {
-          // Pull the homeMedia singleton at build time. Provides the
-          // hero carousel images (cycle behind the headline) and the
-          // OG share image used when yosiart.vercel.app is pasted
-          // into a WhatsApp / IG message.
-          const homeMedia = await sanityClient.fetch<HomeMedia | null>(
-            HOME_MEDIA_QUERY,
-          );
-          return { homeMedia };
+          // Pull the homeMedia singleton + the category list at build time.
+          // homeMedia provides the hero carousel images and the OG share
+          // image; the categories feed the focus-rail showcase between the
+          // secondary photo and the footer. The showcase is progressive
+          // enhancement, so a failed categories fetch degrades to an empty
+          // list instead of failing the whole landing build.
+          const [homeMedia, categories] = await Promise.all([
+            sanityClient.fetch<HomeMedia | null>(HOME_MEDIA_QUERY),
+            sanityClient
+              .fetch<CategoryDoc[]>(CATEGORIES_QUERY)
+              .catch(() => null),
+          ]);
+          return { homeMedia, categories: categories ?? [] };
         },
       },
       { path: '/works', element: <Works /> },
@@ -101,6 +106,29 @@ export const routes: RouteRecord[] = [
       },
       { path: '/about', element: <About /> },
       { path: '/contact', element: <Contact /> },
+      // Israeli legal pages (Hebrew primary, English translation) — linked
+      // from the footer and the accessibility widget. Route-level lazy so
+      // their ~45KB of bilingual legal text ships as its own chunk instead
+      // of weighing down the landing bundle.
+      {
+        path: '/terms',
+        lazy: async () => ({
+          Component: (await import('./pages/legal/Terms')).default,
+        }),
+      },
+      {
+        path: '/privacy',
+        lazy: async () => ({
+          Component: (await import('./pages/legal/Privacy')).default,
+        }),
+      },
+      {
+        path: '/accessibility',
+        lazy: async () => ({
+          Component: (await import('./pages/legal/AccessibilityStatement'))
+            .default,
+        }),
+      },
       { path: '/navbar-demo', element: <NavbarDemo /> },
       { path: '*', element: <NotFound /> },
     ],

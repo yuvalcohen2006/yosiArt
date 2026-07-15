@@ -24,6 +24,24 @@
       href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700&family=Frank+Ruhl+Libre:wght@300;400;500;600;700;900&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Re-apply persisted accessibility preferences (a11y widget) before
+         first paint, so returning visitors never see a flash of the
+         non-adjusted page. Mirrors applyPrefs() in AccessibilityWidget. -->
+    <script>
+      (function () {
+        try {
+          var p = JSON.parse(localStorage.getItem('yosiart.a11y') || '{}');
+          var root = document.documentElement;
+          if (p.contrast) root.classList.add('a11y-contrast');
+          if (p.links) root.classList.add('a11y-links');
+          if (p.stopMotion) root.classList.add('a11y-stop-motion');
+          if (p.readable) root.classList.add('a11y-readable');
+          var fs = Number(p.fontScale);
+          if (fs > 100 && fs <= 150) root.style.fontSize = fs + '%';
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

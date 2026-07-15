@@ -14,7 +14,8 @@ export const CATEGORIES_QUERY = /* groq */ `
     "slug": slug.current,
     description,
     order,
-    coverImage
+    coverImage,
+    "count": count(*[_type == "painting" && references(^._id)])
   }
 `;
 
