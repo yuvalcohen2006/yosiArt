@@ -12,12 +12,13 @@ import { cn } from '@/lib/utils';
 import * as React from 'react';
 import LanguageToggle from '@/components/layout/LanguageToggle';
 import { useLocale } from '@/hooks/useLocale';
+import { NAV_LIFT } from '@/components/ui/nav-lift';
 
 // Adapted from the provided shadcn "Tabnavbar" demo: next/link -> plain <a>
 // (Vite/React-Router), our fonts + palette, real logo, an EN/HE toggle, and
 // labels wired to i18n so the toggle switches the nav language.
 
-export default function Tabnavbar() {
+export default function Tabnavbar({ hidden = false }: { hidden?: boolean }) {
   const { t } = useLocale();
   // Products opens on click, not hover (see navigation-menu.tsx). Controlled so
   // a pointer-down anywhere outside the navbar closes it.
@@ -36,7 +37,12 @@ export default function Tabnavbar() {
   return (
     <nav
       ref={navRef}
-      className="sticky top-0 z-40 border-b border-line bg-white font-sans"
+      className={cn(
+        'sticky top-0 z-40 border-b border-line bg-white font-sans transition-[transform,opacity] duration-500 ease-out',
+        // Lifted out of frame during the "painter's world" video beats, then
+        // eased back in as the collections reveal.
+        hidden && '-translate-y-full opacity-0',
+      )}
     >
       <div className="flex w-full items-center justify-between px-8 py-4">
         <div className="flex items-center gap-6">
@@ -102,7 +108,10 @@ export default function Tabnavbar() {
         </div>
         <div className="flex items-center gap-4">
           <LanguageToggle />
-          <Button variant="outline" className="text-base font-medium">
+          <Button
+            variant="outline"
+            className={cn('text-base font-medium', NAV_LIFT)}
+          >
             {t('nav.signIn')}
           </Button>
         </div>
