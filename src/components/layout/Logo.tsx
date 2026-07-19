@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useLocale } from '@/hooks/useLocale';
 
 type Props = {
   /** Header is the default; footer is a touch smaller and slightly muted. */
@@ -17,10 +18,11 @@ type Props = {
  */
 export default function Logo({ variant = 'header', onDark = false }: Props) {
   const isFooter = variant === 'footer';
+  const { t } = useLocale();
   return (
     <Link
       to="/"
-      aria-label="YosiArt — home"
+      aria-label={t('nav.homeAria')}
       className="inline-flex items-center group"
     >
       <img

@@ -27,7 +27,7 @@ export default function LanguageToggle() {
       // `text-base` is deliberately NOT bumped by the RTL size rules, so the
       // label stays a fixed 16px whichever language it shows.
       className={cn(
-        'select-none rounded-md px-2 py-1 font-sans text-base font-medium leading-none text-ink hover:text-primary',
+        'select-none rounded-md px-2 py-1 font-sans text-base font-medium leading-none text-ink hover:text-accent-ink',
         NAV_LIFT,
       )}
     >

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useReducedMotion } from 'framer-motion';
-import { cardUrls } from '@/sanity/imageUrl';
+import { cardUrls, urlFor } from '@/sanity/imageUrl';
 import type { SanityImage } from '@/sanity/types';
 import { useLocale } from '@/hooks/useLocale';
 import { useStopMotion } from '@/components/a11y/useStopMotion';
@@ -14,24 +13,26 @@ const DURATION_MS = 4000;
 
 /**
  * Spread of the coverflow, as a % of the card width. Side cards sit at
- * ±SPREAD with the centre card on top. Kept modest so the fanned cards stay
- * inside the painted frame's white field on both LTR and RTL layouts.
+ * ±SPREAD with the centre card on top. Tightened for the compact hero — the
+ * neighbours read as a quiet presence behind the active canvas rather than a
+ * wide fan competing with it.
  */
-const SPREAD = 42;
+const SPREAD = 33;
 
 /**
  * Hero artwork carousel — a 3D "coverflow" over the Sanity
- * `homeMedia.heroImages` set. The active painting sits face-on in the centre;
- * its neighbours peek from behind on both sides, scaled down, angled away and
- * softly blurred, like canvases leaning against the studio wall. Advances
- * every 4s (wrapping), and can be driven manually with the chevron buttons.
+ * `homeMedia.heroImages` set, hanging in the beam of the hero's spotlight. The
+ * active painting sits face-on in the centre; its neighbours peek from behind
+ * on both sides, scaled down, angled away and softly blurred, like canvases
+ * leaning against the studio wall. Advances every 4s, wrapping.
  *
  * Auto-advance pauses for OS reduced-motion users and for the accessibility
- * widget's "stop animations" mode (both reactive); the chevrons keep every
- * artwork reachable either way.
+ * widget's "stop animations" mode (both reactive). Since the chevrons were
+ * removed for the cleaner look, the segmented bar underneath doubles as the
+ * only control: each segment is a real button, so every artwork stays
+ * reachable by click and keyboard even when nothing is auto-advancing.
  *
- * Below the stage sits the thin segmented progress bar — one segment per
- * image — whose active segment fills over the 4s display window.
+ * It renders on the dark half of the hero, so its furniture is light-on-dark.
  */
 export default function HeroArtworkCarousel({
   images,
@@ -48,6 +49,21 @@ export default function HeroArtworkCarousel({
   // One URL per slide, built once — the same string is used for preloading
   // and rendering, so the render hits the cache instead of a fresh request.
   const urls = useMemo(() => cardUrls(images, 800, 1000), [images]);
+
+  // Separate, TINY renditions for the ambilight glow behind each card.
+  // The glow used the same 800x1000 image as the card and leaned on a 40px CSS
+  // blur, which meant the browser rasterising a heavy blur for every slide in
+  // the set — the single most expensive thing on the landing page. Sanity
+  // blurs a 64px-wide copy server-side instead; upscaled and lightly softened
+  // it is visually identical (it is an out-of-focus halo either way) for
+  // roughly 1/150th of the pixels.
+  const glowUrls = useMemo(
+    () =>
+      images.map((img) =>
+        urlFor(img).width(64).height(80).fit('crop').blur(20).auto('format').url(),
+      ),
+    [images],
+  );
 
   // Preload EVERY slide in parallel on mount (client only — effects don't run
   // during SSG), so each rotation blends fully-loaded images.
@@ -92,80 +108,95 @@ export default function HeroArtworkCarousel({
             <div
               key={image._key ?? i}
               aria-hidden={!isCenter}
-              className="pointer-events-none absolute inset-0 transition-all duration-500 ease-gallery motion-reduce:transition-none"
+              // Named properties, not `transition-all`: `all` also animates
+              // `filter`, so every 4s rotation was cross-fading a blur on each
+              // card — expensive, and invisible next to the transform anyway.
+              // The blur now switches instantly while the motion stays smooth.
+              className="pointer-events-none absolute inset-0 transition-[transform,opacity] duration-500 ease-gallery motion-reduce:transition-none"
               style={{
                 transform: `translateX(${pos * SPREAD}%) scale(${
                   isCenter ? 1 : isAdjacent ? 0.85 : 0.7
                 }) rotateY(${pos * -10}deg)`,
                 zIndex: isCenter ? 10 : isAdjacent ? 5 : 1,
-                opacity: isCenter ? 1 : isAdjacent ? 0.45 : 0,
+                opacity: isCenter ? 1 : isAdjacent ? 0.3 : 0,
                 filter: isCenter ? 'blur(0px)' : 'blur(4px)',
                 visibility: Math.abs(pos) > 1 ? 'hidden' : 'visible',
               }}
             >
+              {/* Ambilight — a blurred, brightened echo of the painting
+                  itself bleeding into the dark stage, so each canvas appears
+                  to cast its own light. Rides the card's opacity/transitions;
+                  brightness lifts dark paintings that would otherwise glow
+                  too weakly. */}
+              <img
+                aria-hidden
+                src={glowUrls[i]}
+                alt=""
+                draggable={false}
+                className="pointer-events-none absolute inset-0 -z-10 h-full w-full scale-110 select-none rounded-md object-cover opacity-40 blur-lg brightness-125 saturate-150"
+              />
               <img
                 src={urls[i]}
                 alt={isCenter ? pickAlt(image, locale) : ''}
                 draggable={false}
                 className={cn(
-                  'h-full w-full select-none rounded-md border border-ink/10 object-cover',
+                  // A physical frame, not a UI border: dark-taupe moulding, a
+                  // hairline of cream gilt, then the drop onto the wall — the
+                  // difference between "card" and "canvas hung in a room".
+                  'h-full w-full select-none rounded-md object-cover',
                   isCenter
-                    ? 'shadow-[0_24px_48px_-24px_rgba(37,36,34,0.45)]'
-                    : 'shadow-lg',
+                    ? 'shadow-[0_0_0_5px_#403d39,0_0_0_6px_rgba(255,252,242,0.12),0_24px_50px_-16px_rgba(0,0,0,0.85)]'
+                    : 'shadow-[0_0_0_5px_rgba(64,61,57,0.7),0_12px_30px_-14px_rgba(0,0,0,0.7)]',
                 )}
               />
             </div>
           );
         })}
 
-        {/* Chevron navigation — physical left/right to match the physical
-            card motion, so it reads the same in Hebrew and English. */}
-        {count > 1 && (
-          <>
-            <button
-              type="button"
-              onClick={() => setIndex((i) => mod(i - 1, count))}
-              aria-label={t('heroCarousel.prev')}
-              className="absolute -left-3 top-1/2 z-20 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full border border-ink/15 bg-paper/70 text-ink backdrop-blur-sm transition-colors duration-300 hover:border-primary/60 hover:text-primary md:h-9 md:w-9"
-            >
-              <ChevronLeft aria-hidden className="h-4 w-4 md:h-5 md:w-5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setIndex((i) => mod(i + 1, count))}
-              aria-label={t('heroCarousel.next')}
-              className="absolute -right-3 top-1/2 z-20 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full border border-ink/15 bg-paper/70 text-ink backdrop-blur-sm transition-colors duration-300 hover:border-primary/60 hover:text-primary md:h-9 md:w-9"
-            >
-              <ChevronRight aria-hidden className="h-4 w-4 md:h-5 md:w-5" />
-            </button>
-          </>
-        )}
       </div>
 
-      {/* Thin segmented progress bar — one segment per image. While
-          auto-playing the active segment fills over the 4s window; when
-          auto-play is paused (reduced motion / stop animations) it shows as
-          a static position indicator instead of a fake countdown. */}
-      <div className="mt-3 flex gap-1.5" aria-hidden>
+      {/* Floor shadow — the contact pool that grounds the floating coverflow
+          on the stage instead of letting it hover in a void. */}
+      <div
+        aria-hidden
+        className="mx-auto mt-4 h-5 w-4/5 bg-[radial-gradient(ellipse_50%_100%_at_50%_50%,rgba(0,0,0,0.5),transparent_70%)] blur-sm"
+      />
+
+      {/* Thin segmented bar — one segment per image, and the carousel's only
+          control now that the chevrons are gone. While auto-playing the active
+          segment fills over the 4s window; when auto-play is paused (reduced
+          motion / stop animations) it shows a static position indicator rather
+          than a fake countdown, and these buttons are then the ONLY way to
+          reach the other artworks. Each hit area is padded well beyond the 3px
+          hairline so it stays clickable. */}
+      <div className="mt-3 flex gap-1.5">
         {images.map((_, i) => (
-          <div
+          <button
             key={i}
-            className="relative h-[3px] flex-1 overflow-hidden rounded-full bg-ink/10"
+            type="button"
+            onClick={() => setIndex(i)}
+            aria-label={`${t('heroCarousel.goTo')} ${i + 1}`}
+            aria-current={i === index}
+            className="group relative flex-1 py-2"
           >
-            {i < index && <div className="h-full w-full bg-ink/60" />}
-            {i === index &&
-              (autoPlaying ? (
-                <div
-                  key={index}
-                  className="h-full bg-ink/60"
-                  style={{
-                    animation: `heroCarouselFill ${DURATION_MS}ms linear forwards`,
-                  }}
-                />
-              ) : (
-                <div className="h-full w-full bg-ink/60" />
-              ))}
-          </div>
+            <span className="relative block h-[3px] w-full overflow-hidden rounded-full bg-flame-50/25 transition-colors duration-300 group-hover:bg-flame-50/40">
+              {i < index && (
+                <span className="block h-full w-full bg-flame-50/80" />
+              )}
+              {i === index &&
+                (autoPlaying ? (
+                  <span
+                    key={index}
+                    className="block h-full bg-flame-50/80"
+                    style={{
+                      animation: `heroCarouselFill ${DURATION_MS}ms linear forwards`,
+                    }}
+                  />
+                ) : (
+                  <span className="block h-full w-full bg-flame-50/80" />
+                ))}
+            </span>
+          </button>
         ))}
       </div>
     </div>

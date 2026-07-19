@@ -11,15 +11,11 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Artwork images and the painter's-world film both come from Sanity's
+         asset CDN. Opening that connection during head parsing saves the
+         DNS + TLS round trips before the video's first byte. -->
+    <link rel="preconnect" href="https://cdn.sanity.io" crossorigin />
 
-    <!-- Preload the contact-page link icon so it's cached on first load
-         even if the visitor never opens /contact. -->
-    <link
-      rel="preload"
-      href="/link-icon.svg"
-      as="image"
-      type="image/svg+xml"
-    />
     <link
       href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700&family=Frank+Ruhl+Libre:wght@300;400;500;600;700;900&display=swap"
       rel="stylesheet"

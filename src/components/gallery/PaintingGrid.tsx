@@ -3,39 +3,24 @@ import PaintingCard from './PaintingCard';
 import type { Painting } from '@/sanity/types';
 
 /**
- * Asymmetric "magazine wall" gallery. Cards flow through CSS multi-columns
- * (true masonry, no row-height gaps) and cycle through a few aspect ratios
- * so the wall reads as a curated hang rather than a rigid grid. The aspect
- * pattern is deterministic (keyed off index), so it's stable across renders
- * and mirrors cleanly in RTL — the columns follow the document direction.
+ * The works wall — a plain, even grid.
  *
- * Stagger is capped at 8 so cards further down don't get absurd delays.
+ * This used to be a CSS multi-column "magazine wall" cycling cards through
+ * five different aspect ratios. Every card is the same 4:5 now: with mixed
+ * ratios the paintings competed for attention purely by accident of position,
+ * and no two captions in a row ever lined up. A regular grid lets the work
+ * itself be the only thing that varies, and puts the titles on a shared
+ * baseline.
+ *
+ * Stagger is capped at 8 so cards further down don't inherit absurd delays.
  */
-
-// Deterministic aspect rhythm — a mix of standard portraits, a taller
-// "feature" canvas, and the occasional square to break the grid.
-const ASPECTS = [
-  'aspect-[4/5]',
-  'aspect-[3/4]',
-  'aspect-[4/5]',
-  'aspect-[4/6]', // taller feature
-  'aspect-[1/1]', // square breather
-  'aspect-[4/5]',
-  'aspect-[3/4]',
-] as const;
-
 export default function PaintingGrid({ paintings }: { paintings: Painting[] }) {
   return (
-    <div className="columns-2 lg:columns-3 xl:columns-4 gap-4 md:gap-5">
+    <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 lg:grid-cols-3 xl:grid-cols-4">
       {paintings.map((p, i) => (
-        <div key={p._id} className="mb-4 md:mb-5 break-inside-avoid">
-          <Reveal delay={(i % 8) * 0.05}>
-            <PaintingCard
-              painting={p}
-              aspectClass={ASPECTS[i % ASPECTS.length]}
-            />
-          </Reveal>
-        </div>
+        <Reveal key={p._id} delay={(i % 8) * 0.05}>
+          <PaintingCard painting={p} />
+        </Reveal>
       ))}
     </div>
   );

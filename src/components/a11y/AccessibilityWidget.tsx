@@ -12,6 +12,7 @@ import {
   X,
 } from 'lucide-react';
 import { useLocale } from '@/hooks/useLocale';
+import { useDialog } from '@/hooks/useDialog';
 import { cn } from '@/lib/utils';
 import { A11Y_MOTION_EVENT } from './useStopMotion';
 
@@ -82,7 +83,9 @@ function loadPrefs(): A11yPrefs {
 
 /**
  * Floating accessibility widget (נגישות) — the small round button pinned to
- * the bottom-left corner on every page. Opens a compact panel with the
+ * the bottom of the reading-start edge on every page: bottom-left in English,
+ * bottom-right in Hebrew, via logical `start-*` rather than physical `left-*`
+ * (identical in LTR, mirrored in RTL). Opens a compact panel with the
  * adjustments Israeli accessibility practice expects from a service widget:
  * text size, high contrast, link highlighting, stopping animations and a
  * readable font — plus reset and a link to the accessibility statement.
@@ -122,34 +125,13 @@ export default function AccessibilityWidget() {
     setPrefs((prev) => ({ ...prev, ...patch }));
   }, []);
 
-  const close = useCallback(() => {
-    setOpen(false);
-    toggleRef.current?.focus();
-  }, []);
+  const close = useCallback(() => setOpen(false), []);
 
-  // Focus the dialog when it opens so keyboard users land inside it.
-  useEffect(() => {
-    if (open) panelRef.current?.focus();
-  }, [open]);
-
-  // Esc closes; clicking/tapping outside closes.
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') close();
-    };
-    const onPointerDown = (e: PointerEvent) => {
-      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener('keydown', onKey);
-    document.addEventListener('pointerdown', onPointerDown);
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      document.removeEventListener('pointerdown', onPointerDown);
-    };
-  }, [open, close]);
+  // Focus moves in on open and back to the toggle on close, Tab cycles inside
+  // the panel, Escape and outside-clicks dismiss. Previously Tab walked
+  // straight out of the open panel into the page behind it, which strands a
+  // keyboard user in content they cannot see.
+  useDialog({ open, onClose: close, panelRef });
 
   const toggles: Array<{
     key: 'contrast' | 'links' | 'stopMotion' | 'readable';
@@ -163,13 +145,16 @@ export default function AccessibilityWidget() {
   ];
 
   return (
-    <div ref={rootRef} className="fixed bottom-4 left-4 z-50">
+    <div ref={rootRef} className="fixed bottom-4 start-4 z-50">
       <button
         ref={toggleRef}
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-label={t('a11y.open')}
+        /* Dark-filled control — declares itself so high contrast keeps the
+           glyph light instead of blackening it into the fill. */
+        data-surface="dark"
         className="grid h-11 w-11 place-items-center rounded-full bg-ink text-paper shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary active:translate-y-0"
       >
         <Accessibility aria-hidden className="h-6 w-6" />
@@ -179,9 +164,10 @@ export default function AccessibilityWidget() {
         <div
           ref={panelRef}
           role="dialog"
+          aria-modal="true"
           aria-label={t('a11y.title')}
           tabIndex={-1}
-          className="absolute bottom-14 left-0 w-64 rounded-md border border-line bg-white p-4 shadow-2xl outline-none animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-2 duration-200"
+          className="absolute bottom-14 start-0 w-64 rounded-md border border-line bg-white p-4 shadow-2xl outline-none animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-2 duration-200"
         >
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold text-ink">{t('a11y.title')}</p>
@@ -208,7 +194,7 @@ export default function AccessibilityWidget() {
                 }
                 disabled={prefs.fontScale <= FONT_MIN}
                 aria-label={t('a11y.decreaseText')}
-                className="grid h-7 w-7 place-items-center rounded-md border border-line text-ink transition-colors hover:border-primary hover:text-primary disabled:pointer-events-none disabled:opacity-40"
+                className="grid h-7 w-7 place-items-center rounded-md border border-line text-ink transition-colors hover:border-primary hover:text-accent-ink disabled:pointer-events-none disabled:opacity-40"
               >
                 <Minus aria-hidden className="h-3.5 w-3.5" />
               </button>
@@ -224,7 +210,7 @@ export default function AccessibilityWidget() {
                 }
                 disabled={prefs.fontScale >= FONT_MAX}
                 aria-label={t('a11y.increaseText')}
-                className="grid h-7 w-7 place-items-center rounded-md border border-line text-ink transition-colors hover:border-primary hover:text-primary disabled:pointer-events-none disabled:opacity-40"
+                className="grid h-7 w-7 place-items-center rounded-md border border-line text-ink transition-colors hover:border-primary hover:text-accent-ink disabled:pointer-events-none disabled:opacity-40"
               >
                 <Plus aria-hidden className="h-3.5 w-3.5" />
               </button>
@@ -242,7 +228,7 @@ export default function AccessibilityWidget() {
                 className={cn(
                   'flex flex-col items-center gap-1.5 rounded-md border px-2 py-2.5 text-center text-[11px] leading-tight transition-colors duration-200',
                   prefs[key]
-                    ? 'border-primary/50 bg-primary/10 text-primary'
+                    ? 'border-primary/50 bg-primary/10 text-accent-ink'
                     : 'border-line text-slate hover:border-ink/30 hover:text-ink',
                 )}
               >
@@ -265,7 +251,7 @@ export default function AccessibilityWidget() {
             <Link
               to="/accessibility"
               onClick={() => setOpen(false)}
-              className="text-xs text-slate underline underline-offset-2 transition-colors hover:text-primary"
+              className="text-xs text-slate underline underline-offset-2 transition-colors hover:text-accent-ink"
             >
               {t('a11y.statement')}
             </Link>

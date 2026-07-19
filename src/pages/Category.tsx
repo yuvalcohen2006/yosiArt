@@ -67,7 +67,7 @@ export default function Category() {
           filter strip ends up the same width as the hairline above it. */}
       <div className="mx-auto max-w-3xl">
         <p className="eyebrow">
-          <span aria-hidden className="text-accent">— </span>
+          <span aria-hidden className="text-accent-ink">— </span>
           {t('category.tagline')}
         </p>
         <h1 className="mt-6 font-display font-black text-6xl md:text-8xl tracking-tight leading-none">

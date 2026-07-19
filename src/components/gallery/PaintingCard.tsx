@@ -9,9 +9,6 @@ import type { Painting } from '@/sanity/types';
 
 type Props = {
   painting: Painting;
-  /** Aspect ratio of the image well — varies per card to build the
-   *  asymmetric magazine wall. Defaults to the portrait 4:5. */
-  aspectClass?: string;
 };
 
 /**
@@ -22,11 +19,8 @@ type Props = {
  * looking empty. On hover the image scales gently and the title shifts to
  * the accent grey. The artwork stays in full colour — colour is the point.
  */
-export default function PaintingCard({
-  painting,
-  aspectClass = 'aspect-[4/5]',
-}: Props) {
-  const { locale } = useLocale();
+export default function PaintingCard({ painting }: Props) {
+  const { locale, t } = useLocale();
   const title = pickLocale(painting.title, locale, painting.slug);
   const categoryTitle = painting.category
     ? pickLocale(painting.category.title, locale)
@@ -47,18 +41,18 @@ export default function PaintingCard({
     if (imgRef.current?.complete) setLoaded(true);
   }, []);
 
+  // The link deliberately carries NO `aria-label`. It used to be
+  // `aria-label={title}`, and aria-label overrides all descendant content when
+  // the accessible name is computed — so the name collapsed to the title alone
+  // and silently dropped the category and the "sold" marker rendered below. In
+  // a screen reader's list of links, sold pieces were indistinguishable from
+  // available ones. The link already contains visible text, so letting the name
+  // be computed from its contents is both correct and strictly more useful.
   return (
-    <Link
-      to={`/work/${painting.slug}`}
-      className="group block"
-      aria-label={title}
-    >
-      <div
-        className={[
-          'relative overflow-hidden bg-mist/40 border border-line transition-colors duration-500 group-hover:border-ink',
-          aspectClass,
-        ].join(' ')}
-      >
+    <Link to={`/work/${painting.slug}`} className="group block">
+      {/* Every well is the same 4:5 — the wall is a regular grid now, so the
+          paintings differ and nothing else does. */}
+      <div className="relative aspect-[4/5] overflow-hidden border border-line bg-mist/40 transition-colors duration-500 group-hover:border-ink">
         {/* Loading skeleton — a soft pulsing wash with a tiny spinner
             centred. Fades out as soon as the image is ready. */}
         <div
@@ -101,18 +95,23 @@ export default function PaintingCard({
         )}
       </div>
 
-      {/* Caption block — structured editorial label beneath the image. */}
-      <div className="mt-3 flex flex-col gap-1 rtl:text-right">
+      {/* Caption — the collection name in the site's kicker style (the same
+          `.eyebrow` that sets "The collections"), with the piece's own title
+          beneath it in italic Assistant. */}
+      <div className="mt-3 flex flex-col gap-1 text-start">
+        {/* Sized deliberately 2px under the title beneath it (16 vs 18), so
+            the pair reads as a label and its subject rather than two
+            competing lines. */}
         {categoryTitle && (
-          <span className="eyebrow text-[10px]">{categoryTitle}</span>
+          <span className="eyebrow text-base">{categoryTitle}</span>
         )}
-        <span className="font-display font-semibold text-lg leading-snug text-ink group-hover:text-accent transition-colors duration-300">
+        <span className="font-sans text-lg italic leading-snug text-ink transition-colors duration-300 group-hover:text-accent-ink">
           {title}
         </span>
         {isSold && (
-          <span className="mt-0.5 inline-flex items-center gap-2 eyebrow text-[10px] text-deep">
-            <span className="h-1 w-1 rounded-full bg-deep" />
-            Sold
+          <span className="eyebrow mt-0.5 inline-flex items-center gap-2 text-[10px] text-slate">
+            <span className="h-1 w-1 rounded-full bg-slate" />
+            {t('painting.statusSold')}
           </span>
         )}
       </div>

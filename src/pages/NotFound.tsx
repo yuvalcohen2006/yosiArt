@@ -12,7 +12,7 @@ export default function NotFound() {
         description="That page doesn't exist (yet)."
       />
       <div className="mx-auto max-w-3xl">
-        <p className="eyebrow text-[11px] text-accent">
+        <p className="eyebrow text-[11px] text-accent-ink">
           {t('notFound.tagline')}
         </p>
         <h1 className="mt-6 font-display text-6xl md:text-8xl tracking-tight leading-none">
@@ -25,7 +25,7 @@ export default function NotFound() {
         <p className="mt-10 text-slate text-lg">{t('notFound.subtitle')}</p>
         <Link
           to="/"
-          className="mt-10 inline-flex items-center gap-3 font-display font-medium text-sm uppercase tracking-[0.2em] text-ink hover:text-accent transition-colors duration-300"
+          className="mt-10 inline-flex items-center gap-3 font-display font-medium text-sm uppercase tracking-[0.2em] text-ink hover:text-accent-ink transition-colors duration-300"
         >
           <span aria-hidden className="block h-px w-12 bg-current" />
           <span>{t('notFound.back')}</span>

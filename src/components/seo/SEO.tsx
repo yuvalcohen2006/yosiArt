@@ -16,10 +16,9 @@ type Props = {
    *  Used to build the canonical URL + og:url. */
   path: string;
   /** Absolute URL of the OG / twitter image (1200×630 recommended). When
-   *  omitted the page renders without an `og:image` tag (link previews
-   *  will show a text-only card). The home page and painting pages
-   *  always pass one — set the home OG via the `homeMedia.ogImage`
-   *  field in Sanity. */
+   *  omitted the page falls back to the site-wide `/og-default.jpg`, so every
+   *  page shares as a real image card. The home page and painting pages pass
+   *  their own — set the home OG via the `homeMedia.ogImage` field in Sanity. */
   image?: string;
   /** OpenGraph type. "article" for paintings, otherwise "website". */
   type?: 'website' | 'article';
@@ -51,6 +50,13 @@ export default function SEO({
     ? `${title} · ${SITE_NAME}`
     : `${SITE_NAME} — ${SITE_TAGLINE}`;
   const url = `${SITE_BASE_URL}${path}`;
+  // Fall back to the site-wide card. `og-default.jpg` was already being
+  // deployed and referenced by nothing, so /works, /about, /contact, the legal
+  // pages and 404 all produced bare text-only previews when shared — on a site
+  // whose whole point is images, and whose main sharing channel is WhatsApp.
+  // Defaulting here means every page gets a real card and the asset stops
+  // being dead weight.
+  const cardImage = image ?? `${SITE_BASE_URL}/og-default.jpg`;
   const jsonLdString = jsonLd
     ? JSON.stringify(jsonLd)
     : null;
@@ -70,21 +76,21 @@ export default function SEO({
       {description && (
         <meta property="og:description" content={description} />
       )}
-      {image && <meta property="og:image" content={image} />}
-      {image && <meta property="og:image:width" content="1200" />}
-      {image && <meta property="og:image:height" content="630" />}
+      <meta property="og:image" content={cardImage} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
 
       {/* Twitter card — separate spec but same data; both are needed
           for full coverage across platforms. */}
       <meta
         name="twitter:card"
-        content={image ? 'summary_large_image' : 'summary'}
+        content="summary_large_image"
       />
       <meta name="twitter:title" content={fullTitle} />
       {description && (
         <meta name="twitter:description" content={description} />
       )}
-      {image && <meta name="twitter:image" content={image} />}
+      <meta name="twitter:image" content={cardImage} />
 
       {/* JSON-LD structured data — invisible markup that tells search
           engines what kind of thing this page is (e.g. a painting). */}

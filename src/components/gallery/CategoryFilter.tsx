@@ -9,7 +9,9 @@ const linkClass = ({ isActive }: { isActive: boolean }) =>
   [
     'inline-flex items-center font-display font-medium text-[11px] uppercase tracking-[0.2em] px-4 py-2 border transition-colors duration-300',
     isActive
-      ? 'bg-ink text-paper border-ink'
+      ? // `text-paper` is on the high-contrast spare list, so this label stays
+        // light on its dark fill (9.0:1) instead of being blackened into it.
+        'bg-ink text-paper border-ink'
       : 'border-line text-slate hover:border-ink hover:text-ink',
   ].join(' ');
 

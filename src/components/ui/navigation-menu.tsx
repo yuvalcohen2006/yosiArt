@@ -42,7 +42,7 @@ NavigationMenuList.displayName = NavigationMenuPrimitive.List.displayName;
 const NavigationMenuItem = NavigationMenuPrimitive.Item;
 
 const navigationMenuTriggerStyle = cva(
-  'group inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-base font-medium hover:text-primary focus:text-primary focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:text-primary data-[state=open]:text-primary ' +
+  'group inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-base font-medium hover:text-accent-ink focus:text-accent-ink disabled:pointer-events-none disabled:opacity-50 data-[active]:text-accent-ink data-[state=open]:text-accent-ink ' +
     NAV_LIFT,
 );
 
@@ -61,7 +61,7 @@ const NavigationMenuTrigger = React.forwardRef<
   >
     {children}{' '}
     <ChevronDownIcon
-      className="relative top-[1px] ml-1 h-3 w-3 transition duration-300 group-data-[state=open]:rotate-180"
+      className="relative top-[1px] ms-1 h-3 w-3 transition duration-300 group-data-[state=open]:rotate-180"
       aria-hidden="true"
     />
   </NavigationMenuPrimitive.Trigger>

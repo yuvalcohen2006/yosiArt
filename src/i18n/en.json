@@ -3,19 +3,21 @@
     "works": "Works",
     "about": "About",
     "contact": "Contact",
-    "products": "Products",
-    "signIn": "Sign In",
     "search": "Search for artwork...",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "hottestCategories": "Hottest categories",
+    "featuredBlurb": "Browse the full gallery",
+    "homeAria": "YosiArt — home"
   },
   "hero": {
     "title1": "Tradition In",
-    "title2": "Living Color"
+    "title2": "Living Color",
+    "scrollCue": "scroll"
   },
   "heroCarousel": {
-    "prev": "Previous artwork",
-    "next": "Next artwork"
+    "goTo": "Show artwork",
+    "title": "Top featured paintings"
   },
   "footer": {
     "tagline": "Original acrylic paintings on canvas. Each piece is one of a kind.",
@@ -23,7 +25,9 @@
     "legal": "Legal",
     "contactTitle": "Get in touch",
     "rights": "All rights reserved.",
-    "credit": "Acrylic paintings by Yosi Cohen"
+    "credit": "Acrylic paintings by Yosi Cohen",
+    "taglineLine1": "Original acrylic paintings on canvas.",
+    "taglineLine2": "Each piece is one of a kind."
   },
   "legal": {
     "privacy": "Privacy Policy",
@@ -44,7 +48,8 @@
     "stopAnimations": "Stop animations",
     "readableFont": "Readable font",
     "reset": "Reset settings",
-    "statement": "Accessibility statement"
+    "statement": "Accessibility statement",
+    "skipToContent": "Skip to content"
   },
   "showcase": {
     "eyebrow": "The collections",
@@ -66,7 +71,8 @@
     "aboutTheArtist": "About the artist",
     "bodiesOfWork": "Bodies of work",
     "seeAll": "See all",
-    "dragToExplore": "drag to explore"
+    "dragToExplore": "drag to explore",
+    "cta": "Get Started"
   },
   "categories": {
     "originals": "Originals",
@@ -80,7 +86,11 @@
     "title": "Works",
     "all": "All",
     "loading": "Loading…",
-    "empty": "No paintings yet — check back soon."
+    "empty": "No paintings yet — check back soon.",
+    "subtitle": "Every original in the catalogue — filter by collection, price or availability.",
+    "count_one": "1 work",
+    "count_other": "{{count}} works",
+    "noMatches": "Nothing matches that combination."
   },
   "category": {
     "tagline": "From the collection"
@@ -109,12 +119,17 @@
     "surfaceCanvas": "Canvas",
     "surfacePaper": "Paper",
     "unitCm": "cm",
-    "unitIn": "in"
+    "unitIn": "in",
+    "unitLabel": "Measurement unit",
+    "unitCmAria": "Show dimensions in centimetres",
+    "unitInAria": "Show dimensions in inches"
   },
   "about": {
-    "tagline": "The artist",
-    "title": "Yosi",
-    "stub": "A short bio goes here — a few sentences in Yosi's voice about the work, the practice, the studio. The real copy lives in Sanity and lands in milestone 11."
+    "tagline": "Behind the work",
+    "title": "The artist",
+    "stub": "A short bio goes here — a few sentences in Yosi's voice about the work, the practice, the studio. The real copy lives in Sanity and lands in milestone 11.",
+    "subtitle": "A few words from Yosi on the practice, and what drives every piece.",
+    "portraitAlt": "Yosi Cohen in his studio"
   },
   "contact": {
     "tagline": "Reach out",
@@ -126,7 +141,8 @@
     "email": "Email",
     "whatsapp": "WhatsApp",
     "instagram": "Instagram",
-    "stub": "Real contact details slot in via Sanity once the CMS is online (milestone 5). Until then these are placeholders."
+    "stub": "Real contact details slot in via Sanity once the CMS is online (milestone 5). Until then these are placeholders.",
+    "subtitle": "A message reaches Yosi directly — no forms, no middlemen."
   },
   "notFound": {
     "tagline": "404",
@@ -134,5 +150,28 @@
     "title2": "the canvas.",
     "subtitle": "That page doesn't exist (yet).",
     "back": "Back home"
+  },
+  "painterWorld": {
+    "quoteLine1": "Art is how we speak",
+    "quoteLine2": "beyond words"
+  },
+  "worksFilter": {
+    "button": "Filter",
+    "close": "Close filters",
+    "category": "Collection",
+    "allCategories": "All collections",
+    "sort": "Sort by",
+    "newest": "Newest first",
+    "priceAsc": "Price — low to high",
+    "priceDesc": "Price — high to low",
+    "availability": "Availability",
+    "allPieces": "All pieces",
+    "availableOnly": "Available only",
+    "clear": "Clear filters"
+  },
+  "currency": {
+    "label": "Currency",
+    "usd": "Show prices in US dollars",
+    "ils": "Show prices in Israeli shekels"
   }
 }

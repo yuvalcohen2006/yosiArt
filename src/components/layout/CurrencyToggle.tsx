@@ -1,4 +1,5 @@
 import { useCurrency } from '@/hooks/useCurrency';
+import { useLocale } from '@/hooks/useLocale';
 
 /**
  * Functional currency switch. Same shape as LanguageToggle — two buttons,
@@ -7,18 +8,19 @@ import { useCurrency } from '@/hooks/useCurrency';
  */
 export default function CurrencyToggle() {
   const { currency, setCurrency } = useCurrency();
+  const { t } = useLocale();
 
   return (
     <div
       role="group"
-      aria-label="Currency"
+      aria-label={t('currency.label')}
       className="inline-flex items-center text-[11.5px] tracking-[0.176em] select-none"
     >
       <button
         type="button"
         onClick={() => setCurrency('USD')}
         aria-pressed={currency === 'USD'}
-        aria-label="Show prices in US dollars"
+        aria-label={t('currency.usd')}
         className={[
           'transition-opacity duration-300 hover:opacity-100',
           currency === 'USD' ? 'opacity-100' : 'opacity-40',
@@ -33,7 +35,7 @@ export default function CurrencyToggle() {
         type="button"
         onClick={() => setCurrency('ILS')}
         aria-pressed={currency === 'ILS'}
-        aria-label="Show prices in Israeli shekels"
+        aria-label={t('currency.ils')}
         className={[
           'transition-opacity duration-300 hover:opacity-100',
           currency === 'ILS' ? 'opacity-100' : 'opacity-40',

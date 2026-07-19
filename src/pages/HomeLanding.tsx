@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
+import { ChevronDown } from 'lucide-react';
 import SEO from '@/components/seo/SEO';
 import Tabnavbar from '@/components/ui/navbar';
 import { useLocale } from '@/hooks/useLocale';
@@ -7,9 +8,18 @@ import { GetStartedButton } from '@/components/ui/get-started-button';
 import { useLoaderData } from 'react-router-dom';
 import HeroArtworkCarousel from '@/components/hero/HeroArtworkCarousel';
 import CategoryFocusRail from '@/components/home/CategoryFocusRail';
-import PainterWorldScroll from '@/components/home/PainterWorldScroll';
+import PainterWorldScene from '@/components/home/PainterWorldScene';
 import { motionStopped } from '@/components/a11y/useStopMotion';
+import { Spotlight, GridBackground, Vignette } from '@/components/fx/Spotlight';
 import type { Category, HomeMedia } from '@/sanity/types';
+
+/**
+ * The painter's-world film. A 10.5s seamless loop cut from Yosi's garden
+ * footage — see scripts/encodePainterVideo.mjs for how it's rendered from the
+ * camera master, and why it's a build asset rather than a Sanity upload.
+ */
+const PAINTER_VIDEO = '/assets/painter-loop.mp4';
+const PAINTER_POSTER = '/assets/painter-poster.jpg';
 
 // useLayoutEffect on the client (run before paint), useEffect on the server
 // (SSG) to avoid the React warning.
@@ -87,8 +97,8 @@ function HeroHeadline() {
           { duration: 1.4, clipPath: 'inset(0 0% 0 0)', ease: 'power4.inOut' },
           '-=1.0',
         )
-        // Appended AFTER the text entrance: the button fades in once BOTH lines
-        // have finished — reliably sequenced on the timeline, not a guessed delay.
+        // Appended AFTER the text entrance: the button fades in once BOTH
+        // lines have finished — sequenced on the timeline, not a guessed delay.
         .to('.hero-cta', {
           duration: 0.7,
           autoAlpha: 1,
@@ -100,32 +110,32 @@ function HeroHeadline() {
   }, [locale]);
 
   return (
-    /* bottom-[35.77%] puts this box's bottom edge exactly on the hero
-       painting's bottom edge (24% top + 1.25 aspect × 17.96% width, in photo
-       coords) so the CTA below can bottom-align with the painting. */
-    /* z-20 keeps the headline above the coverflow's blurred side cards at
-       narrow widths; pointer-events-none lets clicks fall through the (mostly
-       empty) box to the carousel chevrons underneath — only the CTA opts back
-       in to the pointer. */
-    <div
-      ref={rootRef}
-      className="pointer-events-none absolute start-[17%] end-[10%] top-[23%] bottom-[35.77%] z-20"
-    >
+    /* The hero's voice — on the dark stage, so everything is light type.
+       Centred on mobile (stacked layout), start-aligned beside the carousel
+       from md up. `whitespace-nowrap` means the two lines must never wrap, so
+       keep the clamp's vw term below what the column can hold if you retune. */
+    <div ref={rootRef} className="text-center md:text-start">
       <h1 className="sr-only">{`${line1} ${line2}`}</h1>
+      {/* No `invisible` class on any of these — the static prerendered HTML
+          ships the hero fully visible (SEO, no-JS, LCP), and the GSAP layout
+          effect hides + re-reveals post-hydration, before paint. Hidden
+          states baked into markup would blank the page for every visitor
+          whose JS hasn't landed yet. */}
+      {/* Pure white, both lines — no tonal split. The only colour in the
+          statement is the accent dot that lands it. */}
       <div
         aria-hidden
-        className="text-start font-display text-[clamp(1.7rem,5.4vw,6.5rem)] font-semibold leading-[1.05] text-ink"
+        className="font-display text-[clamp(2rem,5.6vw,5.9rem)] font-semibold leading-[1.04] text-white"
         style={{ perspective: '800px' }}
       >
-        <div className="hero-l1 invisible whitespace-nowrap">{line1}</div>
-        <div className="hero-l2 invisible whitespace-nowrap">
+        <div className="hero-l1 whitespace-nowrap">{line1}</div>
+        <div className="hero-l2 whitespace-nowrap">
           {line2}
           <span className="text-primary">.</span>
         </div>
       </div>
-      {/* CTA — start-aligned, raised 20px off the container's bottom edge;
-          faded in by the timeline above. */}
-      <div className="hero-cta invisible pointer-events-auto absolute bottom-5 start-0">
+      {/* CTA — faded in by the timeline above. */}
+      <div className="hero-cta mt-10 flex justify-center md:justify-start">
         <GetStartedButton />
       </div>
     </div>
@@ -133,18 +143,19 @@ function HeroHeadline() {
 }
 
 /**
- * Landing — a scrolling page of full-width painted photos on a white field.
- * Both photos have pure-white (#fff) backgrounds, so the join is just a plain
- * 40px white gap.
+ * Landing — three full-width acts on a white field:
  *
- *   navbar · landing-photo (headline in its white centre)
- *          · 40px white gap
- *          · secondary-photo
+ *   navbar · hero stage    — lit gallery wall; headline + CTA on the dark
+ *                            panel at the left, artwork hanging in the lamp's
+ *                            light at the right
+ *          · painter's world — the film opens up, then lifts away…
+ *          · collections     — …uncovering the category rail behind it
  *
  * (The original Home.tsx + the earlier shader backgrounds are still in the
  * repo, unused, until the new design is locked.)
  */
 export default function HomeLanding() {
+  const { t } = useLocale();
   // The '/' route loader fetches the homeMedia singleton (hero carousel
   // image set) plus the category list (focus-rail showcase) in one pass —
   // no client-side queries, no hardcoded URLs.
@@ -153,52 +164,124 @@ export default function HomeLanding() {
     | undefined;
   const heroImages = data?.homeMedia?.heroImages ?? [];
   const categories = data?.categories ?? [];
-  // The "painter's world" scroll section lifts the navbar out during its video
-  // beats, then eases it back in as the collections reveal.
+  // The painter's-world film lifts the navbar out while it owns the screen,
+  // and hands it back as the collections come into view.
   const [navHidden, setNavHidden] = useState(false);
+  // The hero's scroll cue retires permanently on first scroll — it has done
+  // its one job by then, and a cue that keeps pulsing reads as nagging.
+  const [cueGone, setCueGone] = useState(false);
+  useEffect(() => {
+    if (cueGone) return;
+    const dismiss = () => setCueGone(true);
+    window.addEventListener('scroll', dismiss, { once: true, passive: true });
+    return () => window.removeEventListener('scroll', dismiss);
+  }, [cueGone]);
   return (
     <div className="bg-white">
       <SEO path="/" description={null} />
-      <Tabnavbar hidden={navHidden} />
-      <section className="relative min-h-[45vh] overflow-hidden bg-white">
-        <img
-          src="/assets/landing-photo.jpg"
-          alt=""
-          className="block w-full select-none"
-          draggable={false}
-          // The hero photo is a work-in-progress; if it's missing, hide the
-          // broken-image glyph and let the section hold on its min-height so
-          // the page still renders cleanly.
-          onError={(e) => {
-            e.currentTarget.style.visibility = 'hidden';
-          }}
-        />
-        <HeroHeadline />
-        {heroImages.length > 0 && (
-          /* Painting mirrors the headline's measured spacing from the painted
-             frame: image top/bottom gaps = the text's top padding (~102px @1920),
-             end gap = the text's start padding (~100px), and the image height
-             fills the white centre minus those gaps (width follows the 4/5
-             aspect). Values solved by pixel-scanning the frame strokes. */
-          <div className="absolute end-[calc(19.05%_+_40px)] top-[24%] w-[17.96%]">
-            <HeroArtworkCarousel images={heroImages} />
-          </div>
-        )}
+      <Tabnavbar
+        hidden={navHidden}
+        categories={categories}
+        featuredImage={heroImages[0]}
+      />
+      {/* Hero — the navbar and this section together come to exactly ONE
+          viewport, hard-clipped. The navbar sits in normal flow above (sticky,
+          not fixed), so a plain `h-screen` would hang the hero's foot ~100px
+          below the fold; subtracting --nav-h cuts it clean — the moment you
+          scroll a pixel the hero is done. `svh` so mobile chrome can't push it
+          over either.
+
+          No photo. The stage is #0A0A0A: a fine grid, two soft beams raking in
+          from the top corners, and the artwork's own glow in the column below
+          (.hero-art-glow), centred on the carousel so it can never drift
+          off-centre as the viewport changes. Every layer here is aria-hidden
+          decoration at z-0; the layout never depends on any of it. */}
+      {/* data-surface="dark": tells high-contrast mode this whole stage is a
+          dark field, so its text goes white rather than near-black. */}
+      <section
+        data-surface="dark"
+        className="relative h-[calc(100svh-var(--nav-h))] w-full overflow-hidden bg-stage"
+      >
+        {/* `interactive`: the grid lights up faintly under the cursor. */}
+        <GridBackground interactive />
+        <Spotlight />
+        <Vignette />
+
+        {/* Composition — compact two-column: voice left, artwork right;
+            stacked and centred on small screens. */}
+        <div className="relative z-10 mx-auto flex h-full w-full max-w-6xl flex-col items-center justify-center gap-10 px-8 md:flex-row md:justify-between md:gap-12 lg:px-12">
+          <HeroHeadline />
+
+          {heroImages.length > 0 && (
+            <div className="flex shrink-0 flex-col items-center">
+              {/* Gallery plaque above the artwork. Was 11px letterspaced
+                  taupe and effectively unreadable on the dark stage: now 16px,
+                  bold, near-white, with the tracking pulled back to where the
+                  words still read as words. */}
+              <p className="mb-5 text-base font-bold uppercase tracking-[0.14em] text-flame-50">
+                {t('heroCarousel.title')}
+              </p>
+              {/* The glow is a sibling of the artwork, centred on this box, so
+                  it is symmetrical at every viewport width and in both reading
+                  directions. It sits outside the floating wrapper so the light
+                  stays put and breathes while the art drifts — two slow
+                  movements out of phase rather than one rigid one. */}
+              <div className="relative">
+                <div
+                  aria-hidden
+                  className="hero-art-glow pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+                />
+                {/* hero-art-float: slow idle drift (index.css). */}
+                <div className="hero-art-float relative w-[200px] sm:w-[230px] lg:w-[270px]">
+                  <HeroArtworkCarousel images={heroImages} />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Scroll cue — three big chevrons cascading down at the stage's foot,
+            each flickering a beat after the one above so the pulse travels
+            downward. Pure CSS animation (reduced motion holds them steady but
+            VISIBLE — orientation is exactly what those visitors still need);
+            fades out for good the first time the visitor actually scrolls. */}
+        <div
+          aria-hidden
+          className={`pointer-events-none absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center transition-opacity duration-700 ${cueGone ? 'opacity-0' : 'opacity-100'}`}
+        >
+          {[0, 1, 2].map((i) => (
+            <ChevronDown
+              key={i}
+              strokeWidth={2.25}
+              className={`scroll-chev h-9 w-9 text-flame-50 md:h-11 md:w-11 ${i > 0 ? '-mt-[18px] md:-mt-[22px]' : ''}`}
+              style={{ animationDelay: `${i * 0.18}s` }}
+            />
+          ))}
+        </div>
       </section>
 
-      {/* "Painter's World" — a pinned scroll-expansion: the video opens up
-          from a 4:5 frame to full 16:9, then lifts away to reveal the
-          collections rail below (placeholder media until painter_vid.mp4). */}
-      <PainterWorldScroll
-        videoSrc="/assets/painter-placeholder.mp4"
-        posterSrc="/assets/painter-poster.jpg"
-        line1="dive into the"
-        line2="painter's world"
+      {/* "Painter's World" — a self-playing scene: scrolling it into view
+          opens the frame, then the quote, then the scroll cue. Nothing here
+          is driven by scroll position. */}
+      <PainterWorldScene
+        videoSrc={PAINTER_VIDEO}
+        posterSrc={PAINTER_POSTER}
+        quoteLine1={t('painterWorld.quoteLine1')}
+        quoteLine2={t('painterWorld.quoteLine2')}
         onNavHiddenChange={setNavHidden}
       />
 
       {/* Collections showcase — the reveal the video lifts to uncover. */}
       <CategoryFocusRail categories={categories} />
+
+      {/* Runway before the footer.
+          Without it, reaching the bottom of the page clamps the scroll while
+          the rail is still partly on screen — so scrolling back up never
+          returns it to where it sat on the way down, and the composition
+          reads as off-centre. This plus the rail's own bottom padding puts a
+          full viewport between the rail and the footer, so the bottom of the
+          document can't disturb how the rail sits. */}
+      <div aria-hidden className="h-56 w-full bg-white" />
     </div>
   );
 }

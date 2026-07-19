@@ -250,7 +250,7 @@ function CarouselCard({
           />
         )}
       </div>
-      <p className="mt-4 font-display font-semibold text-sm uppercase tracking-[0.15em] text-ink transition-colors duration-300 group-hover:text-accent rtl:text-right">
+      <p className="mt-4 font-display font-semibold text-sm uppercase tracking-[0.15em] text-ink transition-colors duration-300 group-hover:text-accent-ink text-start">
         {card.label}
       </p>
     </Link>

@@ -10,7 +10,11 @@ export default {
       // automatically (e.g. bg-paper/50 works), so we don't need the
       // <alpha-value> CSS-variable indirection at the theme layer.
       colors: {
-        // ===== FIXED SITE PALETTE ("Flame") — the current 5-color system. =====
+        // The dark stage behind the landing hero and the footer. Deeper and
+        // more neutral than flame-900, so the grid and beams drifting over it
+        // read as light rather than as a lifted grey.
+        stage: '#0a0a0a',
+        // ===== FIXED SITE PALETTE ("Flame") — the 5-color system. =====
         // flame-500 is the accent and equals the shadcn --primary var.
         flame: {
           50: '#fffcf2', // floral white — light surfaces
@@ -40,9 +44,21 @@ export default {
         mist: '#eef0f4', // card backings / skeletons (decorative)
         line: '#e5e8ef', // cool light borders / rules
         deep: '#3b539c', // darker brand blue — primary hover
-        // `accent` is the teal (object form so shadcn gets accent-foreground;
-        // existing `text-accent`/`bg-accent` now resolve to teal).
-        accent: { DEFAULT: '#3c8fa0', foreground: '#ffffff' },
+        // `accent` tracks the site accent (object form so shadcn gets
+        // accent-foreground). Drives the focus-visible ring among others.
+        accent: { DEFAULT: '#eb5e28', foreground: '#ffffff' },
+        // The accent as SMALL TEXT ON A LIGHT SURFACE, and nothing else.
+        //
+        // #eb5e28 is 3.41:1 on white — fine for fills, borders and large
+        // display type (AA-large wants 3:1), but under the 4.5:1 that WCAG AA
+        // and ת"י 5568 require for body-size text. This is the same hue two
+        // steps darker: 4.69:1, so nav hover, links, card titles and the rail
+        // eyebrow comply without touching the signature colour anywhere it is
+        // a fill, a border, or sitting on the dark stage (5.81:1 there).
+        //
+        // Rule of thumb: `bg-primary`/`border-primary` stay primary;
+        // `text-primary` on a light surface becomes `text-accent-ink`.
+        'accent-ink': '#c44f12',
 
         // shadcn/ui semantic tokens (CSS-vars in src/index.css :root) — added
         // so the pasted shadcn navbar + its components style correctly. These

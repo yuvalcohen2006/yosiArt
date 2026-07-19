@@ -150,7 +150,7 @@ export default function PaintingDetail({ painting }: Props) {
         <div className="mb-10">
           <Link
             to={painting.category ? `/works/${painting.category.slug}` : '/works'}
-            className="inline-flex items-center gap-2 font-display font-medium text-xs uppercase tracking-[0.2em] text-slate hover:text-accent transition-colors duration-300"
+            className="inline-flex items-center gap-2 font-display font-medium text-xs uppercase tracking-[0.2em] text-slate hover:text-accent-ink transition-colors duration-300"
           >
             <span aria-hidden className="inline-block rtl:rotate-180">
               ←
@@ -244,7 +244,7 @@ export default function PaintingDetail({ painting }: Props) {
         <div className="lg:col-span-5">
           <Reveal>
             <p className="eyebrow">
-              <span aria-hidden className="text-accent">— </span>
+              <span aria-hidden className="text-accent-ink">— </span>
               {categoryTitle || t('painting.tagline')}
             </p>
             <h1 className="mt-5 font-display font-black text-5xl md:text-6xl tracking-tight leading-[1.02]">
@@ -275,14 +275,14 @@ export default function PaintingDetail({ painting }: Props) {
                 <span>{formatDimensions(widthCm, heightCm, unit)}</span>
                 <span
                   role="group"
-                  aria-label="Measurement unit"
+                  aria-label={t('painting.unitLabel')}
                   className="inline-flex items-center"
                 >
                   <button
                     type="button"
                     onClick={() => setUnit('cm')}
                     aria-pressed={unit === 'cm'}
-                    aria-label="Show dimensions in centimetres"
+                    aria-label={t('painting.unitCmAria')}
                     className={[
                       'transition-colors duration-300 hover:text-ink',
                       unit === 'cm' ? 'text-ink' : 'text-slate',
@@ -297,7 +297,7 @@ export default function PaintingDetail({ painting }: Props) {
                     type="button"
                     onClick={() => setUnit('in')}
                     aria-pressed={unit === 'in'}
-                    aria-label="Show dimensions in inches"
+                    aria-label={t('painting.unitInAria')}
                     className={[
                       'transition-colors duration-300 hover:text-ink',
                       unit === 'in' ? 'text-ink' : 'text-slate',

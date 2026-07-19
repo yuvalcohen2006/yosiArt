@@ -4,6 +4,7 @@ import Logo from './Logo';
 import Reveal from '../fx/Reveal';
 import { useLocale } from '@/hooks/useLocale';
 import { EMAIL, INSTAGRAM_URL, WHATSAPP_NUMBER } from '@/lib/contact';
+import { Spotlight, GridBackground, Vignette } from '../fx/Spotlight';
 
 /** Instagram outline glyph — lucide-react v1 removed brand icons, so the
  *  classic lucide path lives here as a local component. */
@@ -38,18 +39,26 @@ type FooterSection = {
   links: FooterLink[];
 };
 
+/** Column headings: the UI face at a heavier weight — no display serif down
+ *  here, so the footer carries the same two typefaces as everything else. */
+const HEADING_CLS =
+  'font-sans text-sm font-bold uppercase tracking-[0.18em] text-flame-50';
+
+/** Links sit a step up from the old 14px, in warm light grey so they read
+ *  comfortably on the dark field, and take the accent on hover. */
 const LINK_CLS =
-  'inline-flex items-center gap-1.5 text-slate transition-colors duration-300 hover:text-primary';
+  'inline-flex items-center gap-2 font-sans text-[15px] text-flame-300 transition-colors duration-300 hover:text-primary';
 
 /**
- * Site footer — flame-palette take on the animated column footer.
+ * Site footer — the landing's dark stage, reprised.
  *
- * A warm radial wash rises from the top hairline (with a soft blurred
- * orange thread at its centre), then four zones: the brand block
- * (signature, tagline, copyright) and three link columns — site
- * navigation, the Israeli legal pages, and the real contact channels.
- * Each zone reveals on first scroll into view (via the shared Reveal
- * wrapper, which keeps hidden content inert until it appears).
+ * The page ends the way it opened: near-black, lit by the same pastel
+ * blue/pink washes and canvas grain, with light type over it. Four aligned
+ * columns — the brand block, then site navigation, the Israeli legal pages,
+ * and the real contact channels — all starting on one top line so the
+ * signature sits level with the column headings. Each column reveals on
+ * first scroll into view (via the shared Reveal wrapper, which keeps hidden
+ * content inert until it appears).
  */
 export default function Footer() {
   const { t } = useLocale();
@@ -91,72 +100,91 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="relative mt-24 w-full border-t border-line bg-[radial-gradient(40%_140px_at_50%_0%,rgba(235,94,40,0.07),transparent)]">
-      {/* Soft orange thread along the top hairline. */}
+    /* data-surface="dark" is load-bearing, not decorative: it is what tells the
+       high-contrast mode to go WHITE here instead of near-black. Without it the
+       footer renders #0a0a0a text on the #0a0a0a stage — invisible. See the
+       high-contrast block in index.css. */
+    <footer
+      data-surface="dark"
+      className="relative w-full overflow-hidden bg-stage text-flame-300"
+    >
+      {/* The same lighting the landing opens on, so the page closes in the
+          room it started in — beams scaled down for a section a fraction of
+          the hero's height, and slowed so the two are never in step.
+          Decoration only; nothing here affects layout. */}
+      <GridBackground />
+      <Spotlight
+        width={380}
+        height={760}
+        smallWidth={170}
+        translateY={-180}
+        xOffset={70}
+        duration={10}
+      />
+      <Vignette />
+      {/* Accent thread along the top edge, fading out at both ends. */}
       <div
         aria-hidden
-        className="absolute left-1/2 top-0 h-px w-1/3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/50 blur"
+        className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"
       />
 
-      <div className="editorial-container pb-8 pt-16 lg:pt-20">
-        <div className="grid w-full gap-10 xl:grid-cols-3 xl:gap-8">
-          <Reveal className="flex flex-col items-start gap-4" distance={12}>
-            <Logo variant="footer" />
-            <p className="max-w-xs text-sm leading-relaxed text-slate">
-              {t('footer.tagline')}
-            </p>
-            <p className="text-sm text-slate">
-              © {year} YosiArt. {t('footer.rights')}
+      <div className="editorial-container relative z-10 pb-10 pt-16 lg:pt-20">
+        {/* One grid for all four columns, so the signature's top edge sits on
+            the same line as the column headings instead of floating free. */}
+        <div className="grid grid-cols-2 gap-x-8 gap-y-12 sm:grid-cols-3 lg:grid-cols-4">
+          <Reveal className="col-span-2 sm:col-span-3 lg:col-span-1" distance={12}>
+            <Logo variant="footer" onDark />
+            {/* Two sentences, two explicit lines. Left to wrap naturally
+                (even with text-balance) the break landed mid-sentence, which
+                read as a mistake; splitting them in the copy guarantees each
+                sentence stays whole in both languages. */}
+            <p className="mt-4 max-w-sm text-[15px] leading-relaxed text-flame-300">
+              <span className="block">{t('footer.taglineLine1')}</span>
+              <span className="block">{t('footer.taglineLine2')}</span>
             </p>
           </Reveal>
 
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 xl:col-span-2">
-            {sections.map((section, index) => (
-              <Reveal
-                key={section.label}
-                delay={0.1 + index * 0.1}
-                distance={12}
-              >
-                <h3 className="eyebrow text-[11px]">{section.label}</h3>
-                <ul className="mt-4 space-y-2.5 text-sm">
-                  {section.links.map((link) => {
-                    const internal = link.href.startsWith('/');
-                    return (
-                      <li key={link.title}>
-                        {internal ? (
-                          <Link to={link.href} className={LINK_CLS}>
-                            {link.title}
-                          </Link>
-                        ) : (
-                          <a
-                            href={link.href}
-                            target={
-                              link.href.startsWith('http')
-                                ? '_blank'
-                                : undefined
-                            }
-                            rel="noreferrer noopener"
-                            className={LINK_CLS}
-                          >
-                            {link.icon && (
-                              <link.icon aria-hidden className="size-4" />
-                            )}
-                            {link.title}
-                          </a>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </Reveal>
-            ))}
-          </div>
+          {sections.map((section, index) => (
+            <Reveal key={section.label} delay={0.1 + index * 0.1} distance={12}>
+              <h3 className={HEADING_CLS}>{section.label}</h3>
+              <ul className="mt-5 space-y-3">
+                {section.links.map((link) => {
+                  const internal = link.href.startsWith('/');
+                  return (
+                    <li key={link.title}>
+                      {internal ? (
+                        <Link to={link.href} className={LINK_CLS}>
+                          {link.title}
+                        </Link>
+                      ) : (
+                        <a
+                          href={link.href}
+                          target={
+                            link.href.startsWith('http') ? '_blank' : undefined
+                          }
+                          rel="noreferrer noopener"
+                          className={LINK_CLS}
+                        >
+                          {link.icon && (
+                            <link.icon aria-hidden className="size-[18px]" />
+                          )}
+                          {link.title}
+                        </a>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </Reveal>
+          ))}
         </div>
 
-        {/* Bottom rule: attribution line. */}
-        <div className="eyebrow mt-14 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6 text-[10px]">
+        {/* Bottom rule: copyright + attribution. */}
+        <div className="mt-16 flex flex-wrap items-center justify-between gap-3 border-t border-flame-50/10 pt-6 font-sans text-[13px] text-flame-300/70">
+          <span>
+            © {year} YosiArt. {t('footer.rights')}
+          </span>
           <span>{t('footer.credit')}</span>
-          <span dir="ltr">yosiart.vercel.app</span>
         </div>
       </div>
     </footer>

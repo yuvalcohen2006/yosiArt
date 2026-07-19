@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /navbar-demo
 
 Sitemap: https://yosiart.vercel.app/sitemap.xml

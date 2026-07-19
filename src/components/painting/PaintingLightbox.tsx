@@ -2,6 +2,8 @@ import Lightbox from 'yet-another-react-lightbox';
 import Zoom from 'yet-another-react-lightbox/plugins/zoom';
 import 'yet-another-react-lightbox/styles.css';
 import { urlFor } from '@/sanity/imageUrl';
+import { pickAlt } from '@/lib/pickAlt';
+import { useLocale } from '@/hooks/useLocale';
 import type { SanityImage } from '@/sanity/types';
 
 type Props = {
@@ -22,9 +24,16 @@ export default function PaintingLightbox({
   index,
   onClose,
 }: Props) {
+  const { locale } = useLocale();
+  // `pickAlt`, not `img.alt` — SanityImage carries both `alt` and `altHe`, and
+  // reading the English one directly meant a Hebrew visitor got English alt
+  // text, or nothing at all when only `altHe` had been filled in. That matters
+  // most here of all places: in the fullscreen view the image is the only
+  // content on screen. PaintingDetail and PaintingCard already do this; the
+  // lightbox was the one that missed it.
   const slides = images.map((img) => ({
     src: urlFor(img).width(2400).auto('format').url(),
-    alt: img.alt ?? '',
+    alt: pickAlt(img, locale, ''),
   }));
 
   return (

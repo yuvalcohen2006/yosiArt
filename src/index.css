@@ -9,6 +9,23 @@
   tailwind.config.ts.
 */
 :root {
+  /*
+    Height of the site navbar (components/ui/navbar.tsx), which sits in normal
+    flow above the page and then sticks. Derived from its own content:
+    logo h-[4.25rem] (68px) + py-4 (2 x 16px) + border-b (1px) = 101px.
+
+    The landing hero subtracts this so that navbar + hero comes to exactly one
+    viewport — otherwise the hero's foot hangs below the fold and the photo
+    "rolls over" past 100vh instead of being cut clean. If the navbar's padding
+    or logo size ever change, change this with them.
+
+    Phones get a shorter bar (`max-md:` in navbar.tsx: logo h-12 + py-2), so
+    the figure is overridden to match at the bottom of this block. Both values
+    are derived the same way; keep all three in step — the token, the navbar's
+    own classes, and the override.
+  */
+  --nav-h: 101px;
+
   /* Aurora palette (see redesign/design-system/palette.md). primary = accent orange. */
   --background: 0 0% 100%;
   --foreground: 34.3 5.8% 23.7%; /* dark taupe #403d39 (= flame-700) */
@@ -16,7 +33,10 @@
   --card-foreground: 34.3 5.8% 23.7%;
   --popover: 0 0% 100%;
   --popover-foreground: 34.3 5.8% 23.7%;
-  --primary: 16.6 83% 54%; /* burnt orange #eb5e28 — the site accent: hover/active, headline dot, button fills */
+  /* THE SITE ACCENT — burnt orange #eb5e28 (hover/active, headline dot,
+     fills). Reads well on both the cream pages and the dark hero stage, so
+     unlike the blue experiment it needs only one tone. */
+  --primary: 16.6 83% 54%;
   --primary-foreground: 0 0% 100%;
   --secondary: 220 22% 96%;
   --secondary-foreground: 34.3 5.8% 20%;
@@ -30,6 +50,64 @@
 }
 
 /*
+  Phone navbar height. Mirrors the `max-md:` classes on the bar itself:
+  logo h-12 (48px) + py-2 (2 x 8px) + border-b (1px) = 65px.
+
+  The breakpoint is 767.98px to match Tailwind's own `max-md`, so the token and
+  the classes that justify it can never disagree by a pixel at the boundary.
+  Above it, nothing here applies and the desktop 101px stands untouched.
+*/
+@media (max-width: 767.98px) {
+  :root {
+    --nav-h: 65px;
+  }
+}
+
+/*
+  ===== Scrollbar =====
+  The browser default is a chunky grey slab that undercuts everything else on
+  the page. This is the same bar, restyled: a slim taupe capsule floating in a
+  transparent track, inset from the edge by a transparent border so it never
+  touches the content. Deliberately palette-neutral (flame-300) so it sits
+  correctly against BOTH the dark landing and the cream inner pages.
+  `scrollbar-width`/`scrollbar-color` cover Firefox; the ::-webkit rules cover
+  Chrome/Edge/Safari.
+*/
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #ccc5b9 transparent;
+
+  /*
+    NO `scroll-snap-type` here, deliberately. Snapping was tried and removed:
+    even `proximity` pulls the page toward a section as you scroll near it,
+    which reads as the browser grabbing the wheel out of your hands. This is a
+    static page — sections are positioned with ordinary padding and margins,
+    and the scroll belongs entirely to the visitor. Do not reintroduce it.
+  */
+}
+::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #ccc5b9;
+  border-radius: 999px;
+  /* Transparent border + content-box clip = the visible capsule is inset,
+     which is what makes it read as floating rather than welded to the edge. */
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #a39b8d;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/*
   YosiArt theme — clean editorial palette.
   Colors live in tailwind.config.ts (paper / ink / mist / teal / deep)
   and are usable as Tailwind classes site-wide (e.g. bg-paper, text-ink,
@@ -37,9 +115,14 @@
 */
 
 @layer base {
-  html {
-    scroll-behavior: smooth;
-  }
+  /*
+    No `scroll-behavior: smooth` here on purpose. Scrolling is the browser's
+    own — a global smoothing engine used to sit between the wheel and the page
+    and made the whole site feel laggy, so it was removed. The only place that
+    wants an eased scroll is the painter's-world commit, which asks for it
+    explicitly per call. A blanket rule here would also animate every route
+    reset and anchor jump, which should snap.
+  */
 
   /*
     Visible focus ring for keyboard navigation. Uses `:focus-visible`
@@ -128,6 +211,24 @@
     @apply text-[14px] font-medium uppercase tracking-[0.176em] text-slate;
   }
 
+  /*
+    The section-header trio, lifted from the collections rail so every screen
+    introduces itself the same way. Use these three together, in this order —
+    they are a set, not three unrelated styles:
+
+      .eyebrow          the small caps kicker  ("The collections")
+      .section-title    the display headline   ("Bodies of work")
+      .section-subtitle the supporting line    ("Slide through the rail…")
+
+    Defined here rather than copied per page so the pages cannot drift apart.
+  */
+  .section-title {
+    @apply font-display text-4xl font-semibold text-ink md:text-5xl;
+  }
+  .section-subtitle {
+    @apply font-sans text-base text-slate;
+  }
+
   /* A structural baseline rule — the grey grid line of the editorial system. */
   .rule {
     @apply h-px w-full bg-line;
@@ -147,6 +248,244 @@
   }
   to {
     width: 100%;
+  }
+}
+
+/*
+  ===== Hero stage lighting =====
+  The landing hero is lit entirely in CSS — a gallery lighting rig, not a
+  photo: a cool key light where the artwork hangs, a warm ember answering
+  from the opposite corner, and a vignette pulling the edges down to black.
+
+  Positions live in CSS vars so the rig MIRRORS for Hebrew ([dir='rtl']):
+  the artwork column sits on the other side there, and a spotlight pointed
+  at empty wall reads as a mistake.
+*/
+/*
+  The hero's ONLY light: a soft glow behind the artwork.
+
+  It lives INSIDE the carousel's column and is centred on it, rather than being
+  a viewport-wide gradient positioned by percentage. That is the whole point:
+  the carousel sits at the end of a max-width container, so its real centre
+  slides with the viewport width — a fixed percentage could only line up at one
+  window size, and everywhere else the light sat off to one side. Anchored to
+  the art, it is symmetrical at every size and in both reading directions for
+  free.
+
+  `closest-side` makes the falloff follow the element's own box, so the pool
+  takes the carousel's shape. Three stops (soft core → dim shoulder → long run
+  to nothing) keep it from ever reading as an edged blob.
+*/
+.hero-art-glow {
+  width: 260%;
+  height: 165%;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 252, 242, 0.1),
+    rgba(255, 252, 242, 0.035) 52%,
+    transparent 78%
+  );
+}
+
+/* Ambient breathing — the key light swells like a live lamp, the hanging
+   artwork drifts a few pixels. Deliberately DIFFERENT durations and a
+   negative delay so the two never pulse in sync (synchronized loops read
+   mechanical). Transform/opacity only — never animate the gradients
+   themselves. Both gated to motion-tolerant visitors; the widget's
+   kill-switch above catches them too. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-art-glow {
+    /* Promoted to its own layer: without this the browser repaints the
+       gradient on every frame of the scale, which is the expensive way to do
+       a slow pulse. */
+    will-change: transform, opacity;
+    animation: heroBreathe 8s ease-in-out infinite alternate;
+  }
+  .hero-art-float {
+    animation: heroFloat 7s ease-in-out -2.5s infinite alternate;
+  }
+}
+/* The glow is centred with a translate, so the breathing scale has to carry
+   that translate with it or the light jumps off-centre on the first frame. */
+@keyframes heroBreathe {
+  from {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.85;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1.05);
+    opacity: 1;
+  }
+}
+@keyframes heroFloat {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-6px);
+  }
+}
+
+/*
+  ===== Painter's-world scene =====
+  The whole beat is CSS, driven off one `data-open` flag the component sets
+  when the section scrolls into view (components/home/PainterWorldScene.tsx).
+  Nothing here reads the scroll position — that is the point.
+
+  Sequence:  frame opens (1.4s) → quote fades up (from 1.5s) → cue (from 4.6s)
+
+  The frame's two sizes are written as width AND height with matching `min()`
+  caps rather than an aspect-ratio: a height cap applied on its own would win
+  against `aspect-ratio` on short viewports and silently squash the box. Here
+  both axes are clamped by the SAME height budget (84vh), so the ratio holds
+  at every window size — 4:5 closed, 16:9 open.
+*/
+.pw-scene {
+  /*
+    The tallest the film may be: one viewport minus the section's own padding
+    (161px top + 0 bottom = 161px — keep this in step if those change).
+    Deriving it rather than hardcoding a vh figure is what keeps the whole
+    scene inside a single screen; a fixed cap overflowed the padded section and
+    got clipped by its overflow-hidden. It no longer subtracts the navbar
+    height because the navbar lifts away while this section is on screen.
+  */
+  --frame-max-h: calc(100vh - 161px);
+}
+/* Phone counterpart of the section's `max-md:pt-[88px]` / `max-md:min-h-[100svh]`.
+   Same derivation, mobile numbers. Keep these two in step. */
+@media (max-width: 767.98px) {
+  .pw-scene {
+    --frame-max-h: calc(100svh - 88px);
+  }
+}
+.pw-frame {
+  /*
+    Both axes clamped by the SAME height budget, so the ratio holds at every
+    window size — 4:5 closed, 16:9 open — with no aspect-ratio to fight.
+    The vw pairs must stay consistent too: 92 x 0.5625 = 51.75, and
+    30 x 1.25 = 37.5. Change one and you must change its partner, or the frame
+    silently stops being 16:9 on wide screens.
+  */
+  width: min(30vw, calc(var(--frame-max-h) * 0.8));
+  height: min(37.5vw, var(--frame-max-h));
+  transition:
+    width 1400ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    height 1400ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.pw-scene[data-open='true'] .pw-frame {
+  width: min(92vw, calc(var(--frame-max-h) * 1.77778));
+  height: min(51.75vw, var(--frame-max-h));
+}
+
+.pw-quote {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 900ms cubic-bezier(0.22, 0.61, 0.36, 1) 1500ms,
+    transform 900ms cubic-bezier(0.22, 0.61, 0.36, 1) 1500ms;
+}
+.pw-scene[data-open='true'] .pw-quote {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Scroll cue.
+
+   Driven by `data-cue` (open AND currently on screen), not `data-open`.
+   `data-open` is one-shot — set the first time the scene is reached and never
+   cleared — so the arrows used to fade in once and then stay gone forever the
+   moment you scrolled past. They are now a live cue: they arrive four seconds
+   after the quote lands (quote ends at 2.4s), leave as you move on, and come
+   back if you return to the film.
+
+   The long delay applies only to the arrival; leaving is quick, so scrolling
+   away doesn't drag a fading cue down the page with you. */
+.pw-arrows {
+  opacity: 0;
+  transition: opacity 350ms ease 0ms;
+}
+.pw-scene[data-cue='true'] .pw-arrows {
+  opacity: 1;
+  transition: opacity 700ms ease 6400ms;
+}
+
+/* No motion wanted: the scene is simply already open. */
+@media (prefers-reduced-motion: reduce) {
+  .pw-frame,
+  .pw-quote,
+  .pw-arrows,
+  .pw-scene[data-cue='true'] .pw-arrows {
+    transition: none;
+  }
+}
+
+/*
+  ===== Spotlight beams =====
+  Deliberately CSS, not a JS animation loop. framer-motion's `repeat: Infinity`
+  drives a value from the main thread on every frame for as long as the section
+  is mounted, which competes with scrolling and was a measurable source of
+  stutter. These are transform-only keyframes, so the compositor owns them and
+  the main thread does nothing — and the stop-animations kill-switch above
+  catches them for free.
+*/
+.spot-fade {
+  animation: spotFadeIn 1.5s ease-out both;
+}
+.spot-drift {
+  animation: spotDrift var(--spot-duration, 7s) ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes spotFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes spotDrift {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(var(--spot-x, 100px));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spot-fade {
+    animation: none;
+  }
+  /* The beams stay lit — the lighting is design; only the drift is motion. */
+  .spot-drift {
+    animation: none;
+  }
+}
+
+/* Hero scroll cue — three stacked chevrons, each fading up and down out of
+   phase with the one above it (the per-chevron delay is set inline), so the
+   flicker reads as travelling downward. The stop-animations kill-switch above
+   catches this; under OS reduced motion the chevrons hold at a legible
+   opacity — the cue stays VISIBLE, because orientation is exactly what
+   reduced-motion visitors still need. */
+@keyframes scrollChevronFlicker {
+  0%,
+  100% {
+    opacity: 0.12;
+  }
+  45% {
+    opacity: 1;
+  }
+}
+.scroll-chev {
+  opacity: 0.12;
+  animation: scrollChevronFlicker 1.6s cubic-bezier(0.22, 0.61, 0.36, 1)
+    infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-chev {
+    animation: none;
+    opacity: 0.75;
   }
 }
 
@@ -185,12 +524,31 @@ html.a11y-readable * {
   letter-spacing: 0 !important;
 }
 
-/* High contrast — near-black text on white surfaces. Elements that live on
-   dark fills (text-paper / text-white / text-flame-50 utilities, including
-   their variant forms like focus:text-paper) keep their light colour. */
+/* ---------------------------------------------------------------------------
+   High contrast.
+
+   Keyed off the SURFACE, not off the text colour. An earlier version forced
+   every text element to #0a0a0a and kept a hand-written allowlist of light
+   text utilities to spare. That is unmaintainable, and it failed exactly the
+   way you would predict: the footer sets `text-flame-300` on `bg-stage`
+   (#0a0a0a), which was not on the list, so switching high contrast ON drove
+   the footer from 11.55:1 to 1.00:1 — near-black on near-black, completely
+   invisible. An accessibility control must never be able to do that.
+
+   So: dark regions declare themselves with `data-surface="dark"` and get pure
+   white (19.8:1 on #0a0a0a); everything else gets near-black on white. A new
+   dark section is one attribute away from being correct, and
+   `npm run audit:contrast` fails the build if one forgets it.
+
+   Specificity: the dark rule is (0,2,1) against the light rule's (0,1,1), and
+   comes second — so it wins on any nested element regardless of source order
+   further down.
+   --------------------------------------------------------------------------- */
 html.a11y-contrast body {
   background: #fff;
 }
+
+/* Light surfaces — the default. */
 html.a11y-contrast
   :where(p, h1, h2, h3, h4, h5, h6, li, span, a, button, strong, em, td, th, dt, dd, time, figcaption, blockquote, label):not(
     [class*='text-paper'],
@@ -198,5 +556,23 @@ html.a11y-contrast
     [class*='text-flame-50']
   ) {
   color: #0a0a0a !important;
+}
+
+/* Dark surfaces — white text, and the fill is forced to a true #0a0a0a so the
+   ratio is the full 19.8:1 even where the surface was a softer flame tone. */
+html.a11y-contrast [data-surface='dark'] {
+  background-color: #0a0a0a !important;
+}
+html.a11y-contrast
+  [data-surface='dark']
+  :where(p, h1, h2, h3, h4, h5, h6, li, span, a, button, strong, em, td, th, dt, dd, time, figcaption, blockquote, label),
+html.a11y-contrast [data-surface='dark'] {
+  color: #fff !important;
+}
+
+/* Decorative washes inside a dark surface (scrims, gradient veils, glows) only
+   muddy the ratio once the fill is already maximal — drop them. */
+html.a11y-contrast [data-surface='dark'] [aria-hidden='true'] {
+  opacity: 0.35;
 }
 

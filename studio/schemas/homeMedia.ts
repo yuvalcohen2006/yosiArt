@@ -7,6 +7,12 @@ import { defineType, defineField } from 'sanity';
  *   - ogImage: the social-share preview card image used when someone
  *     pastes the bare site URL (yosiart.vercel.app) into WhatsApp / IG.
  *
+ * Deliberately NOT here: the "painter's world" film. Sanity serves files as
+ * plain downloads with no streaming, so every visitor would pull the whole
+ * thing against the project's bandwidth. It also needs a hand-picked loop
+ * window to cut cleanly. It therefore ships as a build asset instead —
+ * see scripts/encodePainterVideo.mjs and public/assets/painter-loop.mp4.
+ *
  * Sits at the top of the studio desk under "Home media", and like
  * `siteSettings` it gets its create/duplicate/delete actions stripped so
  * there's only ever one of these documents.

@@ -28,27 +28,44 @@ export default function About() {
   const bio = locale === 'he' ? BIO_HE : BIO_EN;
 
   return (
-    <section className="px-6 md:px-12 lg:px-16 pt-8 md:pt-12 pb-20 md:pb-28">
+    <section className="px-6 pb-20 pt-12 md:px-12 md:pb-28 md:pt-16 lg:px-16">
       <SEO
         path="/about"
         title="About"
         description="Yosi Cohen — a self-taught acrylic painter. A few words on the work, the practice, and what drives every piece."
       />
-      {/* Asymmetric editorial layout: a wide oversized title band, then
-          the bio in a measured reading column offset to one side. */}
-      <div className="editorial-container">
-        <p className="eyebrow">
-          <span aria-hidden className="text-accent">— </span>
-          {t('about.tagline')}
+
+      {/* The shared section-header trio (index.css), as used by the
+          collections rail and the works wall. */}
+      <header className="mx-auto max-w-3xl text-center">
+        <p className="eyebrow mb-2">{t('about.tagline')}</p>
+        <h1 className="section-title">{t('about.title')}</h1>
+        <p className="section-subtitle mx-auto mt-3 max-w-md">
+          {t('about.subtitle')}
         </p>
-        <h1 className="mt-6 font-display font-black text-6xl md:text-8xl lg:text-9xl tracking-tight leading-none">
-          {t('about.title')}
-        </h1>
-        <div className="rule mt-12 mb-12" />
-        <div className="grid lg:grid-cols-12 gap-10 lg:gap-16">
-          <div className="lg:col-span-7 lg:col-start-6 space-y-6 text-ink/80 text-lg leading-[1.8] whitespace-pre-line">
-            {bio}
-          </div>
+      </header>
+
+      <div className="mx-auto mt-12 grid max-w-6xl items-start gap-10 md:mt-16 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-14">
+        {/* Portrait, on the reading-start side — left of the text in English,
+            right of it in Hebrew, mirrored by the grid's own direction with no
+            direction-specific markup. The 4:5 well matches the works cards, so
+            the two pages feel cut from the same cloth. */}
+        <figure className="overflow-hidden rounded-md border border-line bg-mist/40">
+          <img
+            src="/assets/dad.jpeg"
+            alt={t('about.portraitAlt')}
+            width={800}
+            height={1000}
+            loading="lazy"
+            className="aspect-[4/5] h-full w-full object-cover"
+          />
+        </figure>
+
+        {/* `whitespace-pre-line` keeps the paragraph breaks the artist wrote;
+            `text-start` follows the reading direction instead of being pinned
+            left, so the Hebrew sets from the right correctly. */}
+        <div className="whitespace-pre-line text-start font-sans text-lg leading-[1.85] text-ink/80">
+          {bio}
         </div>
       </div>
     </section>

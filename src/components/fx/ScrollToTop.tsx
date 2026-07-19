@@ -6,10 +6,9 @@ import { useLocation } from 'react-router-dom';
  * navigating from a deep-scrolled page to another page leaves the new
  * page mounted at the previous scroll offset.
  *
- * Uses `useLayoutEffect` so the reset runs synchronously before the new
- * page paints, avoiding a visible flash at the old offset. We pass the
- * options form with `behavior: 'auto'` so the global `scroll-behavior:
- * smooth` rule is bypassed — page navigation should snap, not animate.
+ * `useLayoutEffect` so the reset runs synchronously before the new page
+ * paints, avoiding a visible flash at the old offset. `behavior: 'auto'`
+ * keeps navigation a snap rather than an animated glide.
  */
 export default function ScrollToTop() {
   const { pathname } = useLocation();
