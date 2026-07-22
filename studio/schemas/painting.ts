@@ -89,6 +89,15 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'priority',
+      title: 'Display priority',
+      group: 'core',
+      type: 'number',
+      description:
+        'Controls order on the All Works page — lower numbers show first. Put your best pieces at 1, 2, 3… Ties fall back to newest first.',
+      initialValue: 100,
+    }),
+    defineField({
       name: 'description',
       title: 'Description',
       group: 'core',
@@ -191,6 +200,7 @@ export default defineType({
       detailMedia: 'images.0',
       status: 'status',
       categoryEn: 'category.title.en',
+      priority: 'priority',
     },
     prepare({
       titleEn,
@@ -199,8 +209,13 @@ export default defineType({
       detailMedia,
       status,
       categoryEn,
+      priority,
     }) {
-      const subtitleParts = [categoryEn, status && status !== 'available' ? status.toUpperCase() : null]
+      const subtitleParts = [
+        typeof priority === 'number' ? `Priority: ${priority}` : null,
+        categoryEn,
+        status && status !== 'available' ? status.toUpperCase() : null,
+      ]
         .filter(Boolean)
         .join(' · ');
       return {
@@ -211,6 +226,14 @@ export default defineType({
     },
   },
   orderings: [
+    {
+      title: 'Display priority',
+      name: 'priorityAsc',
+      by: [
+        { field: 'priority', direction: 'asc' },
+        { field: '_createdAt', direction: 'desc' },
+      ],
+    },
     {
       title: 'Newest first',
       name: 'createdDesc',

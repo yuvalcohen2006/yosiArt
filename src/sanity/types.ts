@@ -48,6 +48,9 @@ export type Painting = {
   priceILS?: number | null;
   priceUSD?: number | null;
   status: PaintingStatus;
+  /** Lower numbers show first on the All Works page. Unset paintings sort
+   *  after any prioritized ones, by newest. */
+  priority?: number | null;
   /** Tight crop for grid cards — also used as the OG share image,
    *  letterboxed onto a 1200×630 black canvas. Falls back to
    *  `images[0]` when not set. */

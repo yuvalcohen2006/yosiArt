@@ -20,7 +20,7 @@ export const CATEGORIES_QUERY = /* groq */ `
 `;
 
 export const PAINTINGS_QUERY = /* groq */ `
-  *[_type == "painting"] | order(_createdAt desc) {
+  *[_type == "painting"] | order(priority asc, _createdAt desc) {
     _id,
     title,
     "slug": slug.current,
@@ -35,6 +35,7 @@ export const PAINTINGS_QUERY = /* groq */ `
     priceILS,
     priceUSD,
     status,
+    priority,
     previewImage,
     images
   }
@@ -48,7 +49,7 @@ export const HOME_MEDIA_QUERY = /* groq */ `
 `;
 
 export const PAINTINGS_BY_CATEGORY_QUERY = /* groq */ `
-  *[_type == "painting" && category->slug.current == $categorySlug] | order(_createdAt desc) {
+  *[_type == "painting" && category->slug.current == $categorySlug] | order(priority asc, _createdAt desc) {
     _id,
     title,
     "slug": slug.current,
@@ -56,7 +57,8 @@ export const PAINTINGS_BY_CATEGORY_QUERY = /* groq */ `
     images,
     priceILS,
     priceUSD,
-    status
+    status,
+    priority
   }
 `;
 
@@ -83,7 +85,7 @@ export const RELATED_PAINTINGS_QUERY = /* groq */ `
   *[_type == "painting"
     && category->slug.current == $categorySlug
     && slug.current != $slug
-  ] | order(_createdAt desc) [0...4] {
+  ] | order(priority asc, _createdAt desc) [0...4] {
     _id,
     title,
     "slug": slug.current,
@@ -92,7 +94,8 @@ export const RELATED_PAINTINGS_QUERY = /* groq */ `
     images,
     priceILS,
     priceUSD,
-    status
+    status,
+    priority
   }
 `;
 
