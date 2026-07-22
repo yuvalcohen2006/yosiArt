@@ -1,8 +1,8 @@
-import imageUrlBuilder from '@sanity/image-url';
+import { createImageUrlBuilder } from '@sanity/image-url';
 import type { SanityImageSource } from '@sanity/image-url';
 import { sanityClient } from './client';
 
-const builder = imageUrlBuilder(sanityClient);
+const builder = createImageUrlBuilder(sanityClient);
 
 /**
  * Build a Sanity CDN URL for an image asset. Chain helpers like:

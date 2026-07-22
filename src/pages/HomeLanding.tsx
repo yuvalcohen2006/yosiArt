@@ -94,7 +94,16 @@ function HeroHeadline() {
         })
         .to(
           '.hero-l2',
-          { duration: 1.4, clipPath: 'inset(0 0% 0 0)', ease: 'power4.inOut' },
+          {
+            duration: 1.4,
+            // The end state must mirror the START per direction so only ONE
+            // edge animates 100%→0% with matching units. Sharing a single
+            // `inset(0 0% 0 0)` end worked in LTR (right→0%) but left the RTL
+            // tween mismatched (start clips the LEFT), so GSAP couldn't
+            // interpolate it and line 2 stayed fully clipped — invisible.
+            clipPath: isRtl ? 'inset(0 0 0 0%)' : 'inset(0 0% 0 0)',
+            ease: 'power4.inOut',
+          },
           '-=1.0',
         )
         // Appended AFTER the text entrance: the button fades in once BOTH
@@ -202,8 +211,9 @@ export default function HomeLanding() {
         data-surface="dark"
         className="relative h-[calc(100svh-var(--nav-h))] w-full overflow-hidden bg-stage"
       >
-        {/* `interactive`: the grid lights up faintly under the cursor. */}
-        <GridBackground interactive />
+        {/* `interactive`: the grid lights up faintly under the cursor. Torch
+            dialled back a touch from its default so the stage reads calmer. */}
+        <GridBackground interactive torchOpacity="0.13" />
         <Spotlight />
         <Vignette />
 

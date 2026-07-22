@@ -1,15 +1,12 @@
 import type { RouteRecord } from 'vite-react-ssg';
 import Layout from './components/layout/Layout';
-// Re-innovated landing page (deep-sea WebGL hero). The previous Home.tsx is
-// kept in the repo, unused, until the new design is locked at deployment.
 import HomeLanding from './pages/HomeLanding';
 import Works from './pages/Works';
-import Category from './pages/Category';
+import CategoryRedirect from './pages/CategoryRedirect';
 import PaintingPage from './pages/PaintingPage';
 import About from './pages/About';
 import Contact from './pages/Contact';
 import NotFound from './pages/NotFound';
-import NavbarDemo from './pages/NavbarDemo';
 import { sanityClient } from './sanity/client';
 import {
   CATEGORIES_QUERY,
@@ -38,14 +35,6 @@ async function paintingSlugs(): Promise<string[]> {
   );
 }
 
-async function categorySlugs(): Promise<string[]> {
-  return (
-    (await sanityClient.fetch<string[]>(
-      `*[_type == "category" && defined(slug.current)].slug.current`,
-    )) ?? []
-  );
-}
-
 export const routes: RouteRecord[] = [
   {
     element: <Layout />,
@@ -70,24 +59,8 @@ export const routes: RouteRecord[] = [
         },
       },
       { path: '/works', element: <Works /> },
-      {
-        path: '/works/:category',
-        element: <Category />,
-        loader: async ({ params }) => {
-          // Pull the full category list so the page can both render the
-          // current category's title and feed the filter strip — single
-          // round trip to Sanity instead of two.
-          const categories =
-            (await sanityClient.fetch<CategoryDoc[]>(CATEGORIES_QUERY)) ?? [];
-          const current =
-            categories.find((c) => c.slug === params.category) ?? null;
-          return { categories, current };
-        },
-        getStaticPaths: async () => {
-          const slugs = await categorySlugs();
-          return slugs.map((slug) => `/works/${slug}`);
-        },
-      },
+      // Back-compat only: redirect old collection URLs to the single catalogue.
+      { path: '/works/:category', element: <CategoryRedirect /> },
       {
         path: '/work/:slug',
         element: <PaintingPage />,
@@ -129,7 +102,6 @@ export const routes: RouteRecord[] = [
             .default,
         }),
       },
-      { path: '/navbar-demo', element: <NavbarDemo /> },
       { path: '*', element: <NotFound /> },
     ],
   },

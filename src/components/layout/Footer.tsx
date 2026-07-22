@@ -112,7 +112,10 @@ export default function Footer() {
           room it started in — beams scaled down for a section a fraction of
           the hero's height, and slowed so the two are never in step.
           Decoration only; nothing here affects layout. */}
-      <GridBackground />
+      {/* Same cursor-torch highlight the landing opens with — the footer grid
+          lights up under the pointer too — but at a much lower intensity, so
+          it's a whisper of the effect rather than a repeat of it. */}
+      <GridBackground interactive torchOpacity="0.09" />
       <Spotlight
         width={380}
         height={760}

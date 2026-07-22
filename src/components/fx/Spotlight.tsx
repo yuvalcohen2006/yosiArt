@@ -27,11 +27,11 @@ import { cn } from '@/lib/utils';
   with alphas low enough to suggest a light source without lifting the black.
 */
 const GRADIENT_FIRST =
-  'radial-gradient(68.54% 68.72% at 55.02% 31.46%, hsla(0, 0%, 100%, .05) 0, hsla(0, 0%, 100%, .015) 50%, hsla(0, 0%, 100%, 0) 80%)';
+  'radial-gradient(68.54% 68.72% at 55.02% 31.46%, hsla(0, 0%, 100%, .04) 0, hsla(0, 0%, 100%, .012) 50%, hsla(0, 0%, 100%, 0) 80%)';
 const GRADIENT_SECOND =
-  'radial-gradient(50% 50% at 50% 50%, hsla(0, 0%, 100%, .04) 0, hsla(0, 0%, 100%, .012) 80%, transparent 100%)';
+  'radial-gradient(50% 50% at 50% 50%, hsla(0, 0%, 100%, .032) 0, hsla(0, 0%, 100%, .01) 80%, transparent 100%)';
 const GRADIENT_THIRD =
-  'radial-gradient(50% 50% at 50% 50%, hsla(0, 0%, 100%, .03) 0, hsla(0, 0%, 100%, .01) 80%, transparent 100%)';
+  'radial-gradient(50% 50% at 50% 50%, hsla(0, 0%, 100%, .024) 0, hsla(0, 0%, 100%, .008) 80%, transparent 100%)';
 
 type SpotlightProps = {
   gradientFirst?: string;
@@ -189,9 +189,13 @@ const TORCH = 460;
 export function GridBackground({
   className,
   interactive = false,
+  torchOpacity = '0.16',
 }: {
   className?: string;
   interactive?: boolean;
+  /** Brightness of the cursor's pool of light (the grid lines under it).
+   *  Lower it for a subtler highlight — e.g. the footer. */
+  torchOpacity?: string;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const torchRef = useRef<HTMLDivElement>(null);
@@ -267,7 +271,7 @@ export function GridBackground({
           style={{
             width: TORCH,
             height: TORCH,
-            backgroundImage: GRID_TILE('0.16'),
+            backgroundImage: GRID_TILE(torchOpacity),
             // Fades to nothing at the rim, so it reads as a pool of light on
             // the grid rather than a square patch of brighter grid.
             maskImage:

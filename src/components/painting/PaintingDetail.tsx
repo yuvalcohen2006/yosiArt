@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLocale } from '@/hooks/useLocale';
 import { useUnit, formatDimensions } from '@/hooks/useUnit';
@@ -36,11 +37,15 @@ export default function PaintingDetail({ painting }: Props) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
-  const title = pickLocale(painting.title, locale, painting.slug);
+  // Trim the short display strings: CMS entries occasionally carry a stray
+  // leading/trailing space, which is invisible on its own but pushes the title
+  // off its flanking quotes and unbalances the spec chips. Description is left
+  // as-is — it uses `whitespace-pre-line`, so its internal spacing is content.
+  const title = pickLocale(painting.title, locale, painting.slug).trim();
   const description = pickLocale(painting.description, locale, '');
-  const medium = pickLocale(painting.medium, locale, '');
+  const medium = pickLocale(painting.medium, locale, '').trim();
   const categoryTitle = painting.category
-    ? pickLocale(painting.category.title, locale, painting.category.slug)
+    ? pickLocale(painting.category.title, locale, painting.category.slug).trim()
     : '';
 
   const heroImage = painting.images?.[0];
@@ -86,7 +91,7 @@ export default function PaintingDetail({ painting }: Props) {
 
   // SEO inputs — always English for the canonical metadata so search
   // engines and link-preview bots see one consistent copy per painting.
-  const seoTitle = painting.title?.en ?? painting.slug;
+  const seoTitle = (painting.title?.en ?? painting.slug).trim();
   const seoCategory = painting.category?.title?.en ?? '';
   const seoDescription =
     painting.description?.en ??
@@ -149,12 +154,17 @@ export default function PaintingDetail({ painting }: Props) {
         {/* Breadcrumb back link */}
         <div className="mb-10">
           <Link
-            to={painting.category ? `/works/${painting.category.slug}` : '/works'}
-            className="inline-flex items-center gap-2 font-display font-medium text-xs uppercase tracking-[0.2em] text-slate hover:text-accent-ink transition-colors duration-300"
+            to={
+              painting.category
+                ? `/works?category=${painting.category.slug}`
+                : '/works'
+            }
+            className="group inline-flex items-center gap-2.5 font-sans font-medium text-xs uppercase tracking-[0.18em] text-slate hover:text-accent-ink transition-colors duration-300"
           >
-            <span aria-hidden className="inline-block rtl:rotate-180">
-              ←
-            </span>
+            <ArrowLeft
+              aria-hidden
+              className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:-translate-x-0.5 rtl:-scale-x-100"
+            />
             <span>{categoryTitle || t('works.title')}</span>
           </Link>
         </div>
@@ -203,11 +213,12 @@ export default function PaintingDetail({ painting }: Props) {
               >
                 <Spinner className="h-8 w-8 text-ink/40" />
               </div>
-              {/* srcSet so phones pull a smaller variant. The
-                  rendered size (`max-w-full max-h-[70vh] object-contain`)
-                  doesn't change — the browser just downloads less data
-                  on small viewports. `sizes` reflects the column cap
-                  (max-w-2xl = 672px) on desktop and 92vw on mobile. */}
+              {/* srcSet so phones pull a smaller variant; the rendered size
+                  doesn't change, the browser just downloads less data on small
+                  viewports. Capped at 60vh — the preview stays modest since a
+                  click opens the full-resolution lightbox. `sizes` reflects the
+                  image column (~7/12 of the 1280px max) on desktop, 92vw on
+                  mobile. */}
               <img
                 ref={heroImgRef}
                 src={urlFor(heroImage).width(1400).auto('format').url()}
@@ -223,11 +234,16 @@ export default function PaintingDetail({ painting }: Props) {
                 height={heroDims?.height}
                 // LCP candidate on the painting page — fetch ahead of
                 // low-priority resources, decode off main thread.
-                fetchPriority="high"
+                // React 18's runtime doesn't map camelCase `fetchPriority` to
+                // the DOM attribute (React 19 does), so it logs a dev-only
+                // "unknown prop" warning even though the attribute lands fine.
+                // Pass the real lowercase attribute to keep the console clean;
+                // cast because @types/react only types the camelCase form.
+                {...({ fetchpriority: 'high' } as Record<string, string>)}
                 decoding="async"
                 onLoad={() => setHeroLoaded(true)}
                 className={[
-                  'block w-full max-h-[82vh] object-contain transition-opacity duration-500',
+                  'block w-full max-h-[60vh] object-contain transition-opacity duration-500',
                   heroLoaded ? 'opacity-100' : 'opacity-0',
                 ].join(' ')}
               />
@@ -243,70 +259,70 @@ export default function PaintingDetail({ painting }: Props) {
         {heroLoaded && (
         <div className="lg:col-span-5">
           <Reveal>
-            <p className="eyebrow">
-              <span aria-hidden className="text-accent-ink">— </span>
-              {categoryTitle || t('painting.tagline')}
-            </p>
-            <h1 className="mt-5 font-display font-black text-5xl md:text-6xl tracking-tight leading-[1.02]">
-              {title}
+            <p className="eyebrow">{categoryTitle || t('painting.tagline')}</p>
+            {/* Title sits at the previous page's collection-title scale, in the
+                display serif's semibold, flanked by accent quotes. */}
+            {/* Quotes kept tight to the title on one line — a newline between
+                the spans and {title} makes JSX emit a stray space beside the
+                opening mark. */}
+            <h1 className="mt-4 font-display font-semibold text-4xl md:text-5xl tracking-tight leading-tight text-ink">
+              <span aria-hidden className="text-primary">“</span>{title}<span aria-hidden className="text-primary">”</span>
             </h1>
 
-            {/* Meta row — surface tag (pill) + year · medium. */}
-            {(surfaceLabel || metaText) && (
-              <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+            {/* Spec tags — surface, year · medium, and dimensions as one row of
+                bordered chips, matching the site's rounded-md boxed-label
+                convention. Dimensions keeps its inline cm / in toggle. */}
+            {(surfaceLabel || metaText || hasDimensions) && (
+              <div className="mt-6 flex flex-wrap items-center gap-2">
                 {surfaceLabel && (
-                  <span className="inline-flex items-center border border-line px-3 py-1 eyebrow text-[10px]">
+                  <span className="inline-flex items-center rounded-md border border-line px-3 py-1.5 eyebrow text-[10px]">
                     {surfaceLabel}
                   </span>
                 )}
                 {metaText && (
-                  <span className="eyebrow text-[11px]">
+                  <span className="inline-flex items-center rounded-md border border-line px-3 py-1.5 eyebrow text-[10px]">
                     {metaText}
                   </span>
                 )}
-              </div>
-            )}
-
-            {/* Dimensions — shown in the active unit, with a cm / in
-                toggle styled like the header's language / currency
-                switches. Always entered in cm in the studio. */}
-            {hasDimensions && (
-              <p className="mt-3 flex items-center gap-3 eyebrow text-[11px]">
-                <span>{formatDimensions(widthCm, heightCm, unit)}</span>
-                <span
-                  role="group"
-                  aria-label={t('painting.unitLabel')}
-                  className="inline-flex items-center"
-                >
-                  <button
-                    type="button"
-                    onClick={() => setUnit('cm')}
-                    aria-pressed={unit === 'cm'}
-                    aria-label={t('painting.unitCmAria')}
-                    className={[
-                      'transition-colors duration-300 hover:text-ink',
-                      unit === 'cm' ? 'text-ink' : 'text-slate',
-                    ].join(' ')}
-                  >
-                    {t('painting.unitCm')}
-                  </button>
-                  <span aria-hidden className="mx-1.5 text-line">
-                    /
+                {hasDimensions && (
+                  <span className="inline-flex items-center gap-2.5 rounded-md border border-line px-3 py-1.5 eyebrow text-[10px]">
+                    <span>{formatDimensions(widthCm, heightCm, unit)}</span>
+                    <span
+                      role="group"
+                      aria-label={t('painting.unitLabel')}
+                      className="inline-flex items-center"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setUnit('cm')}
+                        aria-pressed={unit === 'cm'}
+                        aria-label={t('painting.unitCmAria')}
+                        className={[
+                          'transition-colors duration-300 hover:text-ink',
+                          unit === 'cm' ? 'text-ink' : 'text-slate',
+                        ].join(' ')}
+                      >
+                        {t('painting.unitCm')}
+                      </button>
+                      <span aria-hidden className="mx-1 text-line">
+                        /
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setUnit('in')}
+                        aria-pressed={unit === 'in'}
+                        aria-label={t('painting.unitInAria')}
+                        className={[
+                          'transition-colors duration-300 hover:text-ink',
+                          unit === 'in' ? 'text-ink' : 'text-slate',
+                        ].join(' ')}
+                      >
+                        {t('painting.unitIn')}
+                      </button>
+                    </span>
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => setUnit('in')}
-                    aria-pressed={unit === 'in'}
-                    aria-label={t('painting.unitInAria')}
-                    className={[
-                      'transition-colors duration-300 hover:text-ink',
-                      unit === 'in' ? 'text-ink' : 'text-slate',
-                    ].join(' ')}
-                  >
-                    {t('painting.unitIn')}
-                  </button>
-                </span>
-              </p>
+                )}
+              </div>
             )}
           </Reveal>
 

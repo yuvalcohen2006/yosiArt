@@ -38,10 +38,12 @@ async function groq(query) {
   return result;
 }
 
-const [paintingSlugs, categorySlugs] = await Promise.all([
-  groq(`*[_type == "painting" && defined(slug.current)].slug.current`),
-  groq(`*[_type == "category" && defined(slug.current)].slug.current`),
-]);
+// Only painting slugs feed the sitemap now. Collections no longer have their
+// own page — they're views of /works (via ?category=), so there's no separate
+// URL to list.
+const paintingSlugs = await groq(
+  `*[_type == "painting" && defined(slug.current)].slug.current`,
+);
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -53,11 +55,6 @@ const urls = [
   { loc: '/terms', priority: '0.3', changefreq: 'yearly' },
   { loc: '/privacy', priority: '0.3', changefreq: 'yearly' },
   { loc: '/accessibility', priority: '0.3', changefreq: 'yearly' },
-  ...categorySlugs.map((slug) => ({
-    loc: `/works/${slug}`,
-    priority: '0.7',
-    changefreq: 'weekly',
-  })),
   ...paintingSlugs.map((slug) => ({
     loc: `/work/${slug}`,
     priority: '0.8',
@@ -84,5 +81,5 @@ const out = resolve(root, 'dist', 'sitemap.xml');
 await writeFile(out, xml, 'utf8');
 
 console.log(
-  `[sitemap] wrote ${urls.length} URLs (${paintingSlugs.length} paintings, ${categorySlugs.length} categories) → ${out}`,
+  `[sitemap] wrote ${urls.length} URLs (${paintingSlugs.length} paintings) → ${out}`,
 );

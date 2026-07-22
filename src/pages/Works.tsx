@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useLocale } from '@/hooks/useLocale';
 import { usePaintings } from '@/hooks/usePaintings';
 import { useCategories } from '@/hooks/useCategories';
@@ -37,7 +38,24 @@ export default function Works() {
   const categoriesState = useCategories();
   const categories =
     categoriesState.status === 'success' ? categoriesState.data : [];
+
+  // Collection links across the site point here as `/works?category=<slug>`
+  // (this is the one catalogue page — the old per-category page was removed).
+  const [searchParams] = useSearchParams();
+  const categoryParam = searchParams.get('category');
+  // Start from the default so the first client render matches the pre-rendered
+  // /works HTML (which carries no query string) — a direct hit on
+  // /works?category=x then can't mismatch the SSG output on hydration.
   const [query, setQuery] = useState<WorksQuery>(DEFAULT_QUERY);
+  // Fold the ?category= param into the filter after mount, and keep it in step
+  // when only the query string changes — e.g. clicking a different collection
+  // while already on /works, which re-renders this page in place rather than
+  // remounting it. Fires only when the param itself changes, so a manual pick
+  // in the sidebar is never clobbered.
+  useEffect(() => {
+    const next = categoryParam ?? null;
+    setQuery((q) => (q.category === next ? q : { ...q, category: next }));
+  }, [categoryParam]);
 
   // Filtering and sorting run over the already-fetched set rather than going
   // back to Sanity: the catalogue is small, and this keeps switching

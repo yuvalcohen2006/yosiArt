@@ -20,7 +20,6 @@ import { useStopMotion } from '../a11y/useStopMotion';
  * Per-route chrome:
  *   - '/' (landing) renders its own Tabnavbar, so the shared one is
  *     hidden there — but it DOES get the shared Footer.
- *   - '/navbar-demo' is a chrome-free sandbox: no Header, no Footer.
  *
  * The whole tree sits inside a framer-motion <MotionConfig> whose
  * reducedMotion flips to "always" when the accessibility widget's
@@ -31,7 +30,6 @@ import { useStopMotion } from '../a11y/useStopMotion';
 export default function Layout() {
   const path = useLocation().pathname;
   const isLanding = path === '/';
-  const isDemo = path === '/navbar-demo';
   const stopMotion = useStopMotion();
   const { t } = useLocale();
   const categoriesState = useCategories();
@@ -42,7 +40,7 @@ export default function Layout() {
   // it cannot see `/`'s. Skipped on the landing page, which has its own navbar
   // fed from that loader. Missing this is why the tile was a flat grey
   // gradient on About, Contact and Works.
-  const homeMediaState = useHomeMedia(!isLanding && !isDemo);
+  const homeMediaState = useHomeMedia(!isLanding);
   const featuredImage =
     homeMediaState.status === 'success'
       ? (homeMediaState.data?.heroImages?.[0] ?? null)
@@ -71,13 +69,13 @@ export default function Layout() {
             film needs to lift the bar out of frame — so this covers every
             other page, pulling the same collections client-side so the Works
             dropdown is identical wherever you are. */}
-        {!isLanding && !isDemo && (
+        {!isLanding && (
           <Tabnavbar categories={categories} featuredImage={featuredImage} />
         )}
         <main id="main" className="flex-1">
           <AnimatedOutlet />
         </main>
-        {!isDemo && <Footer />}
+        <Footer />
         <AccessibilityWidget />
         {/* Vercel Analytics — pageviews + referrers, privacy-friendly
             (no cookies, no consent banner needed). Active only on the

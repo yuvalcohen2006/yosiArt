@@ -446,7 +446,7 @@ export default function CategoryFocusRail({
                 light-surface tone and the compact size so it matches the
                 stepper beside it. Different job: this opens one gallery. */}
             <Link
-              to={`/works/${activeItem.slug}`}
+              to={`/works?category=${activeItem.slug}`}
               className={ctaClasses('onLight', 'sm')}
             >
               <span className="relative z-10 inline-flex items-center gap-[0.6em]">

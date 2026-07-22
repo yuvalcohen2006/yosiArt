@@ -39,6 +39,9 @@ studio/dist
 # misc
 *.tsbuildinfo
 
+# Playwright MCP scratch (screenshots, snapshots, console logs from verification)
+.playwright-mcp/
+
 # Video masters (/media). Camera originals live here and NEVER ship: anything
 # under public/ is copied verbatim into dist/ and deployed, so a 139 MB master
 # parked there would go straight to production. Only the web cut it produces

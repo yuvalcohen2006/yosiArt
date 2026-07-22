@@ -58,7 +58,12 @@ export default function Tabnavbar({
   featuredImage?: SanityImage | null;
 }) {
   const { t, locale } = useLocale();
-  const path = useLocation().pathname;
+  const location = useLocation();
+  const path = location.pathname;
+  // The collection currently in view is carried on `/works?category=<slug>`
+  // (the sidebar-filtered catalogue), so read it from the query string rather
+  // than the path to light up the matching row in the phone drawer.
+  const activeCategorySlug = new URLSearchParams(location.search).get('category');
 
   // The three promoted collections, in HOT_CATEGORY_SLUGS order, with any
   // gaps back-filled from the remaining collections so the menu is never short.
@@ -71,8 +76,12 @@ export default function Tabnavbar({
     return [...picked, ...rest].slice(0, 3);
   }, [categories]);
 
+  // `fit('crop')`: fill the fixed 600×760 tile and let Sanity crop to the
+  // image's focal point. `max` (fit-inside) left letterbox bars around art
+  // whose ratio didn't match the tile — a small crop reads far better than
+  // black bars.
   const featuredUrl = featuredImage
-    ? urlFor(featuredImage).width(560).height(700).fit('crop').auto('format').url()
+    ? urlFor(featuredImage).width(600).height(760).fit('crop').auto('format').url()
     : null;
 
   const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
@@ -201,13 +210,15 @@ export default function Tabnavbar({
                            blurb is text-flame-300, which high contrast would
                            otherwise drive to near-black on near-black. */
                         data-surface="dark"
-                        className="group/feat relative flex select-none flex-col justify-end overflow-hidden rounded-md bg-muted no-underline"
+                        className="group/feat relative flex min-h-[240px] select-none flex-col justify-end overflow-hidden rounded-md bg-flame-900 no-underline"
                       >
                         {featuredUrl ? (
                           <img
                             src={featuredUrl}
                             alt=""
                             aria-hidden
+                            /* object-cover: fill the tile edge to edge. A slight
+                               crop is fine here; letterbox bars are not. */
                             className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-gallery group-hover/feat:scale-[1.04]"
                           />
                         ) : (
@@ -218,11 +229,15 @@ export default function Tabnavbar({
                           aria-hidden
                           className="absolute inset-0 bg-gradient-to-t from-flame-900/85 via-flame-900/25 to-transparent"
                         />
-                        <div className="relative p-4">
-                          <div className="font-display text-lg font-semibold text-flame-50">
+                        {/* Title takes the accent on hover, matching the
+                            collection rows beside it — `primary` (not the
+                            darker accent-ink) because this tile is a dark
+                            surface. */}
+                        <div className="relative p-4 transition-colors duration-200 group-hover/feat:text-primary">
+                          <div className="font-display text-lg font-semibold text-flame-50 transition-colors duration-200 group-hover/feat:text-primary">
                             {t('works.title')}
                           </div>
-                          <p className="mt-1 text-sm leading-tight text-flame-300">
+                          <p className="mt-1 text-sm leading-tight text-flame-300 transition-colors duration-200 group-hover/feat:text-primary">
                             {t('nav.featuredBlurb')}
                           </p>
                         </div>
@@ -238,7 +253,7 @@ export default function Tabnavbar({
                           hottest.map((c) => (
                             <ListItem
                               key={c._id}
-                              to={`/works/${c.slug}`}
+                              to={`/works?category=${c.slug}`}
                               title={pickLocale(c.title, locale)}
                               onNavigate={() => setMenuValue('')}
                             >
@@ -373,12 +388,14 @@ export default function Tabnavbar({
                 {hottest.map((c) => (
                   <li key={c._id}>
                     <NavLink
-                      to={`/works/${c.slug}`}
+                      to={`/works?category=${c.slug}`}
                       onClick={closeMobile}
                       className={cn(
                         MOBILE_LINK,
                         'py-2 text-[15px] text-slate',
-                        path === `/works/${c.slug}` && 'text-accent-ink',
+                        path === '/works' &&
+                          activeCategorySlug === c.slug &&
+                          'text-accent-ink',
                       )}
                     >
                       {pickLocale(c.title, locale)}
@@ -456,11 +473,11 @@ function ListItem({
         >
           <div className="text-sm font-medium leading-none">{title}</div>
           {children && (
-            /* One line, clipped. These come from Sanity and run to a full
-               paragraph; at two lines the tallest tile stretched the dropdown
-               and the three rows stopped matching. `line-clamp-1` keeps every
-               tile the same height whatever the editor writes. */
-            <p className="line-clamp-1 text-sm leading-snug text-muted-foreground">
+            /* Two lines, clipped. `min-h` reserves the full two-line box even
+               when the description only fills one, so every row stays the same
+               height and the three tiles keep matching whatever the editor
+               writes. */
+            <p className="line-clamp-2 min-h-[2.5em] text-sm leading-snug text-muted-foreground">
               {children}
             </p>
           )}

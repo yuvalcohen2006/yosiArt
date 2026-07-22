@@ -10,17 +10,16 @@ import type { Painting } from '@/sanity/types';
 
 type Props = { painting: Painting };
 
-// Same border + hover-fill pattern as before, plus a quiet press
-// feedback: on `:active` (mouse-down or finger-tap) the button flips
-// to its filled state AND shrinks by 2 %, so the tap registers visually
-// before the external app (WhatsApp / mail client) takes over. No
-// toasts, no confirmation text — just the button reacting.
+// Mirrors the site's primary-button language (see ui/cta-style.ts): Assistant
+// bold small-caps on a rounded 2px outline that warms to the accent and lifts
+// on hover, with a quiet press. Kept as its own class rather than calling
+// ctaClasses() only so the pair can size to the inquire row.
 const buttonClass = [
-  'flex-1 inline-flex items-center justify-center px-5 py-3.5',
-  'border border-ink font-display font-medium text-xs uppercase tracking-[0.2em] text-ink whitespace-nowrap',
-  'hover:bg-ink hover:text-paper',
-  'active:bg-ink active:text-paper active:scale-[0.98]',
-  'transition duration-200',
+  'flex-1 inline-flex items-center justify-center rounded-md px-5 py-3.5',
+  'border-2 border-ink font-sans font-bold text-xs uppercase tracking-[0.12em] text-ink whitespace-nowrap',
+  'transition-[color,border-color,background-color,transform] duration-300 ease-out',
+  'hover:-translate-y-[2px] hover:border-primary/50 hover:text-primary hover:bg-primary/[0.03]',
+  'active:translate-y-[1px] active:scale-[0.99]',
 ].join(' ');
 
 /**

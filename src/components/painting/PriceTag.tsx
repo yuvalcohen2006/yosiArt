@@ -51,7 +51,7 @@ export default function PriceTag({ priceILS, priceUSD, status }: Props) {
     return (
       <span className="flex flex-col gap-1">
         {reservedMark}
-        <span className="font-display font-semibold text-2xl text-slate">
+        <span className="font-sans italic font-semibold text-2xl text-slate">
           {t('painting.inquireForPrice')}
         </span>
       </span>
