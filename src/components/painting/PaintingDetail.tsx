@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLocale } from '@/hooks/useLocale';
@@ -34,29 +34,19 @@ type Props = { painting: Painting };
 export default function PaintingDetail({ painting }: Props) {
   const { t, locale } = useLocale();
   const { unit, setUnit } = useUnit();
-  const location = useLocation();
-  const navigate = useNavigate();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
+  // Trim the short display strings: CMS entries occasionally carry a stray
+  // leading/trailing space, which is invisible on its own but pushes the title
+  // off its flanking quotes and unbalances the spec chips. Description is left
+  // as-is — it uses `whitespace-pre-line`, so its internal spacing is content.
   const title = pickLocale(painting.title, locale, painting.slug).trim();
   const description = pickLocale(painting.description, locale, '');
   const medium = pickLocale(painting.medium, locale, '').trim();
   const categoryTitle = painting.category
     ? pickLocale(painting.category.title, locale, painting.category.slug).trim()
     : '';
-
-  const handleBackClick = () => {
-    // If we have referrer info in location state, use it; otherwise try history back
-    const fromWorks = document.referrer.includes('/works') || location.state?.from;
-    if (fromWorks) {
-      navigate(-1);
-    } else if (painting.category) {
-      navigate(`/works?category=${painting.category.slug}`);
-    } else {
-      navigate('/works');
-    }
-  };
 
   const heroImage = painting.images?.[0];
   // Intrinsic dimensions parsed from the Sanity asset reference. Used
@@ -161,18 +151,23 @@ export default function PaintingDetail({ painting }: Props) {
         jsonLd={jsonLd}
       />
       <div className="mx-auto max-w-7xl">
-        {/* Back button — aligned with content, not floating */}
-        <button
-          type="button"
-          onClick={handleBackClick}
-          className="group mb-10 inline-flex items-center gap-2.5 font-sans font-medium text-xs uppercase tracking-[0.18em] text-slate hover:text-accent-ink transition-colors duration-300"
-        >
-          <ArrowLeft
-            aria-hidden
-            className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:-translate-x-0.5 rtl:-scale-x-100"
-          />
-          <span>{t('painting.back')}</span>
-        </button>
+        {/* Breadcrumb back link */}
+        <div className="mb-10">
+          <Link
+            to={
+              painting.category
+                ? `/works?category=${painting.category.slug}`
+                : '/works'
+            }
+            className="group inline-flex items-center gap-2.5 font-sans font-medium text-xs uppercase tracking-[0.18em] text-slate hover:text-accent-ink transition-colors duration-300"
+          >
+            <ArrowLeft
+              aria-hidden
+              className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:-translate-x-0.5 rtl:-scale-x-100"
+            />
+            <span>{categoryTitle || t('works.title')}</span>
+          </Link>
+        </div>
 
         {/* Asymmetric two-column: image block on one side, structured
             meta / price / inquire column on the other. Stacks on mobile. */}
@@ -257,72 +252,75 @@ export default function PaintingDetail({ painting }: Props) {
         )}
         </div>
 
-        {/* Meta column — only mounted once the hero image has loaded */}
+        {/* Meta column — only mounted once the hero image has loaded, so
+            the title, meta, price and inquire buttons all arrive in one
+            moment with the image rather than shuffling as parts settle.
+            The Reveal wrappers still play their fade-up on mount. */}
         {heroLoaded && (
-        <div className=”lg:col-span-5”>
+        <div className="lg:col-span-5">
           <Reveal>
-            <p className=”eyebrow”>{categoryTitle || t('painting.tagline')}</p>
-            <h1 className=”mt-4 font-display font-semibold text-4xl md:text-5xl tracking-tight leading-tight text-ink”>
-              <span aria-hidden className=”text-primary”>”</span>{title}<span aria-hidden className=”text-primary”>”</span>
+            <p className="eyebrow">{categoryTitle || t('painting.tagline')}</p>
+            {/* Title sits at the previous page's collection-title scale, in the
+                display serif's semibold, flanked by accent quotes. */}
+            {/* Quotes kept tight to the title on one line — a newline between
+                the spans and {title} makes JSX emit a stray space beside the
+                opening mark. */}
+            <h1 className="mt-4 font-display font-semibold text-4xl md:text-5xl tracking-tight leading-tight text-ink">
+              <span aria-hidden className="text-primary">“</span>{title}<span aria-hidden className="text-primary">”</span>
             </h1>
 
-            {/* Size prominently displayed — the key characteristic */}
-            {hasDimensions && (
-              <div className=”mt-8 pb-6 border-b border-line”>
-                <p className=”eyebrow text-[11px] text-slate mb-2”>{t('painting.dimensions')}</p>
-                <div className=”flex items-baseline gap-3”>
-                  <span className=”font-display text-2xl md:text-3xl font-semibold text-ink”>
-                    {formatDimensions(widthCm, heightCm, unit)}
-                  </span>
-                  <span
-                    role=”group”
-                    aria-label={t('painting.unitLabel')}
-                    className=”inline-flex items-center text-sm”
-                  >
-                    <button
-                      type=”button”
-                      onClick={() => setUnit('cm')}
-                      aria-pressed={unit === 'cm'}
-                      aria-label={t('painting.unitCmAria')}
-                      className={[
-                        'transition-colors duration-300 hover:text-ink',
-                        unit === 'cm' ? 'text-ink font-semibold' : 'text-slate',
-                      ].join(' ')}
-                    >
-                      {t('painting.unitCm')}
-                    </button>
-                    <span aria-hidden className=”mx-2 text-line”>
-                      /
-                    </span>
-                    <button
-                      type=”button”
-                      onClick={() => setUnit('in')}
-                      aria-pressed={unit === 'in'}
-                      aria-label={t('painting.unitInAria')}
-                      className={[
-                        'transition-colors duration-300 hover:text-ink',
-                        unit === 'in' ? 'text-ink font-semibold' : 'text-slate',
-                      ].join(' ')}
-                    >
-                      {t('painting.unitIn')}
-                    </button>
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Characteristics list — surface, year, medium */}
-            {(surfaceLabel || metaText) && (
-              <div className=”mt-6 flex flex-col gap-2”>
+            {/* Spec tags — surface, year · medium, and dimensions as one row of
+                bordered chips, matching the site's rounded-md boxed-label
+                convention. Dimensions keeps its inline cm / in toggle. */}
+            {(surfaceLabel || metaText || hasDimensions) && (
+              <div className="mt-6 flex flex-wrap items-center gap-2">
                 {surfaceLabel && (
-                  <div className=”flex items-center gap-3”>
-                    <span className=”text-slate text-sm”>{surfaceLabel}</span>
-                  </div>
+                  <span className="inline-flex items-center rounded-md border border-line px-3 py-1.5 eyebrow text-[10px]">
+                    {surfaceLabel}
+                  </span>
                 )}
                 {metaText && (
-                  <div className=”flex items-center gap-3”>
-                    <span className=”text-slate text-sm”>{metaText}</span>
-                  </div>
+                  <span className="inline-flex items-center rounded-md border border-line px-3 py-1.5 eyebrow text-[10px]">
+                    {metaText}
+                  </span>
+                )}
+                {hasDimensions && (
+                  <span className="inline-flex items-center gap-2.5 rounded-md border border-line px-3 py-1.5 eyebrow text-[10px]">
+                    <span>{formatDimensions(widthCm, heightCm, unit)}</span>
+                    <span
+                      role="group"
+                      aria-label={t('painting.unitLabel')}
+                      className="inline-flex items-center"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setUnit('cm')}
+                        aria-pressed={unit === 'cm'}
+                        aria-label={t('painting.unitCmAria')}
+                        className={[
+                          'transition-colors duration-300 hover:text-ink',
+                          unit === 'cm' ? 'text-ink' : 'text-slate',
+                        ].join(' ')}
+                      >
+                        {t('painting.unitCm')}
+                      </button>
+                      <span aria-hidden className="mx-1 text-line">
+                        /
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setUnit('in')}
+                        aria-pressed={unit === 'in'}
+                        aria-label={t('painting.unitInAria')}
+                        className={[
+                          'transition-colors duration-300 hover:text-ink',
+                          unit === 'in' ? 'text-ink' : 'text-slate',
+                        ].join(' ')}
+                      >
+                        {t('painting.unitIn')}
+                      </button>
+                    </span>
+                  </span>
                 )}
               </div>
             )}
@@ -352,7 +350,9 @@ export default function PaintingDetail({ painting }: Props) {
         )}
         </div>
 
-        {/* Related paintings — draggable horizontal strip, 50% smaller */}
+        {/* Related paintings strip — full width below the two-column
+            block, also gated on heroLoaded so the entire below-hero
+            region appears together. */}
         {heroLoaded && related.length > 0 && (
           <section className="mt-32">
             <Reveal>
@@ -361,16 +361,12 @@ export default function PaintingDetail({ painting }: Props) {
                 {t('painting.related')}
               </h2>
             </Reveal>
-            <div className="overflow-x-auto -mx-6 md:-mx-12 lg:-mx-16 px-6 md:px-12 lg:px-16">
-              <div className="inline-flex gap-3 md:gap-4">
-                {related.map((p, i) => (
-                  <Reveal key={p._id} delay={i * 0.06}>
-                    <div className="w-32 md:w-40 flex-shrink-0">
-                      <PaintingCard painting={p} />
-                    </div>
-                  </Reveal>
-                ))}
-              </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+              {related.map((p, i) => (
+                <Reveal key={p._id} delay={i * 0.06}>
+                  <PaintingCard painting={p} />
+                </Reveal>
+              ))}
             </div>
           </section>
         )}

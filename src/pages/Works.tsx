@@ -114,8 +114,6 @@ export default function Works() {
         <p className="section-subtitle mx-auto mt-3 max-w-md">{subtitle}</p>
       </header>
 
-      <div className="rule mx-auto mt-8 max-w-7xl md:mt-10" />
-
       {/* Filter sits to the side, above the wall — out of the header's way,
           and on the reading-start edge so it mirrors for Hebrew. The count
           takes the opposite end so narrowing always has visible feedback,
@@ -123,7 +121,7 @@ export default function Works() {
       <div className="mx-auto mt-8 flex max-w-7xl flex-wrap items-center justify-between gap-3 md:mt-10">
         <WorksFilter categories={categories} value={query} onChange={setQuery} />
         {state.status === 'success' && (
-          <p className="font-sans text-base font-medium text-ink">
+          <p className="font-sans text-sm text-slate">
             {t('works.count', { count: paintings.length })}
           </p>
         )}

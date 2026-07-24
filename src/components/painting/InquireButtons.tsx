@@ -10,12 +10,16 @@ import type { Painting } from '@/sanity/types';
 
 type Props = { painting: Painting };
 
+// Mirrors the site's primary-button language (see ui/cta-style.ts): Assistant
+// bold small-caps on a rounded 2px outline that warms to the accent and lifts
+// on hover, with a quiet press. Kept as its own class rather than calling
+// ctaClasses() only so the pair can size to the inquire row.
 const buttonClass = [
-  'inline-flex items-center justify-center rounded-sm px-4 py-2',
-  'border border-ink font-sans font-medium text-xs uppercase tracking-[0.1em] text-ink whitespace-nowrap',
+  'flex-1 inline-flex items-center justify-center rounded-md px-5 py-3.5',
+  'border-2 border-ink font-sans font-bold text-xs uppercase tracking-[0.12em] text-ink whitespace-nowrap',
   'transition-[color,border-color,background-color,transform] duration-300 ease-out',
-  'hover:border-primary hover:text-primary hover:bg-primary/[0.05]',
-  'active:scale-[0.98]',
+  'hover:-translate-y-[2px] hover:border-primary/50 hover:text-primary hover:bg-primary/[0.03]',
+  'active:translate-y-[1px] active:scale-[0.99]',
 ].join(' ');
 
 /**
@@ -34,9 +38,9 @@ export default function InquireButtons({ painting }: Props) {
   const url = paintingPermalink(painting.slug);
 
   if (painting.status === 'sold') {
+    // Piece is gone — pivot the visitor toward a commission inquiry.
     return (
-      <div className="flex flex-col gap-3">
-        <p className="eyebrow text-[11px]">{t('painting.contactAbout')}</p>
+      <div className="flex flex-col sm:flex-row gap-3 max-w-xl">
         <a
           href={commissionEmailLink({ title, url, t })}
           className={buttonClass}
@@ -48,24 +52,21 @@ export default function InquireButtons({ painting }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <p className="eyebrow text-[11px]">{t('painting.contactAbout')}</p>
-      <div className="flex flex-col sm:flex-row gap-2.5 max-w-xs">
-        <a
-          href={whatsappInquireLink({ title, url, t })}
-          target="_blank"
-          rel="noreferrer noopener"
-          className={buttonClass}
-        >
-          WhatsApp
-        </a>
-        <a
-          href={emailInquireLink({ title, url, t })}
-          className={buttonClass}
-        >
-          Email
-        </a>
-      </div>
+    <div className="flex flex-col sm:flex-row gap-3 max-w-md">
+      <a
+        href={whatsappInquireLink({ title, url, t })}
+        target="_blank"
+        rel="noreferrer noopener"
+        className={buttonClass}
+      >
+        {t('painting.inquireWhatsapp')}
+      </a>
+      <a
+        href={emailInquireLink({ title, url, t })}
+        className={buttonClass}
+      >
+        {t('painting.inquireEmail')}
+      </a>
     </div>
   );
 }
