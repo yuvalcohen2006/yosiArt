@@ -97,6 +97,10 @@
   },
   "painting": {
     "tagline": "Painting",
+    "back": "Back",
+    "contactAbout": "Contact us about this painting",
+    "contactSold": "This piece has sold — ask about a commission",
+    "surface": "Surface",
     "year": "Year",
     "medium": "Medium",
     "dimensions": "Dimensions",

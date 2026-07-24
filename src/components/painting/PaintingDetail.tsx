@@ -1,9 +1,10 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLocale } from '@/hooks/useLocale';
 import { useUnit, formatDimensions } from '@/hooks/useUnit';
+import { useDragScroll } from '@/hooks/useDragScroll';
 import { pickLocale } from '@/lib/pickLocale';
 import { pickAlt } from '@/lib/pickAlt';
 import { urlFor } from '@/sanity/imageUrl';
@@ -36,6 +37,24 @@ export default function PaintingDetail({ painting }: Props) {
   const { unit, setUnit } = useUnit();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  // Grab-and-pull for the related strip; native scrolling handles everything
+  // that is not a mouse.
+  const relatedRail = useDragScroll<HTMLDivElement>();
+
+  // Where the visitor actually came from, handed over in link state by
+  // PaintingCard. This is the whole point of the back link: arriving from the
+  // unfiltered wall, from a filtered collection, or from another painting all
+  // used to dump you on the piece's OWN collection, which was frequently not
+  // the screen you had just left.
+  //
+  // A direct hit — search result, shared link, refresh — carries no state, and
+  // history.back() would leave the site entirely. Those fall back to the
+  // piece's collection, which is the most useful gallery for a cold visitor.
+  const location = useLocation();
+  const cameFrom = (location.state as { from?: string } | null)?.from ?? null;
+  const backTo =
+    cameFrom ??
+    (painting.category ? `/works?category=${painting.category.slug}` : '/works');
 
   // Trim the short display strings: CMS entries occasionally carry a stray
   // leading/trailing space, which is invisible on its own but pushes the title
@@ -59,15 +78,6 @@ export default function PaintingDetail({ painting }: Props) {
   useEffect(() => {
     if (heroImgRef.current?.complete) setHeroLoaded(true);
   }, []);
-  // Year + medium share the meta line; dimensions render separately
-  // because they carry an interactive cm / in unit toggle.
-  const metaText = [
-    painting.year ? String(painting.year) : null,
-    medium || null,
-  ]
-    .filter(Boolean)
-    .join(' · ');
-
   // Canvas-vs-paper tag.
   const surfaceLabel = painting.surface
     ? t(
@@ -76,6 +86,24 @@ export default function PaintingDetail({ painting }: Props) {
           : 'painting.surfacePaper',
       )
     : '';
+
+  // The piece's characteristics, as label / value pairs. Size is deliberately
+  // NOT in here — it is set large above this list, since after the painting
+  // and its name it is the thing buyers ask about first.
+  //
+  // Built imperatively rather than with `.filter(Boolean)`: that does not
+  // narrow `null` out of the element type, so the list would need a cast to
+  // render.
+  const specs: { label: string; value: string }[] = [];
+  if (surfaceLabel) {
+    specs.push({ label: t('painting.surface'), value: surfaceLabel });
+  }
+  if (painting.year) {
+    specs.push({ label: t('painting.year'), value: String(painting.year) });
+  }
+  if (medium) {
+    specs.push({ label: t('painting.medium'), value: medium });
+  }
 
   // Dimensions — stored in cm, shown in the active unit via useUnit.
   const widthCm = painting.dimensions?.widthCm;
@@ -151,21 +179,21 @@ export default function PaintingDetail({ painting }: Props) {
         jsonLd={jsonLd}
       />
       <div className="mx-auto max-w-7xl">
-        {/* Breadcrumb back link */}
+        {/* Back link. It sits directly in the max-w-7xl column, so its arrow
+            starts on exactly the same edge as the image below it and the
+            related strip further down — no indent of its own. */}
         <div className="mb-10">
           <Link
-            to={
-              painting.category
-                ? `/works?category=${painting.category.slug}`
-                : '/works'
-            }
-            className="group inline-flex items-center gap-2.5 font-sans font-medium text-xs uppercase tracking-[0.18em] text-slate hover:text-accent-ink transition-colors duration-300"
+            to={backTo}
+            className="group -ms-1 inline-flex items-center gap-2.5 rounded-md px-1 py-1 font-sans text-xs font-medium uppercase tracking-[0.18em] text-slate transition-colors duration-300 hover:text-accent-ink"
           >
             <ArrowLeft
               aria-hidden
               className="h-4 w-4 shrink-0 transition-transform duration-300 group-hover:-translate-x-0.5 rtl:-scale-x-100"
             />
-            <span>{categoryTitle || t('works.title')}</span>
+            {/* Returning to a known screen just says "back"; a cold visitor
+                being sent to the collection is told which one. */}
+            <span>{cameFrom ? t('painting.back') : categoryTitle || t('works.title')}</span>
           </Link>
         </div>
 
@@ -269,60 +297,73 @@ export default function PaintingDetail({ painting }: Props) {
               <span aria-hidden className="text-primary">“</span>{title}<span aria-hidden className="text-primary">”</span>
             </h1>
 
-            {/* Spec tags — surface, year · medium, and dimensions as one row of
-                bordered chips, matching the site's rounded-md boxed-label
-                convention. Dimensions keeps its inline cm / in toggle. */}
-            {(surfaceLabel || metaText || hasDimensions) && (
-              <div className="mt-6 flex flex-wrap items-center gap-2">
-                {surfaceLabel && (
-                  <span className="inline-flex items-center rounded-md border border-line px-3 py-1.5 eyebrow text-[10px]">
-                    {surfaceLabel}
+            {/* Size, set large. After the painting and its name this is the
+                thing people ask about first, so it is typeset as a headline in
+                its own right rather than as one chip among several. The cm/in
+                toggle rides alongside it on the baseline. */}
+            {hasDimensions && (
+              <div className="mt-8">
+                <p className="eyebrow text-[11px]">{t('painting.dimensions')}</p>
+                <div className="mt-1.5 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                  <span className="font-display text-3xl font-semibold leading-none tracking-tight text-ink md:text-4xl">
+                    {formatDimensions(widthCm, heightCm, unit)}
                   </span>
-                )}
-                {metaText && (
-                  <span className="inline-flex items-center rounded-md border border-line px-3 py-1.5 eyebrow text-[10px]">
-                    {metaText}
-                  </span>
-                )}
-                {hasDimensions && (
-                  <span className="inline-flex items-center gap-2.5 rounded-md border border-line px-3 py-1.5 eyebrow text-[10px]">
-                    <span>{formatDimensions(widthCm, heightCm, unit)}</span>
-                    <span
-                      role="group"
-                      aria-label={t('painting.unitLabel')}
-                      className="inline-flex items-center"
+                  <span
+                    role="group"
+                    aria-label={t('painting.unitLabel')}
+                    className="inline-flex items-center font-sans text-sm"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setUnit('cm')}
+                      aria-pressed={unit === 'cm'}
+                      aria-label={t('painting.unitCmAria')}
+                      className={[
+                        'transition-colors duration-300 hover:text-ink',
+                        unit === 'cm' ? 'font-semibold text-ink' : 'text-slate',
+                      ].join(' ')}
                     >
-                      <button
-                        type="button"
-                        onClick={() => setUnit('cm')}
-                        aria-pressed={unit === 'cm'}
-                        aria-label={t('painting.unitCmAria')}
-                        className={[
-                          'transition-colors duration-300 hover:text-ink',
-                          unit === 'cm' ? 'text-ink' : 'text-slate',
-                        ].join(' ')}
-                      >
-                        {t('painting.unitCm')}
-                      </button>
-                      <span aria-hidden className="mx-1 text-line">
-                        /
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setUnit('in')}
-                        aria-pressed={unit === 'in'}
-                        aria-label={t('painting.unitInAria')}
-                        className={[
-                          'transition-colors duration-300 hover:text-ink',
-                          unit === 'in' ? 'text-ink' : 'text-slate',
-                        ].join(' ')}
-                      >
-                        {t('painting.unitIn')}
-                      </button>
+                      {t('painting.unitCm')}
+                    </button>
+                    <span aria-hidden className="mx-1.5 text-line">
+                      /
                     </span>
+                    <button
+                      type="button"
+                      onClick={() => setUnit('in')}
+                      aria-pressed={unit === 'in'}
+                      aria-label={t('painting.unitInAria')}
+                      className={[
+                        'transition-colors duration-300 hover:text-ink',
+                        unit === 'in' ? 'font-semibold text-ink' : 'text-slate',
+                      ].join(' ')}
+                    >
+                      {t('painting.unitIn')}
+                    </button>
                   </span>
-                )}
+                </div>
               </div>
+            )}
+
+            {/* The remaining characteristics, underneath the size, as ruled
+                label/value rows. The old bordered chips gave surface, year and
+                medium the same visual weight as each other AND as the size,
+                and read as tags on a product rather than as a description of
+                an object. */}
+            {specs.length > 0 && (
+              <dl className="mt-8 border-t border-line">
+                {specs.map((spec) => (
+                  <div
+                    key={spec.label}
+                    className="flex items-baseline justify-between gap-6 border-b border-line py-2.5"
+                  >
+                    <dt className="eyebrow text-[11px]">{spec.label}</dt>
+                    <dd className="text-end font-sans text-sm text-ink">
+                      {spec.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
             )}
           </Reveal>
 
@@ -357,17 +398,36 @@ export default function PaintingDetail({ painting }: Props) {
           <section className="mt-32">
             <Reveal>
               <div className="rule mb-8" />
-              <h2 className="font-display font-black text-3xl md:text-4xl tracking-tight mb-10">
-                {t('painting.related')}
-              </h2>
+              <div className="mb-10 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+                <h2 className="font-display text-3xl font-black tracking-tight md:text-4xl">
+                  {t('painting.related')}
+                </h2>
+                <span className="eyebrow text-[11px]">
+                  {t('home.dragToExplore')}
+                </span>
+              </div>
             </Reveal>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-              {related.map((p, i) => (
-                <Reveal key={p._id} delay={i * 0.06}>
-                  <PaintingCard painting={p} />
-                </Reveal>
-              ))}
-            </div>
+            {/* A pulled strip rather than a grid: these are a sideline to the
+                painting above, so they are sized down to roughly half a wall
+                card and put on one line you drag through instead of a block
+                that competes with the piece you came to see.
+                `touch-pan-x` keeps vertical page scrolling working when a
+                finger starts on the strip. */}
+            <Reveal>
+              <div
+                ref={relatedRail.ref}
+                {...relatedRail.handlers}
+                className="-mx-1 cursor-grab touch-pan-x overflow-x-auto px-1 pb-2 active:cursor-grabbing [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              >
+                <div className="flex w-max gap-4">
+                  {related.map((p) => (
+                    <div key={p._id} className="w-[150px] shrink-0 md:w-[168px]">
+                      <PaintingCard painting={p} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Reveal>
           </section>
         )}
       </div>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useLocale } from '@/hooks/useLocale';
 import { pickLocale } from '@/lib/pickLocale';
 import { pickAlt } from '@/lib/pickAlt';
@@ -12,56 +12,68 @@ type Props = {
 };
 
 /**
- * Single card in the works grid. The image sits in a variable-aspect well
- * (set by the grid) with a structured caption block beneath it — title,
- * category, and a "sold" marker — in the Swiss/editorial type system. While
- * the image loads a pulsing placeholder + spinner keeps the card from
- * looking empty. On hover the image scales gently and the title shifts to
- * the accent grey. The artwork stays in full colour — colour is the point.
+ * Single card in the works grid.
+ *
+ * The painting carries the card: the frame is a hairline with the barest
+ * corner softening, and the only thing printed under it is the title in
+ * quotes. The collection name is no longer a caption line — it drops in from
+ * the top edge of the painting on hover, white over a dark wash, so a wall of
+ * cards reads as paintings rather than as a table of labels.
+ *
+ * A sold piece says so on the painting itself, permanently, on a solid plate
+ * so it stays legible over whatever colour sits underneath it.
+ *
+ * The link carries NO `aria-label`. aria-label overrides all descendant content
+ * when the accessible name is computed, which would collapse the name to the
+ * title alone and silently drop the collection and the sold marker — in a
+ * screen reader's list of links, sold pieces would be indistinguishable from
+ * available ones. The hover-revealed collection is only VISUALLY hidden
+ * (opacity, never `hidden` or `aria-hidden`), so it stays in the name.
  */
 export default function PaintingCard({ painting }: Props) {
   const { locale, t } = useLocale();
+  const location = useLocation();
   const title = pickLocale(painting.title, locale, painting.slug);
   const categoryTitle = painting.category
     ? pickLocale(painting.category.title, locale)
     : '';
-  // Prefer the preview-only image if the artist set one in Sanity;
-  // fall back to the first detail image so existing paintings keep
-  // working without re-uploading.
+  // Prefer the preview-only image if the artist set one in Sanity; fall back to
+  // the first detail image so existing paintings keep working.
   const image = painting.previewImage ?? painting.images?.[0];
   const isSold = painting.status === 'sold';
 
-  // Track image load state so the placeholder can fade out once the
-  // bytes arrive. Handle the cached / SSR case via the `complete` flag
-  // — onLoad doesn't fire if the image was already loaded before React
-  // attached its handler.
   const imgRef = useRef<HTMLImageElement>(null);
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     if (imgRef.current?.complete) setLoaded(true);
   }, []);
 
-  // The link deliberately carries NO `aria-label`. It used to be
-  // `aria-label={title}`, and aria-label overrides all descendant content when
-  // the accessible name is computed — so the name collapsed to the title alone
-  // and silently dropped the category and the "sold" marker rendered below. In
-  // a screen reader's list of links, sold pieces were indistinguishable from
-  // available ones. The link already contains visible text, so letting the name
-  // be computed from its contents is both correct and strictly more useful.
   return (
-    <Link to={`/work/${painting.slug}`} className="group block">
-      {/* Every well is the same 4:5 — the wall is a regular grid now, so the
-          paintings differ and nothing else does. */}
-      <div className="relative aspect-[4/5] overflow-hidden border border-line bg-mist/40 transition-colors duration-500 group-hover:border-ink">
-        {/* Loading skeleton — a soft pulsing wash with a tiny spinner
-            centred. Fades out as soon as the image is ready. */}
+    <Link
+      to={`/work/${painting.slug}`}
+      // Where the visitor is standing right now, handed to the painting page so
+      // its back link can return them HERE — the unfiltered wall, a filtered
+      // collection, or another painting — instead of guessing at the piece's
+      // own collection. See PaintingDetail.
+      state={{ from: `${location.pathname}${location.search}` }}
+      className="group block"
+    >
+      <div
+        className={[
+          'relative aspect-[4/5] overflow-hidden rounded-[3px] border border-line bg-mist/40',
+          'transition-[transform,box-shadow,border-color] duration-500 ease-gallery',
+          'group-hover:-translate-y-1 group-hover:border-ink/70',
+          'group-hover:shadow-[0_18px_38px_-24px_rgba(37,36,34,0.5)]',
+          'group-focus-visible:-translate-y-1 group-focus-visible:border-ink/70',
+          'motion-reduce:transition-none',
+        ].join(' ')}
+      >
+        {/* Loading skeleton — a soft pulsing wash with a tiny spinner centred. */}
         <div
           aria-hidden
           className={[
             'absolute inset-0 flex items-center justify-center bg-mist/40 transition-opacity duration-500',
-            loaded
-              ? 'opacity-0 pointer-events-none'
-              : 'opacity-100 animate-pulse',
+            loaded ? 'opacity-0 pointer-events-none' : 'opacity-100 animate-pulse',
           ].join(' ')}
         >
           <Spinner className="h-5 w-5 text-ink/35" />
@@ -70,9 +82,6 @@ export default function PaintingCard({ painting }: Props) {
         {image && (
           <img
             ref={imgRef}
-            // Three resolution variants — phones at low DPR pull the
-            // 400w version (~25 KB), tablets / mid-DPR phones get 800w,
-            // hi-DPR / desktop hover-zoom gets 1200w.
             src={urlFor(image).width(800).height(1000).auto('format').url()}
             srcSet={[400, 800, 1200]
               .map(
@@ -80,41 +89,68 @@ export default function PaintingCard({ painting }: Props) {
                   `${urlFor(image).width(w).height(Math.round(w * 1.25)).auto('format').url()} ${w}w`,
               )
               .join(', ')}
-            sizes="(max-width: 768px) 50vw, 25vw"
+            sizes="(max-width: 768px) 50vw, 20vw"
             alt={pickAlt(image, locale, title)}
             loading="lazy"
             width={800}
             height={1000}
+            draggable={false}
             onLoad={() => setLoaded(true)}
             className={[
-              'absolute inset-0 h-full w-full object-cover transition-[transform,filter,opacity] duration-700 ease-gallery',
-              'group-hover:scale-[1.03] group-hover:brightness-[1.03]',
+              'absolute inset-0 h-full w-full object-cover',
+              'transition-[transform,opacity] duration-700 ease-gallery',
+              'group-hover:scale-[1.045] group-focus-visible:scale-[1.045]',
               loaded ? 'opacity-100' : 'opacity-0',
+              'motion-reduce:transition-none',
             ].join(' ')}
           />
         )}
-      </div>
 
-      {/* Caption — the collection name in the site's kicker style (the same
-          `.eyebrow` that sets "The collections"), with the piece's own title
-          beneath it in italic Assistant. */}
-      <div className="mt-3 flex flex-col gap-1 text-start">
-        {/* Sized deliberately 2px under the title beneath it (16 vs 18), so
-            the pair reads as a label and its subject rather than two
-            competing lines. */}
+        {/* Collection — drops in from the top edge on hover / keyboard focus,
+            white over a wash that fades out downward. `data-surface="dark"` is
+            load-bearing, not decorative: it is what tells high-contrast mode
+            this text sits on a dark fill (see scripts/auditContrast.mjs). */}
         {categoryTitle && (
-          <span className="eyebrow text-base">{categoryTitle}</span>
+          <div
+            data-surface="dark"
+            className={[
+              'pointer-events-none absolute inset-x-0 top-0 flex justify-center px-3 pb-6 pt-3',
+              'bg-gradient-to-b from-flame-900/75 via-flame-900/35 to-transparent',
+              'opacity-0 transition-opacity duration-500 ease-gallery',
+              'group-hover:opacity-100 group-focus-visible:opacity-100',
+              'motion-reduce:transition-none',
+            ].join(' ')}
+          >
+            <span
+              className={[
+                'font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-paper',
+                '-translate-y-1.5 transition-transform duration-500 ease-gallery',
+                'group-hover:translate-y-0 group-focus-visible:translate-y-0',
+                'motion-reduce:transition-none',
+              ].join(' ')}
+            >
+              {categoryTitle}
+            </span>
+          </div>
         )}
-        <span className="font-sans text-lg italic leading-snug text-ink transition-colors duration-300 group-hover:text-accent-ink">
-          {title}
-        </span>
+
+        {/* Sold — on the painting, always, on a solid plate. */}
         {isSold && (
-          <span className="eyebrow mt-0.5 inline-flex items-center gap-2 text-[10px] text-slate">
-            <span className="h-1 w-1 rounded-full bg-slate" />
+          <span
+            data-surface="dark"
+            className="absolute bottom-0 start-0 m-2.5 rounded-[3px] bg-flame-900 px-2.5 py-1 font-sans text-[10px] font-bold uppercase tracking-[0.14em] text-paper"
+          >
             {t('painting.statusSold')}
           </span>
         )}
       </div>
+
+      {/* Caption — the piece's own title, in quotes, and nothing else. */}
+      <p className="mt-2.5 text-start font-sans text-[15px] italic leading-snug text-ink transition-colors duration-300 group-hover:text-accent-ink">
+        <span aria-hidden className="text-primary">&ldquo;</span>
+        {title}
+        <span aria-hidden className="text-primary">&rdquo;</span>
+      </p>
     </Link>
   );
 }

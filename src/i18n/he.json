@@ -101,6 +101,10 @@
   },
   "painting": {
     "tagline": "ציור",
+    "back": "חזרה",
+    "contactAbout": "לפרטים על היצירה",
+    "contactSold": "היצירה נמכרה — אפשר להזמין יצירה דומה",
+    "surface": "מצע",
     "year": "שנה",
     "medium": "טכניקה",
     "dimensions": "מידות",

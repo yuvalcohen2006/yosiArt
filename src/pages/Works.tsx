@@ -114,14 +114,20 @@ export default function Works() {
         <p className="section-subtitle mx-auto mt-3 max-w-md">{subtitle}</p>
       </header>
 
+      {/* A rule closes the header off from the controls below it, so the page
+          reads as "what this is" / "how to narrow it" rather than one long
+          column of centred text running into a button. */}
+      <div className="rule mx-auto mt-10 max-w-7xl md:mt-12" />
+
       {/* Filter sits to the side, above the wall — out of the header's way,
           and on the reading-start edge so it mirrors for Hebrew. The count
           takes the opposite end so narrowing always has visible feedback,
-          including when it comes back empty. */}
-      <div className="mx-auto mt-8 flex max-w-7xl flex-wrap items-center justify-between gap-3 md:mt-10">
+          including when it comes back empty, and is sized to be read at a
+          glance rather than hunted for. */}
+      <div className="mx-auto mt-5 flex max-w-7xl flex-wrap items-center justify-between gap-3 md:mt-6">
         <WorksFilter categories={categories} value={query} onChange={setQuery} />
         {state.status === 'success' && (
-          <p className="font-sans text-sm text-slate">
+          <p className="font-sans text-lg font-medium tabular-nums text-ink md:text-xl">
             {t('works.count', { count: paintings.length })}
           </p>
         )}
