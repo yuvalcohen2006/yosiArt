@@ -7,6 +7,7 @@ import Footer from './Footer';
 import { useLocale } from '@/hooks/useLocale';
 import { useCategories } from '@/hooks/useCategories';
 import { useHomeMedia } from '@/hooks/useHomeMedia';
+import { usePreloadGalleryImages } from '@/hooks/usePreloadGalleryImages';
 import AnimatedOutlet from '../fx/AnimatedOutlet';
 import ScrollToTop from '../fx/ScrollToTop';
 import AccessibilityWidget from '../a11y/AccessibilityWidget';
@@ -32,6 +33,10 @@ export default function Layout() {
   const isLanding = path === '/';
   const stopMotion = useStopMotion();
   const { t } = useLocale();
+  // Warms the wall's card images once the browser goes idle, so reaching /works
+  // — or coming back to it — paints from cache. Best-effort and self-limiting;
+  // see the hook for the bandwidth guards.
+  usePreloadGalleryImages();
   const categoriesState = useCategories();
   const categories =
     categoriesState.status === 'success' ? categoriesState.data : [];

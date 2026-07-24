@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from 'react';
+import type {
+  DragEvent as ReactDragEvent,
+  MouseEvent as ReactMouseEvent,
+  PointerEvent as ReactPointerEvent,
+} from 'react';
 
 /** Movement (px) before a press counts as a drag rather than a click. */
 const DRAG_SLOP = 6;
@@ -90,6 +94,14 @@ export function useDragScroll<T extends HTMLElement>() {
     drag.current.moved = false;
   }, []);
 
+  // Links and images are draggable by default, and a native drag-and-drop
+  // gesture fires pointercancel, which silently ends the pull mid-motion. The
+  // individual elements set `draggable={false}` too; this is the backstop that
+  // keeps a future child from reintroducing the bug.
+  const onDragStart = useCallback((e: ReactDragEvent<T>) => {
+    e.preventDefault();
+  }, []);
+
   return {
     ref,
     scrollable,
@@ -98,7 +110,9 @@ export function useDragScroll<T extends HTMLElement>() {
       onPointerMove,
       onPointerUp: endDrag,
       onPointerLeave: endDrag,
+      onPointerCancel: endDrag,
       onClickCapture,
+      onDragStart,
     },
   };
 }

@@ -1,6 +1,6 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ZoomIn } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLocale } from '@/hooks/useLocale';
 import { useUnit, formatDimensions } from '@/hooks/useUnit';
@@ -78,6 +78,31 @@ export default function PaintingDetail({ painting }: Props) {
   useEffect(() => {
     if (heroImgRef.current?.complete) setHeroLoaded(true);
   }, []);
+
+  // Warm the lightbox chunk before it is needed. `lazy()` only starts the
+  // download on the click that opens it, so the visitor paid ~70KB of latency
+  // while staring at the painting they just clicked. Vite resolves this to the
+  // same chunk as the `lazy()` import above, and a second `import()` of an
+  // already-loaded module is a no-op, so this is safe to call repeatedly.
+  const preloadLightbox = useCallback(() => {
+    void import('./PaintingLightbox');
+  }, []);
+
+  // Belt and braces: if they never hover (touch, keyboard), fetch it once the
+  // browser is idle anyway, so the first tap is still instant.
+  useEffect(() => {
+    if (!heroLoaded) return;
+    const w = window as typeof window & {
+      requestIdleCallback?: (cb: () => void) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (w.requestIdleCallback) {
+      const id = w.requestIdleCallback(preloadLightbox);
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(preloadLightbox, 1500);
+    return () => window.clearTimeout(id);
+  }, [heroLoaded, preloadLightbox]);
   // Canvas-vs-paper tag.
   const surfaceLabel = painting.surface
     ? t(
@@ -179,13 +204,10 @@ export default function PaintingDetail({ painting }: Props) {
         jsonLd={jsonLd}
       />
       <div className="mx-auto max-w-7xl">
-        {/* Page header — the way out and the painting's name share one line, so
-            the name is the first thing read and the back control sits beside it
-            rather than floating above it.
-            The title lives HERE, not in the meta column, for two reasons: it
-            renders immediately instead of waiting on the hero image to decode,
-            and it therefore lands in the prerendered HTML where search engines
-            and link-preview bots can see it. */}
+        {/* Page header — the way out, then the body of work this piece belongs
+            to, set at headline scale. The painting's own name sits beside the
+            work itself further down; up here the page announces which
+            collection you are standing in. */}
         <header className="mb-10 flex flex-wrap items-center gap-x-5 gap-y-4 md:mb-12">
           <Link
             to={backTo}
@@ -199,11 +221,20 @@ export default function PaintingDetail({ painting }: Props) {
                 being sent to the collection is told which one. */}
             <span>{cameFrom ? t('painting.back') : categoryTitle || t('works.title')}</span>
           </Link>
-          <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight text-ink sm:text-4xl md:text-5xl">
-            <span aria-hidden className="text-accent-ink">&ldquo;</span>
-            {title}
-            <span aria-hidden className="text-accent-ink">&rdquo;</span>
-          </h1>
+          <p className="font-display text-2xl font-semibold leading-tight tracking-tight text-slate sm:text-3xl md:text-4xl">
+            {t('category.tagline')}
+            {categoryTitle && painting.category ? (
+              <>
+                {': '}
+                <Link
+                  to={`/works?category=${painting.category.slug}`}
+                  className="text-ink underline-offset-4 transition-colors duration-300 hover:text-accent-ink hover:underline"
+                >
+                  {categoryTitle}
+                </Link>
+              </>
+            ) : null}
+          </p>
         </header>
 
         {/* Asymmetric two-column: image block on one side, structured
@@ -213,22 +244,14 @@ export default function PaintingDetail({ painting }: Props) {
         <div className="lg:col-span-7">
         {heroImage && (
           <div className="group block w-full">
-            {/* Cue — sits above the painting, with a soft dark pill that
-                fades in on hover. */}
-            <div className="mb-3">
-              <span
-                aria-hidden
-                className="inline-flex items-center font-display font-medium text-[11px] uppercase tracking-[0.2em] text-paper/0 bg-ink/0 group-hover:text-paper group-hover:bg-ink/50 backdrop-blur-sm px-3 py-1.5 transition-all duration-300"
-              >
-                {t('painting.viewLarger')}
-              </span>
-            </div>
             <motion.button
               type="button"
               onClick={() => {
                 setLightboxIndex(0);
                 setLightboxOpen(true);
               }}
+              onPointerEnter={preloadLightbox}
+              onFocus={preloadLightbox}
               initial={{ opacity: 0, scale: 1.01 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, ease: [0.22, 0.61, 0.36, 1] }}
@@ -284,8 +307,38 @@ export default function PaintingDetail({ painting }: Props) {
                   heroLoaded ? 'opacity-100' : 'opacity-0',
                 ].join(' ')}
               />
+
+              {/* Enlarge cue — ON the painting, and legible without hovering.
+                  It used to sit above the image and was fully transparent until
+                  hover, which meant it took up a line of layout while saying
+                  nothing, and on a touch screen (no hover) it never appeared at
+                  all — so the single most useful thing you can do here was
+                  invisible to half the visitors. */}
+              {heroLoaded && (
+                <span
+                  aria-hidden
+                  data-surface="dark"
+                  className="pointer-events-none absolute bottom-3 end-3 inline-flex items-center gap-2 rounded-md bg-flame-900/75 px-3 py-2 font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-paper opacity-85 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-100 motion-reduce:transition-none"
+                >
+                  <ZoomIn aria-hidden className="h-4 w-4" />
+                  {t('painting.viewLarger')}
+                </span>
+              )}
             </motion.button>
           </div>
+        )}
+
+        {/* Contact sits directly under the painting, centred on it — the piece
+            is what someone is asking about, so the ask belongs beneath it
+            rather than at the bottom of the specification column beside it.
+            Gated on heroLoaded with the rest of the below-image content so it
+            does not appear against an empty frame. */}
+        {heroLoaded && (
+          <Reveal delay={0.15}>
+            <div className="mt-8 flex justify-center">
+              <InquireButtons painting={painting} centered />
+            </div>
+          </Reveal>
         )}
         </div>
 
@@ -296,23 +349,13 @@ export default function PaintingDetail({ painting }: Props) {
         {heroLoaded && (
         <div className="lg:col-span-5">
           <Reveal>
-            {/* Where the title used to sit: the collection this piece
-                belongs to, named and linked so the wall it came from is one
-                click away. */}
-            <p className="font-sans text-base text-slate">
-              {t('category.tagline')}
-              {categoryTitle && painting.category ? (
-                <>
-                  {': '}
-                  <Link
-                    to={`/works?category=${painting.category.slug}`}
-                    className="text-ink underline-offset-4 transition-colors duration-300 hover:text-accent-ink hover:underline"
-                  >
-                    {categoryTitle}
-                  </Link>
-                </>
-              ) : null}
-            </p>
+            {/* The piece's own name, alongside the work rather than up in the
+                page header — the collection took that slot. */}
+            <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight text-ink md:text-4xl">
+              <span aria-hidden className="text-accent-ink">&ldquo;</span>
+              {title}
+              <span aria-hidden className="text-accent-ink">&rdquo;</span>
+            </h1>
 
             {/* Size, set large. After the painting and its name this is the
                 thing people ask about first, so it is typeset as a headline in
@@ -368,11 +411,12 @@ export default function PaintingDetail({ painting }: Props) {
                 medium the same visual weight as each other AND as the size,
                 and read as tags on a product rather than as a description of
                 an object. */}
-            {/* `divide-y` rather than a border on each row: it draws a line
-                BETWEEN rows only, so the list closes on its last value instead
-                of trailing a stray rule into the whitespace under it. */}
+            {/* `divide-y` for the inner rules, plus `border-y` so the block is
+                closed top and bottom. The closing rule belongs to THIS list and
+                sits tight under its last value — it used to float in the gap
+                above the description, reading as though it belonged to neither. */}
             {specs.length > 0 && (
-              <dl className="mt-8 divide-y divide-line border-t border-line">
+              <dl className="mt-8 divide-y divide-line border-y border-line">
                 {specs.map((spec) => (
                   <div
                     key={spec.label}
@@ -390,22 +434,20 @@ export default function PaintingDetail({ painting }: Props) {
 
           {description && (
             <Reveal delay={0.1}>
-              <div className="rule mt-12" />
-              <p className="mt-10 text-ink/80 text-lg leading-relaxed whitespace-pre-line">
+              {/* No rule of its own — the specs list above now closes itself. */}
+              <p className="mt-8 whitespace-pre-line text-lg leading-relaxed text-ink/80">
                 {description}
               </p>
             </Reveal>
           )}
 
           <Reveal delay={0.2}>
-            <div className="mt-12 flex flex-col gap-6">
+            <div className="mt-12">
               <PriceTag
                 priceILS={painting.priceILS}
                 priceUSD={painting.priceUSD}
                 status={painting.status}
               />
-
-              <InquireButtons painting={painting} />
             </div>
           </Reveal>
         </div>

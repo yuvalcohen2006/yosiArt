@@ -53,7 +53,12 @@ export default function PaintingCard({ painting }: Props) {
       // collection, or another painting — instead of guessing at the piece's
       // own collection. See PaintingDetail.
       state={{ from: `${location.pathname}${location.search}` }}
-      className="group block"
+      // An <a> is natively draggable. Inside the related strip that meant
+      // pressing a card and pulling started the browser's own link-drag,
+      // which fires pointercancel and kills the rail's drag-to-scroll — the
+      // strip simply would not move. Nothing here is a drag source.
+      draggable={false}
+      className="group block select-none"
     >
       <div className="relative aspect-[4/5] overflow-hidden rounded-[3px] border border-line bg-mist/40">
         {/* Loading skeleton — a soft pulsing wash with a tiny spinner centred. */}
@@ -89,36 +94,24 @@ export default function PaintingCard({ painting }: Props) {
             onLoad={() => setLoaded(true)}
             className={[
               'absolute inset-0 h-full w-full object-cover',
-              'transition-transform duration-700 ease-gallery',
-              'group-hover:scale-[1.03] group-focus-visible:scale-[1.03]',
+              'transition-transform duration-300 ease-out',
+              'group-hover:scale-[1.02] group-focus-visible:scale-[1.02]',
               loaded ? 'opacity-100' : 'opacity-0',
               'motion-reduce:transition-none',
             ].join(' ')}
           />
         )}
 
-        {/* Hover treatment — the frame, not the card.
-            An accent rule closes around the edge while a fine light mount line
-            draws inward just inside it, the way a matted print sits in a frame.
-            Both animate opacity and transform ONLY, so nothing here can trigger
-            layout, and the card itself never moves — the previous lift-and-drop
-            read as a generic web card rather than as artwork on a wall. */}
+        {/* Hover treatment — one accent frame, in and out in 300ms.
+            An overlay border rather than a colour change on the container's own
+            border: this keeps the frame at the image's exact radius and cannot
+            nudge the layout by a pixel the way a border-width change would. */}
         <div
           aria-hidden
           className={[
             'pointer-events-none absolute inset-0 rounded-[3px] border-2 border-primary',
-            'opacity-0 transition-opacity duration-500 ease-gallery',
+            'opacity-0 transition-opacity duration-300 ease-out',
             'group-hover:opacity-100 group-focus-visible:opacity-100',
-            'motion-reduce:transition-none',
-          ].join(' ')}
-        />
-        <div
-          aria-hidden
-          className={[
-            'pointer-events-none absolute inset-[10px] border border-paper/70',
-            'scale-[0.97] opacity-0 transition-[opacity,transform] duration-500 ease-gallery',
-            'group-hover:scale-100 group-hover:opacity-100',
-            'group-focus-visible:scale-100 group-focus-visible:opacity-100',
             'motion-reduce:transition-none',
           ].join(' ')}
         />
@@ -135,7 +128,7 @@ export default function PaintingCard({ painting }: Props) {
       </div>
 
       {/* Caption — the piece's own title, in quotes, and nothing else. */}
-      <p className="mt-3 text-start font-sans text-base italic leading-snug text-ink transition-colors duration-300 group-hover:text-accent-ink md:text-lg">
+      <p className="mt-3 text-start font-sans text-lg italic leading-snug text-ink transition-colors duration-300 group-hover:text-accent-ink md:text-xl">
         <span aria-hidden className="text-accent-ink">&ldquo;</span>
         {title}
         <span aria-hidden className="text-accent-ink">&rdquo;</span>

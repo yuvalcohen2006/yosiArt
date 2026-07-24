@@ -16,9 +16,16 @@ import { useEffect, useState } from 'react';
  * The hook is lazy on purpose: nothing is requested until `enabled` flips
  * true, which happens when a visitor asks to see a price. A gallery visitor who
  * never opens a price never causes a third-party request.
+ *
+ * The `api.frankfurter.dev` host is deliberate and must not be "tidied" back to
+ * the shorter `api.frankfurter.app`. That host now answers with a 301 to this
+ * one, and the redirect response carries no `Access-Control-Allow-Origin`. The
+ * CORS spec re-checks every hop of a redirect chain, so the browser refuses to
+ * follow it and the fetch fails before it ever reaches the working endpoint —
+ * from curl it looks perfectly healthy, which is exactly what makes it a trap.
  */
 
-const ENDPOINT = 'https://api.frankfurter.app/latest?from=ILS&to=USD';
+const ENDPOINT = 'https://api.frankfurter.dev/v1/latest?base=ILS&symbols=USD';
 const CACHE_KEY = 'yosiart.ilsUsdRate';
 const TTL_MS = 60 * 60 * 1000;
 const TIMEOUT_MS = 6000;
