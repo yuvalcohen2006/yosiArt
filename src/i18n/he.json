@@ -107,6 +107,7 @@
     "showPrice": "לחצו לצפייה במחיר",
     "convertingPrice": "ממיר…",
     "approxUsd": "בקירוב {{amount}}",
+    "pricedIn": "בקירוב — המחיר נקוב ב-{{amount}}",
     "conversionFailed": "לא הצלחנו לקבל שער עדכני — נסו שוב",
     "surface": "מצע",
     "year": "שנה",

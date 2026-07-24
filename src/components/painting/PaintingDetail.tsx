@@ -13,6 +13,7 @@ import Reveal from '@/components/fx/Reveal';
 import Spinner from '@/components/fx/Spinner';
 import { getImageDims } from '@/lib/sanityImageMeta';
 import PaintingCard from '@/components/gallery/PaintingCard';
+import SegmentedToggle from '@/components/ui/SegmentedToggle';
 import PriceTag from './PriceTag';
 import InquireButtons from './InquireButtons';
 import SEO, { SITE_BASE_URL, SITE_NAME } from '@/components/seo/SEO';
@@ -208,10 +209,10 @@ export default function PaintingDetail({ painting }: Props) {
             to, set at headline scale. The painting's own name sits beside the
             work itself further down; up here the page announces which
             collection you are standing in. */}
-        <header className="mb-10 flex flex-wrap items-center gap-x-5 gap-y-4 md:mb-12">
+        <header className="mb-10 md:mb-12">
           <Link
             to={backTo}
-            className="group inline-flex min-h-11 shrink-0 items-center gap-2.5 rounded-md border border-line px-4 font-sans text-xs font-medium uppercase tracking-[0.18em] text-slate transition-colors duration-300 hover:border-ink/40 hover:text-accent-ink"
+            className="group inline-flex min-h-11 items-center gap-2.5 rounded-md border border-line px-4 font-sans text-xs font-medium uppercase tracking-[0.18em] text-slate transition-colors duration-300 hover:border-ink/40 hover:text-accent-ink"
           >
             <ArrowLeft
               aria-hidden
@@ -221,7 +222,10 @@ export default function PaintingDetail({ painting }: Props) {
                 being sent to the collection is told which one. */}
             <span>{cameFrom ? t('painting.back') : categoryTitle || t('works.title')}</span>
           </Link>
-          <p className="font-display text-2xl font-semibold leading-tight tracking-tight text-slate sm:text-3xl md:text-4xl">
+          {/* Centred on the page rather than trailing the back link, with room
+              to breathe above it — it introduces the page, so it should not
+              read as a caption hanging off the control beside it. */}
+          <p className="mt-8 text-center font-display text-xl font-semibold leading-tight tracking-tight text-slate sm:text-2xl md:mt-10 md:text-3xl">
             {t('category.tagline')}
             {categoryTitle && painting.category ? (
               <>
@@ -328,18 +332,6 @@ export default function PaintingDetail({ painting }: Props) {
           </div>
         )}
 
-        {/* Contact sits directly under the painting, centred on it — the piece
-            is what someone is asking about, so the ask belongs beneath it
-            rather than at the bottom of the specification column beside it.
-            Gated on heroLoaded with the rest of the below-image content so it
-            does not appear against an empty frame. */}
-        {heroLoaded && (
-          <Reveal delay={0.15}>
-            <div className="mt-8 flex justify-center">
-              <InquireButtons painting={painting} centered />
-            </div>
-          </Reveal>
-        )}
         </div>
 
         {/* Meta column — only mounted once the hero image has loaded, so
@@ -371,37 +363,24 @@ export default function PaintingDetail({ painting }: Props) {
                   {/* A segmented control rather than two bare words with a
                       slash. The old version gave no hint that either half was
                       pressable — the active unit was just slightly bolder text.
-                      A track, a filled active segment and real button targets
-                      make it read as a switch on sight. */}
-                  <span
-                    role="group"
-                    aria-label={t('painting.unitLabel')}
-                    className="inline-flex items-center rounded-md border border-line bg-mist/30 p-0.5 font-sans text-sm"
-                  >
-                    {(['cm', 'in'] as const).map((u) => (
-                      <button
-                        key={u}
-                        type="button"
-                        onClick={() => setUnit(u)}
-                        aria-pressed={unit === u}
-                        aria-label={t(u === 'cm' ? 'painting.unitCmAria' : 'painting.unitInAria')}
-                        // The active segment is a dark fill carrying light
-                        // text, so it must declare itself to high-contrast
-                        // mode (scripts/auditContrast.mjs).
-                        data-surface={unit === u ? 'dark' : undefined}
-                        className={[
-                          // min-h-10 + the track's padding clears the 44px
-                          // touch-target minimum for the control as a whole.
-                          'inline-flex min-h-10 items-center rounded-[4px] px-3.5 transition-colors duration-200 motion-reduce:transition-none',
-                          unit === u
-                            ? 'bg-ink font-semibold text-paper'
-                            : 'text-slate hover:text-ink',
-                        ].join(' ')}
-                      >
-                        {t(u === 'cm' ? 'painting.unitCm' : 'painting.unitIn')}
-                      </button>
-                    ))}
-                  </span>
+                      Shares its shape with the currency switch by the price. */}
+                  <SegmentedToggle
+                    value={unit}
+                    onChange={setUnit}
+                    groupLabel={t('painting.unitLabel')}
+                    options={[
+                      {
+                        value: 'cm',
+                        label: t('painting.unitCm'),
+                        ariaLabel: t('painting.unitCmAria'),
+                      },
+                      {
+                        value: 'in',
+                        label: t('painting.unitIn'),
+                        ariaLabel: t('painting.unitInAria'),
+                      },
+                    ]}
+                  />
                 </div>
               </div>
             )}
@@ -441,13 +420,19 @@ export default function PaintingDetail({ painting }: Props) {
             </Reveal>
           )}
 
+          {/* Price and the ask, side by side and sharing a baseline — the two
+              things a buyer is weighing against each other. `items-end` is what
+              lines the channel buttons up with the bottom of the figure rather
+              than with the top of its block. Wraps to two rows on a narrow
+              column. */}
           <Reveal delay={0.2}>
-            <div className="mt-12">
+            <div className="mt-12 flex flex-wrap items-end justify-between gap-x-8 gap-y-6">
               <PriceTag
                 priceILS={painting.priceILS}
                 priceUSD={painting.priceUSD}
                 status={painting.status}
               />
+              <InquireButtons painting={painting} />
             </div>
           </Reveal>
         </div>
@@ -483,22 +468,43 @@ export default function PaintingDetail({ painting }: Props) {
                 collection with only a few pieces does not overflow, and
                 offering a grab that cannot move reads as a broken control. */}
             <Reveal>
-              <div
-                ref={relatedRail.ref}
-                {...relatedRail.handlers}
-                className={[
-                  '-mx-1 touch-pan-x overflow-x-auto px-1 pb-2',
-                  '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-                  relatedRail.scrollable ? 'cursor-grab active:cursor-grabbing' : '',
-                ].join(' ')}
-              >
-                <div className="flex w-max gap-5">
-                  {related.map((p) => (
-                    <div key={p._id} className="w-[210px] shrink-0 md:w-[240px]">
-                      <PaintingCard painting={p} />
-                    </div>
-                  ))}
+              <div className="relative">
+                <div
+                  ref={relatedRail.ref}
+                  {...relatedRail.handlers}
+                  className={[
+                    '-mx-1 touch-pan-x overflow-x-auto px-1 pb-2',
+                    '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+                    relatedRail.scrollable ? 'cursor-grab active:cursor-grabbing' : '',
+                  ].join(' ')}
+                >
+                  <div className="flex w-max gap-5">
+                    {related.map((p) => (
+                      <div key={p._id} className="w-[210px] shrink-0 md:w-[240px]">
+                        <PaintingCard painting={p} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
+
+                {/* Soft edges, so the strip reads as continuing past the frame
+                    rather than being chopped off at it. Only drawn when there
+                    is actually more to reach — on a short row they would be
+                    fading out nothing. Gradient direction is mirrored for
+                    Hebrew; `start`/`end` position them, but Tailwind does not
+                    flip the gradient axis itself. */}
+                {relatedRail.scrollable && (
+                  <>
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute inset-y-0 start-0 w-12 bg-gradient-to-r from-paper to-transparent rtl:bg-gradient-to-l"
+                    />
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute inset-y-0 end-0 w-12 bg-gradient-to-l from-paper to-transparent rtl:bg-gradient-to-r"
+                    />
+                  </>
+                )}
               </div>
             </Reveal>
           </section>

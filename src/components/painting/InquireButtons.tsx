@@ -9,12 +9,7 @@ import {
 } from '@/lib/buildInquireLinks';
 import type { Painting } from '@/sanity/types';
 
-type Props = {
-  painting: Painting;
-  /** Centre the lead-in line and the channel row. Used under the painting,
-   *  where the block is centred on the image rather than set in a column. */
-  centered?: boolean;
-};
+type Props = { painting: Painting };
 
 /** WhatsApp's brand mark. Lucide dropped brand glyphs, and a generic speech
  *  bubble would not be recognised as WhatsApp at 20px. */
@@ -52,7 +47,7 @@ const channelClass = [
  * This component is the seam where future PayPal / credit-card buttons will
  * slot in alongside the existing pair without restructuring the layout.
  */
-export default function InquireButtons({ painting, centered = false }: Props) {
+export default function InquireButtons({ painting }: Props) {
   const { t, locale } = useLocale();
 
   const title = pickLocale(painting.title, locale, painting.slug);
@@ -60,8 +55,8 @@ export default function InquireButtons({ painting, centered = false }: Props) {
   const sold = painting.status === 'sold';
 
   return (
-    <div className={['flex flex-col gap-3', centered ? 'items-center' : ''].join(' ')}>
-      <p className={['font-sans text-base text-slate', centered ? 'text-center' : ''].join(' ')}>
+    <div className="flex flex-col gap-3">
+      <p className="font-sans text-base text-slate">
         {sold ? t('painting.contactSold') : t('painting.contactAbout')}
       </p>
 

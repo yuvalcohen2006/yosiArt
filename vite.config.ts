@@ -21,7 +21,6 @@ export default defineConfig(({ isSsrBuild }) => ({
             manualChunks: {
               'react-vendor': ['react', 'react-dom', 'react-router-dom'],
               'framer-motion': ['framer-motion'],
-              three: ['three'],
               lightbox: ['yet-another-react-lightbox'],
               i18n: [
                 'i18next',

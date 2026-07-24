@@ -1,19 +1,41 @@
 import { useEffect, useState } from 'react';
+import i18n from '@/i18n';
 
 export type Unit = 'cm' | 'in';
 
 const STORAGE_KEY = 'yosiart.unit';
-const DEFAULT_UNIT: Unit = 'cm';
 
 /** 1 cm in inches. */
 const CM_TO_IN = 0.393701;
 
 const subscribers = new Set<(u: Unit) => void>();
 
-function read(): Unit {
-  if (typeof window === 'undefined') return DEFAULT_UNIT;
+/** An explicit choice, or null if the visitor has never picked one. */
+function stored(): Unit | null {
+  if (typeof window === 'undefined') return null;
   const v = localStorage.getItem(STORAGE_KEY);
-  return v === 'cm' || v === 'in' ? v : DEFAULT_UNIT;
+  return v === 'cm' || v === 'in' ? v : null;
+}
+
+/** Israel measures canvases in centimetres; an English-speaking buyer is
+ *  almost certainly measuring a wall in inches. Start each visitor in the
+ *  convention they think in — the toggle is there for the other case. */
+function localeDefault(): Unit {
+  return (i18n.resolvedLanguage ?? 'he').startsWith('he') ? 'cm' : 'in';
+}
+
+function read(): Unit {
+  return stored() ?? localeDefault();
+}
+
+// Switching language re-picks the default, but only for a visitor who has
+// never touched the toggle. An explicit choice always outranks the locale.
+if (typeof window !== 'undefined') {
+  i18n.on('languageChanged', () => {
+    if (stored()) return;
+    const next = localeDefault();
+    subscribers.forEach((cb) => cb(next));
+  });
 }
 
 /**

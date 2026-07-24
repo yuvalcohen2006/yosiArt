@@ -65,6 +65,13 @@ export default function Layout() {
             the nav on every page. */}
         <a
           href="#main"
+          // data-surface="dark" is load-bearing here. Focused, this link is a
+          // dark ink plate carrying cream text — without the marker,
+          // high-contrast mode forces its text to near-black ON that dark
+          // plate and the link disappears at the exact moment it is used. It
+          // is safe to set unconditionally: unfocused the link is `sr-only`,
+          // so there is nothing on screen for the rule to affect.
+          data-surface="dark"
           className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:start-3 focus:z-50 focus:px-4 focus:py-2 focus:bg-ink focus:text-paper focus:text-sm focus:uppercase focus:tracking-[0.176em] focus:rounded-md"
         >
           {t('a11y.skipToContent')}

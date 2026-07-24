@@ -103,6 +103,7 @@
     "showPrice": "Click to see price",
     "convertingPrice": "Converting…",
     "approxUsd": "approx. {{amount}}",
+    "pricedIn": "approx. — priced at {{amount}}",
     "conversionFailed": "Couldn't get today's rate — retry",
     "surface": "Surface",
     "year": "Year",
