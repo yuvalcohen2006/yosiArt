@@ -97,6 +97,8 @@
   },
   "painting": {
     "tagline": "Painting",
+    "back": "Back",
+    "contactAbout": "Contact us about this painting",
     "year": "Year",
     "medium": "Medium",
     "dimensions": "Dimensions",
