@@ -43,9 +43,11 @@ export function useUnit() {
 }
 
 /**
- * Format a width × height pair (stored in cm) for display in the
- * active unit. Inches are rounded to one decimal, with a trailing
- * ".0" trimmed so whole numbers stay clean.
+ * Format a width × height pair (stored in cm) for display in the active unit.
+ *
+ * Inches are rounded to whole numbers. A canvas is not a machined part — "24 ×
+ * 32 in" is the figure a buyer wants for a wall, and the decimal that rounding
+ * discards is under half a centimetre.
  */
 export function formatDimensions(
   widthCm: number,
@@ -53,8 +55,7 @@ export function formatDimensions(
   unit: Unit,
 ): string {
   if (unit === 'in') {
-    const fmt = (cm: number) =>
-      (cm * CM_TO_IN).toFixed(1).replace(/\.0$/, '');
+    const fmt = (cm: number) => Math.round(cm * CM_TO_IN);
     return `${fmt(widthCm)} × ${fmt(heightCm)} in`;
   }
   return `${widthCm} × ${heightCm} cm`;

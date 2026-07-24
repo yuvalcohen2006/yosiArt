@@ -14,29 +14,26 @@ type Props = {
 /**
  * Single card in the works grid.
  *
- * The painting carries the card: the frame is a hairline with the barest
- * corner softening, and the only thing printed under it is the title in
- * quotes. The collection name is no longer a caption line — it drops in from
- * the top edge of the painting on hover, white over a dark wash, so a wall of
- * cards reads as paintings rather than as a table of labels.
+ * The painting carries the card: a hairline frame with the barest corner
+ * softening, and the only thing printed under it is the title in quotes. The
+ * collection is deliberately NOT shown here — a wall of cards should read as
+ * paintings, not as a table of labels, and the piece names its collection on
+ * its own page. It was briefly revealed on hover instead, which was worse
+ * still: hover does not exist on a phone, so the label was simply missing for
+ * most visitors.
  *
  * A sold piece says so on the painting itself, permanently, on a solid plate
  * so it stays legible over whatever colour sits underneath it.
  *
  * The link carries NO `aria-label`. aria-label overrides all descendant content
  * when the accessible name is computed, which would collapse the name to the
- * title alone and silently drop the collection and the sold marker — in a
- * screen reader's list of links, sold pieces would be indistinguishable from
- * available ones. The hover-revealed collection is only VISUALLY hidden
- * (opacity, never `hidden` or `aria-hidden`), so it stays in the name.
+ * title alone and silently drop the sold marker — in a screen reader's list of
+ * links, sold pieces would then be indistinguishable from available ones.
  */
 export default function PaintingCard({ painting }: Props) {
   const { locale, t } = useLocale();
   const location = useLocation();
   const title = pickLocale(painting.title, locale, painting.slug);
-  const categoryTitle = painting.category
-    ? pickLocale(painting.category.title, locale)
-    : '';
   // Prefer the preview-only image if the artist set one in Sanity; fall back to
   // the first detail image so existing paintings keep working.
   const image = painting.previewImage ?? painting.images?.[0];
@@ -58,16 +55,7 @@ export default function PaintingCard({ painting }: Props) {
       state={{ from: `${location.pathname}${location.search}` }}
       className="group block"
     >
-      <div
-        className={[
-          'relative aspect-[4/5] overflow-hidden rounded-[3px] border border-line bg-mist/40',
-          'transition-[transform,box-shadow,border-color] duration-500 ease-gallery',
-          'group-hover:-translate-y-1 group-hover:border-ink/70',
-          'group-hover:shadow-[0_18px_38px_-24px_rgba(37,36,34,0.5)]',
-          'group-focus-visible:-translate-y-1 group-focus-visible:border-ink/70',
-          'motion-reduce:transition-none',
-        ].join(' ')}
-      >
+      <div className="relative aspect-[4/5] overflow-hidden rounded-[3px] border border-line bg-mist/40">
         {/* Loading skeleton — a soft pulsing wash with a tiny spinner centred. */}
         <div
           aria-hidden
@@ -89,7 +77,10 @@ export default function PaintingCard({ painting }: Props) {
                   `${urlFor(image).width(w).height(Math.round(w * 1.25)).auto('format').url()} ${w}w`,
               )
               .join(', ')}
-            sizes="(max-width: 768px) 50vw, 20vw"
+            // Tracks the wall's actual columns: 2 up to md, 3 through lg, 4
+            // beyond. A stale hint here makes the browser pick the wrong
+            // rendition and either blur the card or waste bandwidth.
+            sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
             alt={pickAlt(image, locale, title)}
             loading="lazy"
             width={800}
@@ -98,41 +89,39 @@ export default function PaintingCard({ painting }: Props) {
             onLoad={() => setLoaded(true)}
             className={[
               'absolute inset-0 h-full w-full object-cover',
-              'transition-[transform,opacity] duration-700 ease-gallery',
-              'group-hover:scale-[1.045] group-focus-visible:scale-[1.045]',
+              'transition-transform duration-700 ease-gallery',
+              'group-hover:scale-[1.03] group-focus-visible:scale-[1.03]',
               loaded ? 'opacity-100' : 'opacity-0',
               'motion-reduce:transition-none',
             ].join(' ')}
           />
         )}
 
-        {/* Collection — drops in from the top edge on hover / keyboard focus,
-            white over a wash that fades out downward. `data-surface="dark"` is
-            load-bearing, not decorative: it is what tells high-contrast mode
-            this text sits on a dark fill (see scripts/auditContrast.mjs). */}
-        {categoryTitle && (
-          <div
-            data-surface="dark"
-            className={[
-              'pointer-events-none absolute inset-x-0 top-0 flex justify-center px-3 pb-6 pt-3',
-              'bg-gradient-to-b from-flame-900/75 via-flame-900/35 to-transparent',
-              'opacity-0 transition-opacity duration-500 ease-gallery',
-              'group-hover:opacity-100 group-focus-visible:opacity-100',
-              'motion-reduce:transition-none',
-            ].join(' ')}
-          >
-            <span
-              className={[
-                'font-sans text-[11px] font-medium uppercase tracking-[0.16em] text-paper',
-                '-translate-y-1.5 transition-transform duration-500 ease-gallery',
-                'group-hover:translate-y-0 group-focus-visible:translate-y-0',
-                'motion-reduce:transition-none',
-              ].join(' ')}
-            >
-              {categoryTitle}
-            </span>
-          </div>
-        )}
+        {/* Hover treatment — the frame, not the card.
+            An accent rule closes around the edge while a fine light mount line
+            draws inward just inside it, the way a matted print sits in a frame.
+            Both animate opacity and transform ONLY, so nothing here can trigger
+            layout, and the card itself never moves — the previous lift-and-drop
+            read as a generic web card rather than as artwork on a wall. */}
+        <div
+          aria-hidden
+          className={[
+            'pointer-events-none absolute inset-0 rounded-[3px] border-2 border-primary',
+            'opacity-0 transition-opacity duration-500 ease-gallery',
+            'group-hover:opacity-100 group-focus-visible:opacity-100',
+            'motion-reduce:transition-none',
+          ].join(' ')}
+        />
+        <div
+          aria-hidden
+          className={[
+            'pointer-events-none absolute inset-[10px] border border-paper/70',
+            'scale-[0.97] opacity-0 transition-[opacity,transform] duration-500 ease-gallery',
+            'group-hover:scale-100 group-hover:opacity-100',
+            'group-focus-visible:scale-100 group-focus-visible:opacity-100',
+            'motion-reduce:transition-none',
+          ].join(' ')}
+        />
 
         {/* Sold — on the painting, always, on a solid plate. */}
         {isSold && (
@@ -146,10 +135,10 @@ export default function PaintingCard({ painting }: Props) {
       </div>
 
       {/* Caption — the piece's own title, in quotes, and nothing else. */}
-      <p className="mt-2.5 text-start font-sans text-[15px] italic leading-snug text-ink transition-colors duration-300 group-hover:text-accent-ink">
-        <span aria-hidden className="text-primary">&ldquo;</span>
+      <p className="mt-3 text-start font-sans text-base italic leading-snug text-ink transition-colors duration-300 group-hover:text-accent-ink md:text-lg">
+        <span aria-hidden className="text-accent-ink">&ldquo;</span>
         {title}
-        <span aria-hidden className="text-primary">&rdquo;</span>
+        <span aria-hidden className="text-accent-ink">&rdquo;</span>
       </p>
     </Link>
   );

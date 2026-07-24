@@ -16,7 +16,7 @@ import type { Painting } from '@/sanity/types';
  */
 export default function PaintingGrid({ paintings }: { paintings: Painting[] }) {
   return (
-    <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 lg:grid-cols-4 xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:gap-x-6 md:gap-y-12 lg:grid-cols-3 xl:grid-cols-4">
       {paintings.map((p, i) => (
         <Reveal key={p._id} delay={(i % 8) * 0.05}>
           <PaintingCard painting={p} />

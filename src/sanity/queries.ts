@@ -85,7 +85,7 @@ export const RELATED_PAINTINGS_QUERY = /* groq */ `
   *[_type == "painting"
     && category->slug.current == $categorySlug
     && slug.current != $slug
-  ] | order(priority asc, _createdAt desc) [0...4] {
+  ] | order(priority asc, _createdAt desc) [0...12] {
     _id,
     title,
     "slug": slug.current,

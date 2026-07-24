@@ -179,13 +179,17 @@ export default function PaintingDetail({ painting }: Props) {
         jsonLd={jsonLd}
       />
       <div className="mx-auto max-w-7xl">
-        {/* Back link. It sits directly in the max-w-7xl column, so its arrow
-            starts on exactly the same edge as the image below it and the
-            related strip further down — no indent of its own. */}
-        <div className="mb-10">
+        {/* Page header — the way out and the painting's name share one line, so
+            the name is the first thing read and the back control sits beside it
+            rather than floating above it.
+            The title lives HERE, not in the meta column, for two reasons: it
+            renders immediately instead of waiting on the hero image to decode,
+            and it therefore lands in the prerendered HTML where search engines
+            and link-preview bots can see it. */}
+        <header className="mb-10 flex flex-wrap items-center gap-x-5 gap-y-4 md:mb-12">
           <Link
             to={backTo}
-            className="group -ms-1 inline-flex items-center gap-2.5 rounded-md px-1 py-1 font-sans text-xs font-medium uppercase tracking-[0.18em] text-slate transition-colors duration-300 hover:text-accent-ink"
+            className="group inline-flex min-h-11 shrink-0 items-center gap-2.5 rounded-md border border-line px-4 font-sans text-xs font-medium uppercase tracking-[0.18em] text-slate transition-colors duration-300 hover:border-ink/40 hover:text-accent-ink"
           >
             <ArrowLeft
               aria-hidden
@@ -195,7 +199,12 @@ export default function PaintingDetail({ painting }: Props) {
                 being sent to the collection is told which one. */}
             <span>{cameFrom ? t('painting.back') : categoryTitle || t('works.title')}</span>
           </Link>
-        </div>
+          <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight text-ink sm:text-4xl md:text-5xl">
+            <span aria-hidden className="text-accent-ink">&ldquo;</span>
+            {title}
+            <span aria-hidden className="text-accent-ink">&rdquo;</span>
+          </h1>
+        </header>
 
         {/* Asymmetric two-column: image block on one side, structured
             meta / price / inquire column on the other. Stacks on mobile. */}
@@ -287,15 +296,23 @@ export default function PaintingDetail({ painting }: Props) {
         {heroLoaded && (
         <div className="lg:col-span-5">
           <Reveal>
-            <p className="eyebrow">{categoryTitle || t('painting.tagline')}</p>
-            {/* Title sits at the previous page's collection-title scale, in the
-                display serif's semibold, flanked by accent quotes. */}
-            {/* Quotes kept tight to the title on one line — a newline between
-                the spans and {title} makes JSX emit a stray space beside the
-                opening mark. */}
-            <h1 className="mt-4 font-display font-semibold text-4xl md:text-5xl tracking-tight leading-tight text-ink">
-              <span aria-hidden className="text-primary">“</span>{title}<span aria-hidden className="text-primary">”</span>
-            </h1>
+            {/* Where the title used to sit: the collection this piece
+                belongs to, named and linked so the wall it came from is one
+                click away. */}
+            <p className="font-sans text-base text-slate">
+              {t('category.tagline')}
+              {categoryTitle && painting.category ? (
+                <>
+                  {': '}
+                  <Link
+                    to={`/works?category=${painting.category.slug}`}
+                    className="text-ink underline-offset-4 transition-colors duration-300 hover:text-accent-ink hover:underline"
+                  >
+                    {categoryTitle}
+                  </Link>
+                </>
+              ) : null}
+            </p>
 
             {/* Size, set large. After the painting and its name this is the
                 thing people ask about first, so it is typeset as a headline in
@@ -303,43 +320,44 @@ export default function PaintingDetail({ painting }: Props) {
                 toggle rides alongside it on the baseline. */}
             {hasDimensions && (
               <div className="mt-8">
-                <p className="eyebrow text-[11px]">{t('painting.dimensions')}</p>
-                <div className="mt-1.5 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                <p className="eyebrow">{t('painting.dimensions')}</p>
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
                   <span className="font-display text-3xl font-semibold leading-none tracking-tight text-ink md:text-4xl">
                     {formatDimensions(widthCm, heightCm, unit)}
                   </span>
+                  {/* A segmented control rather than two bare words with a
+                      slash. The old version gave no hint that either half was
+                      pressable — the active unit was just slightly bolder text.
+                      A track, a filled active segment and real button targets
+                      make it read as a switch on sight. */}
                   <span
                     role="group"
                     aria-label={t('painting.unitLabel')}
-                    className="inline-flex items-center font-sans text-sm"
+                    className="inline-flex items-center rounded-md border border-line bg-mist/30 p-0.5 font-sans text-sm"
                   >
-                    <button
-                      type="button"
-                      onClick={() => setUnit('cm')}
-                      aria-pressed={unit === 'cm'}
-                      aria-label={t('painting.unitCmAria')}
-                      className={[
-                        'transition-colors duration-300 hover:text-ink',
-                        unit === 'cm' ? 'font-semibold text-ink' : 'text-slate',
-                      ].join(' ')}
-                    >
-                      {t('painting.unitCm')}
-                    </button>
-                    <span aria-hidden className="mx-1.5 text-line">
-                      /
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setUnit('in')}
-                      aria-pressed={unit === 'in'}
-                      aria-label={t('painting.unitInAria')}
-                      className={[
-                        'transition-colors duration-300 hover:text-ink',
-                        unit === 'in' ? 'font-semibold text-ink' : 'text-slate',
-                      ].join(' ')}
-                    >
-                      {t('painting.unitIn')}
-                    </button>
+                    {(['cm', 'in'] as const).map((u) => (
+                      <button
+                        key={u}
+                        type="button"
+                        onClick={() => setUnit(u)}
+                        aria-pressed={unit === u}
+                        aria-label={t(u === 'cm' ? 'painting.unitCmAria' : 'painting.unitInAria')}
+                        // The active segment is a dark fill carrying light
+                        // text, so it must declare itself to high-contrast
+                        // mode (scripts/auditContrast.mjs).
+                        data-surface={unit === u ? 'dark' : undefined}
+                        className={[
+                          // min-h-10 + the track's padding clears the 44px
+                          // touch-target minimum for the control as a whole.
+                          'inline-flex min-h-10 items-center rounded-[4px] px-3.5 transition-colors duration-200 motion-reduce:transition-none',
+                          unit === u
+                            ? 'bg-ink font-semibold text-paper'
+                            : 'text-slate hover:text-ink',
+                        ].join(' ')}
+                      >
+                        {t(u === 'cm' ? 'painting.unitCm' : 'painting.unitIn')}
+                      </button>
+                    ))}
                   </span>
                 </div>
               </div>
@@ -350,15 +368,18 @@ export default function PaintingDetail({ painting }: Props) {
                 medium the same visual weight as each other AND as the size,
                 and read as tags on a product rather than as a description of
                 an object. */}
+            {/* `divide-y` rather than a border on each row: it draws a line
+                BETWEEN rows only, so the list closes on its last value instead
+                of trailing a stray rule into the whitespace under it. */}
             {specs.length > 0 && (
-              <dl className="mt-8 border-t border-line">
+              <dl className="mt-8 divide-y divide-line border-t border-line">
                 {specs.map((spec) => (
                   <div
                     key={spec.label}
-                    className="flex items-baseline justify-between gap-6 border-b border-line py-2.5"
+                    className="flex items-baseline justify-between gap-6 py-3"
                   >
-                    <dt className="eyebrow text-[11px]">{spec.label}</dt>
-                    <dd className="text-end font-sans text-sm text-ink">
+                    <dt className="eyebrow">{spec.label}</dt>
+                    <dd className="text-end font-sans text-base text-ink">
                       {spec.value}
                     </dd>
                   </div>
@@ -402,26 +423,36 @@ export default function PaintingDetail({ painting }: Props) {
                 <h2 className="font-display text-3xl font-black tracking-tight md:text-4xl">
                   {t('painting.related')}
                 </h2>
-                <span className="eyebrow text-[11px]">
-                  {t('home.dragToExplore')}
-                </span>
+                {/* Only advertise dragging when there is somewhere to drag to. */}
+                {relatedRail.scrollable && (
+                  <span className="eyebrow text-[11px]">
+                    {t('home.dragToExplore')}
+                  </span>
+                )}
               </div>
             </Reveal>
             {/* A pulled strip rather than a grid: these are a sideline to the
-                painting above, so they are sized down to roughly half a wall
-                card and put on one line you drag through instead of a block
-                that competes with the piece you came to see.
+                painting above, so they sit on one line you drag through rather
+                than in a block that competes with the piece you came to see.
+                Still comfortably browsable, though — at the previous ~150px
+                these were too small to read as paintings.
                 `touch-pan-x` keeps vertical page scrolling working when a
-                finger starts on the strip. */}
+                finger starts on the strip. The grab cursor is conditional: a
+                collection with only a few pieces does not overflow, and
+                offering a grab that cannot move reads as a broken control. */}
             <Reveal>
               <div
                 ref={relatedRail.ref}
                 {...relatedRail.handlers}
-                className="-mx-1 cursor-grab touch-pan-x overflow-x-auto px-1 pb-2 active:cursor-grabbing [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className={[
+                  '-mx-1 touch-pan-x overflow-x-auto px-1 pb-2',
+                  '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+                  relatedRail.scrollable ? 'cursor-grab active:cursor-grabbing' : '',
+                ].join(' ')}
               >
-                <div className="flex w-max gap-4">
+                <div className="flex w-max gap-5">
                   {related.map((p) => (
-                    <div key={p._id} className="w-[150px] shrink-0 md:w-[168px]">
+                    <div key={p._id} className="w-[210px] shrink-0 md:w-[240px]">
                       <PaintingCard painting={p} />
                     </div>
                   ))}

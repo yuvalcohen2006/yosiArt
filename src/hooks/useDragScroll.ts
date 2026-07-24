@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from 'react';
 
 /** Movement (px) before a press counts as a drag rather than a click. */
@@ -19,33 +19,64 @@ const DRAG_SLOP = 6;
  * the travelled distance is measured and the click is cancelled only once it
  * passes `DRAG_SLOP`, so a plain click still opens the painting while a real
  * pull never navigates by accident.
+ *
+ * `ref` is a CALLBACK ref, not a `useRef` object, and that is load-bearing.
+ * These strips are populated from the CMS and typically mount after their
+ * parent — a plain ref with an `[]`-dependency effect would measure while
+ * `current` was still null, and `scrollable` would be stuck false forever. A
+ * callback ref re-runs the measurement at the moment the node actually
+ * attaches.
  */
 export function useDragScroll<T extends HTMLElement>() {
-  const ref = useRef<T>(null);
+  const [node, setNode] = useState<T | null>(null);
+  const ref = useCallback((el: T | null) => setNode(el), []);
   const drag = useRef({ active: false, moved: false, startX: 0, startScroll: 0 });
 
-  const onPointerDown = useCallback((e: ReactPointerEvent<T>) => {
-    // Left mouse button only: touch scrolls natively, and a right-click or
-    // middle-click press must not start pulling the rail.
-    if (e.pointerType !== 'mouse' || e.button !== 0) return;
-    const el = ref.current;
-    if (!el) return;
-    drag.current = {
-      active: true,
-      moved: false,
-      startX: e.clientX,
-      startScroll: el.scrollLeft,
-    };
-  }, []);
+  // Whether the strip actually overflows. Without this the caller cannot tell a
+  // draggable rail from a short one, and a short one still shows a grab cursor
+  // and a "drag to explore" hint while `scrollLeft` has nowhere to go — which
+  // reads to a visitor as a broken control rather than as a full row.
+  const [scrollable, setScrollable] = useState(false);
 
-  const onPointerMove = useCallback((e: ReactPointerEvent<T>) => {
-    const el = ref.current;
-    if (!el || !drag.current.active) return;
-    const dx = e.clientX - drag.current.startX;
-    if (!drag.current.moved && Math.abs(dx) < DRAG_SLOP) return;
-    drag.current.moved = true;
-    el.scrollLeft = drag.current.startScroll - dx;
-  }, []);
+  useEffect(() => {
+    if (!node) return;
+    // +1 absorbs sub-pixel rounding, which otherwise reports a flush row as
+    // overflowing by a fraction of a pixel.
+    const measure = () => setScrollable(node.scrollWidth > node.clientWidth + 1);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(node);
+    // Observe the track too: images settling changes content width without ever
+    // resizing the scroll container itself.
+    for (const child of Array.from(node.children)) ro.observe(child);
+    return () => ro.disconnect();
+  }, [node]);
+
+  const onPointerDown = useCallback(
+    (e: ReactPointerEvent<T>) => {
+      // Left mouse button only: touch scrolls natively, and a right- or
+      // middle-click press must not start pulling the rail.
+      if (e.pointerType !== 'mouse' || e.button !== 0 || !node) return;
+      drag.current = {
+        active: true,
+        moved: false,
+        startX: e.clientX,
+        startScroll: node.scrollLeft,
+      };
+    },
+    [node],
+  );
+
+  const onPointerMove = useCallback(
+    (e: ReactPointerEvent<T>) => {
+      if (!node || !drag.current.active) return;
+      const dx = e.clientX - drag.current.startX;
+      if (!drag.current.moved && Math.abs(dx) < DRAG_SLOP) return;
+      drag.current.moved = true;
+      node.scrollLeft = drag.current.startScroll - dx;
+    },
+    [node],
+  );
 
   const endDrag = useCallback(() => {
     drag.current.active = false;
@@ -61,6 +92,7 @@ export function useDragScroll<T extends HTMLElement>() {
 
   return {
     ref,
+    scrollable,
     handlers: {
       onPointerDown,
       onPointerMove,
