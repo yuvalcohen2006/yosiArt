@@ -205,14 +205,25 @@ export default function PaintingDetail({ painting }: Props) {
         jsonLd={jsonLd}
       />
       <div className="mx-auto max-w-7xl">
-        {/* Page header — the way out, then the body of work this piece belongs
-            to, set at headline scale. The painting's own name sits beside the
-            work itself further down; up here the page announces which
-            collection you are standing in. */}
-        <header className="mb-10 md:mb-12">
+        {/* Page header — the way out, and beside it the body of work this piece
+            belongs to. The painting's own name sits beside the work itself
+            further down; up here the page announces which collection you are
+            standing in.
+
+            One row, vertically centred on the back control rather than centred
+            under it: the two are a single orientation line ("here is the way
+            out, here is where you are"), and stacking them put a lone centred
+            sentence in the middle of an otherwise start-aligned page. Wraps to
+            two rows on a narrow screen, where a row would not fit. */}
+        {/* The gap is wide on purpose. At a conversational spacing the two read
+            as one control with a caption stuck to it; pushed well apart they
+            read as what they are — the way out, and separately, where you are.
+            `gap-x` is logical, so Hebrew opens the same distance the other
+            way. */}
+        <header className="mb-10 flex flex-wrap items-center gap-x-10 gap-y-4 md:mb-12 md:gap-x-16">
           <Link
             to={backTo}
-            className="group inline-flex min-h-11 items-center gap-2.5 rounded-md border border-line px-4 font-sans text-xs font-medium uppercase tracking-[0.18em] text-slate transition-colors duration-300 hover:border-ink/40 hover:text-accent-ink"
+            className="group inline-flex min-h-11 shrink-0 items-center gap-2.5 rounded-md border border-line px-4 font-sans text-xs font-medium uppercase tracking-[0.18em] text-slate transition-colors duration-300 hover:border-ink/40 hover:text-accent-ink"
           >
             <ArrowLeft
               aria-hidden
@@ -222,10 +233,10 @@ export default function PaintingDetail({ painting }: Props) {
                 being sent to the collection is told which one. */}
             <span>{cameFrom ? t('painting.back') : categoryTitle || t('works.title')}</span>
           </Link>
-          {/* Centred on the page rather than trailing the back link, with room
-              to breathe above it — it introduces the page, so it should not
-              read as a caption hanging off the control beside it. */}
-          <p className="mt-8 text-center font-display text-xl font-semibold leading-tight tracking-tight text-slate sm:text-2xl md:mt-10 md:text-3xl">
+          {/* Held at 2xl. It used to run to 3xl, which outweighed the painting's
+              own name below it — and the name is now set much larger, so this
+              line has to step back for the page to read in the right order. */}
+          <p className="font-display text-xl font-semibold leading-tight tracking-tight text-slate sm:text-2xl">
             {t('category.tagline')}
             {categoryTitle && painting.category ? (
               <>
@@ -342,8 +353,15 @@ export default function PaintingDetail({ painting }: Props) {
         <div className="lg:col-span-5">
           <Reveal>
             {/* The piece's own name, alongside the work rather than up in the
-                page header — the collection took that slot. */}
-            <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight text-ink md:text-4xl">
+                page header — the collection took that slot.
+
+                Set big: this is the loudest type on the page, and it should be,
+                because after the painting itself the name is what the visitor
+                came to read. `leading-[1.05]` rather than `leading-tight` so a
+                title that wraps to two lines still reads as one block instead
+                of two stacked sentences, and `text-balance` splits those lines
+                evenly rather than leaving one orphaned word on the second. */}
+            <h1 className="text-balance font-display text-4xl font-semibold leading-[1.05] tracking-tight text-ink sm:text-5xl lg:text-6xl">
               <span aria-hidden className="text-accent-ink">&ldquo;</span>
               {title}
               <span aria-hidden className="text-accent-ink">&rdquo;</span>
@@ -488,20 +506,43 @@ export default function PaintingDetail({ painting }: Props) {
                 </div>
 
                 {/* Soft edges, so the strip reads as continuing past the frame
-                    rather than being chopped off at it. Only drawn when there
-                    is actually more to reach — on a short row they would be
-                    fading out nothing. Gradient direction is mirrored for
-                    Hebrew; `start`/`end` position them, but Tailwind does not
-                    flip the gradient axis itself. */}
+                    rather than being chopped off at it. Gradient direction is
+                    mirrored for Hebrew; `start`/`end` position them, but
+                    Tailwind does not flip the gradient axis itself.
+
+                    Each edge fades in ONLY once there is something behind it.
+                    Both used to show for the whole life of any overflowing row,
+                    so at rest — where the row always starts — a band of white
+                    sat permanently across the first painting, washing out the
+                    artwork to advertise content that was not there. A fade is a
+                    promise that the row continues; it has to be told when that
+                    is actually true.
+
+                    `to-paper/0` rather than `to-transparent`: the transparent
+                    keyword is transparent BLACK, so browsers that still
+                    interpolate gradients un-premultiplied drag the ramp through
+                    grey and the fade reads as a dirty smudge instead of as the
+                    page. Fading white to zero-alpha WHITE has no such midpoint
+                    anywhere. */}
                 {relatedRail.scrollable && (
                   <>
                     <div
                       aria-hidden
-                      className="pointer-events-none absolute inset-y-0 start-0 w-12 bg-gradient-to-r from-paper to-transparent rtl:bg-gradient-to-l"
+                      className={[
+                        'pointer-events-none absolute inset-y-0 start-0 w-10',
+                        'bg-gradient-to-r from-paper via-paper/80 to-paper/0 rtl:bg-gradient-to-l',
+                        'transition-opacity duration-300 motion-reduce:transition-none',
+                        relatedRail.atStart ? 'opacity-0' : 'opacity-100',
+                      ].join(' ')}
                     />
                     <div
                       aria-hidden
-                      className="pointer-events-none absolute inset-y-0 end-0 w-12 bg-gradient-to-l from-paper to-transparent rtl:bg-gradient-to-r"
+                      className={[
+                        'pointer-events-none absolute inset-y-0 end-0 w-10',
+                        'bg-gradient-to-l from-paper via-paper/80 to-paper/0 rtl:bg-gradient-to-r',
+                        'transition-opacity duration-300 motion-reduce:transition-none',
+                        relatedRail.atEnd ? 'opacity-0' : 'opacity-100',
+                      ].join(' ')}
                     />
                   </>
                 )}

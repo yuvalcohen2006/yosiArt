@@ -105,10 +105,6 @@
     "contactAbout": "לפרטים על היצירה",
     "contactSold": "היצירה נמכרה — אפשר להזמין יצירה דומה",
     "showPrice": "לחצו לצפייה במחיר",
-    "convertingPrice": "ממיר…",
-    "approxUsd": "בקירוב {{amount}}",
-    "pricedIn": "בקירוב — המחיר נקוב ב-{{amount}}",
-    "conversionFailed": "לא הצלחנו לקבל שער עדכני — נסו שוב",
     "surface": "מצע",
     "year": "שנה",
     "medium": "טכניקה",
@@ -181,10 +177,5 @@
     "allPieces": "כל היצירות",
     "availableOnly": "זמינות בלבד",
     "clear": "ניקוי סינון"
-  },
-  "currency": {
-    "label": "מטבע",
-    "usd": "הצגת מחירים בדולר אמריקאי",
-    "ils": "הצגת מחירים בשקלים"
   }
 }

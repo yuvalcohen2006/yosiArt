@@ -25,13 +25,17 @@ import { cn } from '@/lib/utils';
 /*
   Pure white and deliberately barely there — every stop is neutral (no hue),
   with alphas low enough to suggest a light source without lifting the black.
+
+  Nudged up a touch from their original values now that the grid has retreated
+  to the edges: these beams and the StageWash below are the only things left in
+  the middle of the frame, so they have to carry it on their own.
 */
 const GRADIENT_FIRST =
-  'radial-gradient(68.54% 68.72% at 55.02% 31.46%, hsla(0, 0%, 100%, .04) 0, hsla(0, 0%, 100%, .012) 50%, hsla(0, 0%, 100%, 0) 80%)';
+  'radial-gradient(68.54% 68.72% at 55.02% 31.46%, hsla(0, 0%, 100%, .05) 0, hsla(0, 0%, 100%, .016) 50%, hsla(0, 0%, 100%, 0) 80%)';
 const GRADIENT_SECOND =
-  'radial-gradient(50% 50% at 50% 50%, hsla(0, 0%, 100%, .032) 0, hsla(0, 0%, 100%, .01) 80%, transparent 100%)';
+  'radial-gradient(50% 50% at 50% 50%, hsla(0, 0%, 100%, .04) 0, hsla(0, 0%, 100%, .012) 80%, transparent 100%)';
 const GRADIENT_THIRD =
-  'radial-gradient(50% 50% at 50% 50%, hsla(0, 0%, 100%, .024) 0, hsla(0, 0%, 100%, .008) 80%, transparent 100%)';
+  'radial-gradient(50% 50% at 50% 50%, hsla(0, 0%, 100%, .03) 0, hsla(0, 0%, 100%, .01) 80%, transparent 100%)';
 
 type SpotlightProps = {
   gradientFirst?: string;
@@ -149,18 +153,41 @@ export function Spotlight({
 }
 
 /**
- * Corner vignette — pulls the four corners down into black so the stage reads
- * as lit from the middle rather than as a flat rectangle, and gives the beams
- * somewhere to fall off into.
+ * The wash that gives the middle of the stage its depth: near-black at the
+ * rim, lifting to a dark charcoal under the beams.
+ *
+ * This replaced a true vignette — a black overlay that darkened the four
+ * corners inward. That was the right tool while the grid ran edge to edge and
+ * the middle was the busiest part of the frame; it is exactly the wrong one
+ * now that the grid has retreated TO the corners, because it spent its opacity
+ * dimming the one thing the edges are meant to show.
+ *
+ * Inverting it does both jobs at once. Lifting the centre and falling away to
+ * nothing still reads as a vignette — the rim is darker than the middle either
+ * way — but the darkness at the rim is now simply the stage's own #0a0a0a
+ * showing through, with nothing laid over the grid at all.
+ *
+ * White at a low alpha rather than a mixed grey, so it composites as light
+ * falling on a black wall instead of grey paint applied to it. At its brightest
+ * it lands the stage near #1c1c1c — charcoal, nowhere near lifting the black.
+ *
+ * Anchored HIGH and wide (`at 50% 6%`), not centred. A big soft ellipse in the
+ * middle of the frame lifts everything at once, which reads as a grey haze
+ * hanging over the stage rather than as light: there is no direction to it, and
+ * no part of the frame is left properly black for the charcoal to be charcoal
+ * against. Pouring it from the top edge instead gives the fall-off somewhere to
+ * go — charcoal up where the beams enter, true black by the lower third — and
+ * puts the gradient and the beams in agreement about where the light is coming
+ * from.
  */
-export function Vignette({ className }: { className?: string }) {
+export function StageWash({ className }: { className?: string }) {
   return (
     <div
       aria-hidden
       className={cn('pointer-events-none absolute inset-0 z-0', className)}
       style={{
         background:
-          'radial-gradient(ellipse 75% 75% at 50% 50%, transparent 40%, rgba(0,0,0,0.45) 78%, rgba(0,0,0,0.72) 100%)',
+          'radial-gradient(ellipse 92% 58% at 50% 6%, rgba(255,255,255,0.075) 0%, rgba(255,255,255,0.038) 32%, rgba(255,255,255,0.012) 60%, rgba(255,255,255,0) 82%)',
       }}
     />
   );
@@ -170,8 +197,53 @@ export function Vignette({ className }: { className?: string }) {
 const GRID_TILE = (opacity: string) =>
   `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(255 255 255 / ${opacity})'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e")`;
 
-/** Diameter of the cursor's pool of light, in px. */
-const TORCH = 460;
+/** Diameter of the cursor's pool of light, in px. Small on purpose — a
+ *  penlight held to the wall, not a floodlight. */
+const TORCH = 190;
+
+/*
+  ===== The edge mask =====
+  The grid is not drawn across the whole stage; it lives at the rim and fades
+  out well before the middle, so the centre of the frame is nothing but the
+  StageWash and the beams.
+
+  Radii are fractions of the host's own width/height, so the shape holds for
+  both the full-height hero and the short, wide footer without either needing
+  its own tuning. Everything below is expressed on ONE normalised scale where
+  1.0 is the ellipse's edge, which is what lets the JS torch fade share these
+  exact numbers instead of approximating them:
+
+    d = 0            dead centre
+    d = EDGE_IN      the grid begins to appear
+    d = ~0.81/0.86   the left/right and top/bottom edges
+    d = 1.0          full strength
+    d = ~1.18        the corners (clamped at full)
+
+  So the corners carry the most grid, the sides carry a good deal, and the
+  middle carries none — which is the "vignette" the brief asks for, just made
+  of grid instead of shadow.
+*/
+const EDGE_RX = 0.62;
+const EDGE_RY = 0.58;
+const EDGE_IN = 0.3;
+const EDGE_OUT = 1;
+
+const EDGE_MASK = `radial-gradient(ellipse ${EDGE_RX * 100}% ${EDGE_RY * 100}% at 50% 50%, transparent ${EDGE_IN * 100}%, rgba(0,0,0,0.30) 62%, rgba(0,0,0,0.72) 84%, #000 ${EDGE_OUT * 100}%)`;
+
+/**
+ * How much grid there is at a point, on the mask's own scale: 0 in the middle,
+ * 1 at the rim. The torch is driven by this so it can only light grid that is
+ * actually there — an undimmed torch in the centre would light up lines the
+ * mask has hidden, and the middle would stop being empty the moment anyone
+ * moved the mouse through it.
+ */
+function edgeStrength(px: number, py: number, w: number, h: number) {
+  const dx = (px / w - 0.5) / EDGE_RX;
+  const dy = (py / h - 0.5) / EDGE_RY;
+  const d = Math.hypot(dx, dy);
+  const t = Math.min(1, Math.max(0, (d - EDGE_IN) / (EDGE_OUT - EDGE_IN)));
+  return t * t * (3 - 2 * t); // smoothstep — eases in rather than ramping flat
+}
 
 /**
  * The fine graph-paper grid the beams fall across.
@@ -216,6 +288,7 @@ export function GridBackground({
     let raf = 0;
     let x = 0;
     let y = 0;
+    let strength = 0;
 
     const apply = () => {
       raf = 0;
@@ -227,6 +300,11 @@ export function GridBackground({
       // cursor. Without this the patch carries its own grid along and reads as
       // a square stuck to the pointer rather than light falling on the wall.
       torch.style.backgroundPosition = `${-px}px ${-py}px`;
+      // Written here rather than straight from the pointer handler so that a
+      // fast mouse still only touches style once per frame. Opacity and
+      // transform are both compositor properties, so this stays off the main
+      // thread's critical path.
+      torch.style.opacity = String(strength);
     };
 
     const onMove = (e: PointerEvent) => {
@@ -237,10 +315,15 @@ export function GridBackground({
         e.clientX <= r.right &&
         e.clientY >= r.top &&
         e.clientY <= r.bottom;
-      torch.style.opacity = inside ? '1' : '0';
-      if (!inside) return;
-      x = e.clientX - r.left;
-      y = e.clientY - r.top;
+      if (!inside) {
+        if (strength === 0) return; // already dark; nothing to schedule
+        strength = 0;
+      } else {
+        x = e.clientX - r.left;
+        y = e.clientY - r.top;
+        // The torch is only ever as bright as the grid beneath it.
+        strength = edgeStrength(x, y, r.width, r.height);
+      }
       if (!raf) raf = requestAnimationFrame(apply);
     };
 
@@ -260,14 +343,28 @@ export function GridBackground({
         className,
       )}
     >
+      {/* The resting grid. Masked to the rim — see EDGE_MASK — so the middle of
+          the stage is left to the wash and the beams. The mask lives on THIS
+          element rather than on the host, deliberately: a mask on the host
+          would wrap the moving torch in a masked group and force it to be
+          re-composited against that mask every frame, which is exactly the
+          per-frame main-thread cost the torch is built to avoid. This element
+          never moves, so masking it is free. */}
       <div
         className="absolute inset-0"
-        style={{ backgroundImage: GRID_TILE('0.04') }}
+        style={{
+          backgroundImage: GRID_TILE('0.05'),
+          maskImage: EDGE_MASK,
+          WebkitMaskImage: EDGE_MASK,
+        }}
       />
       {interactive && (
         <div
           ref={torchRef}
-          className="absolute left-0 top-0 opacity-0 transition-opacity duration-500 will-change-transform"
+          // Short transition: opacity is now updated continuously as the cursor
+          // moves nearer the rim, so it acts as a light smoothing filter. At
+          // the old 500ms it would have lagged the pointer badly.
+          className="absolute left-0 top-0 opacity-0 transition-opacity duration-200 will-change-transform"
           style={{
             width: TORCH,
             height: TORCH,

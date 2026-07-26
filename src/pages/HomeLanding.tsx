@@ -10,7 +10,7 @@ import HeroArtworkCarousel from '@/components/hero/HeroArtworkCarousel';
 import CategoryFocusRail from '@/components/home/CategoryFocusRail';
 import PainterWorldScene from '@/components/home/PainterWorldScene';
 import { motionStopped } from '@/components/a11y/useStopMotion';
-import { Spotlight, GridBackground, Vignette } from '@/components/fx/Spotlight';
+import { Spotlight, GridBackground, StageWash } from '@/components/fx/Spotlight';
 import type { Category, HomeMedia } from '@/sanity/types';
 
 /**
@@ -211,11 +211,16 @@ export default function HomeLanding() {
         data-surface="dark"
         className="relative h-[calc(100svh-var(--nav-h))] w-full overflow-hidden bg-stage"
       >
-        {/* `interactive`: the grid lights up faintly under the cursor. Torch
-            dialled back a touch from its default so the stage reads calmer. */}
-        <GridBackground interactive torchOpacity="0.13" />
+        {/* Order is the lighting order, and it matters. The wash lays the
+            charcoal down first, the beams rake across it, and the grid goes on
+            LAST so the rim texture stays crisp instead of being dimmed by
+            everything painted after it — which is what happened while the old
+            vignette sat on top.
+            `interactive`: the grid lights up faintly under the cursor, and only
+            where there is grid to light. */}
+        <StageWash />
         <Spotlight />
-        <Vignette />
+        <GridBackground interactive torchOpacity="0.13" />
 
         {/* Composition — compact two-column: voice left, artwork right;
             stacked and centred on small screens. */}
@@ -224,11 +229,13 @@ export default function HomeLanding() {
 
           {heroImages.length > 0 && (
             <div className="flex shrink-0 flex-col items-center">
-              {/* Gallery plaque above the artwork. Was 11px letterspaced
-                  taupe and effectively unreadable on the dark stage: now 16px,
-                  bold, near-white, with the tracking pulled back to where the
-                  words still read as words. */}
-              <p className="mb-5 text-base font-bold uppercase tracking-[0.14em] text-flame-50">
+              {/* Gallery plaque above the artwork — near-white on the dark
+                  stage, at 18px. Light rather than bold: at this size the
+                  weight was doing the shouting, and a plaque should be quieter
+                  than the work it introduces. Thin uppercase needs air between
+                  the letters to stay legible, hence the wider tracking — the
+                  two changes go together and shouldn't be split. */}
+              <p className="mb-5 text-lg font-light uppercase tracking-[0.2em] text-flame-50">
                 {t('heroCarousel.title')}
               </p>
               {/* The glow is a sibling of the artwork, centred on this box, so

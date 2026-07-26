@@ -101,10 +101,6 @@
     "contactAbout": "Contact us about this painting",
     "contactSold": "This piece has sold — ask about a commission",
     "showPrice": "Click to see price",
-    "convertingPrice": "Converting…",
-    "approxUsd": "approx. {{amount}}",
-    "pricedIn": "approx. — priced at {{amount}}",
-    "conversionFailed": "Couldn't get today's rate — retry",
     "surface": "Surface",
     "year": "Year",
     "medium": "Medium",
@@ -177,10 +173,5 @@
     "allPieces": "All pieces",
     "availableOnly": "Available only",
     "clear": "Clear filters"
-  },
-  "currency": {
-    "label": "Currency",
-    "usd": "Show prices in US dollars",
-    "ils": "Show prices in Israeli shekels"
   }
 }

@@ -4,7 +4,7 @@ import Logo from './Logo';
 import Reveal from '../fx/Reveal';
 import { useLocale } from '@/hooks/useLocale';
 import { EMAIL, INSTAGRAM_URL, WHATSAPP_NUMBER } from '@/lib/contact';
-import { Spotlight, GridBackground, Vignette } from '../fx/Spotlight';
+import { Spotlight, GridBackground, StageWash } from '../fx/Spotlight';
 
 /** Instagram outline glyph — lucide-react v1 removed brand icons, so the
  *  classic lucide path lives here as a local component. */
@@ -39,10 +39,13 @@ type FooterSection = {
   links: FooterLink[];
 };
 
-/** Column headings: the UI face at a heavier weight — no display serif down
- *  here, so the footer carries the same two typefaces as everything else. */
+/** Column headings — no display serif down here, so the footer carries the
+ *  same two typefaces as everything else. Set to match the landing's gallery
+ *  plaque: a step larger, and light rather than bold, with the tracking opened
+ *  up to keep thin uppercase legible. The two dark ends of the site should
+ *  speak in the same voice. */
 const HEADING_CLS =
-  'font-sans text-sm font-bold uppercase tracking-[0.18em] text-flame-50';
+  'font-sans text-base font-light uppercase tracking-[0.22em] text-flame-50';
 
 /** Links sit a step up from the old 14px, in warm light grey so they read
  *  comfortably on the dark field, and take the accent on hover. */
@@ -112,10 +115,12 @@ export default function Footer() {
           room it started in — beams scaled down for a section a fraction of
           the hero's height, and slowed so the two are never in step.
           Decoration only; nothing here affects layout. */}
-      {/* Same cursor-torch highlight the landing opens with — the footer grid
-          lights up under the pointer too — but at a much lower intensity, so
-          it's a whisper of the effect rather than a repeat of it. */}
-      <GridBackground interactive torchOpacity="0.09" />
+      {/* Same lighting order as the landing — wash, then beams, then the grid
+          on top so the rim texture is not dimmed by what follows it. The grid
+          is edge-masked here too, so the footer's middle is the same clean
+          charcoal the hero's is, and the cursor torch is the same whisper of
+          the landing's effect at a much lower intensity. */}
+      <StageWash />
       <Spotlight
         width={380}
         height={760}
@@ -124,7 +129,7 @@ export default function Footer() {
         xOffset={70}
         duration={10}
       />
-      <Vignette />
+      <GridBackground interactive torchOpacity="0.09" />
       {/* Accent thread along the top edge, fading out at both ends. */}
       <div
         aria-hidden

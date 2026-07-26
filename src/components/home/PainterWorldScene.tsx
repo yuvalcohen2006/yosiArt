@@ -79,14 +79,25 @@ export default function PainterWorldScene({
     return () => io.disconnect();
   }, [still]);
 
-  // Play ONLY while the film is on screen.
+  // Play ONLY once the frame has begun opening, and only while it is on screen.
   //
-  // This is the single most expensive thing on the page: 1920x1080 at 60fps is
-  // a continuous full-HD decode, and left to `autoplay loop` it keeps running
-  // for the entire visit — including while the visitor is down at the
-  // collections or the footer, where it cannot be seen. That steady background
-  // load is what makes scrolling feel like the machine is quietly struggling.
-  // Browsers throttle offscreen video inconsistently, so we stop it outright.
+  // The `open` half is what ties the film to its own reveal. Playback used to
+  // hang off this observer alone, which carries 200px of margin and fires well
+  // before the section is even in view — so the loop was already running, and
+  // several seconds deep, by the time the frame started to expand. The visitor
+  // met the film mid-thought. Gating on `open` starts it on the same beat as
+  // the expansion, from its first frame.
+  //
+  // The on-screen half is about cost: this is the single most expensive thing
+  // on the page — a continuous full-HD decode — and left to `autoplay loop` it
+  // keeps running for the entire visit, including down at the collections or
+  // the footer where it cannot be seen. That steady background load is what
+  // makes scrolling feel like the machine is quietly struggling. Browsers
+  // throttle offscreen video inconsistently, so we stop it outright.
+  //
+  // There is deliberately no `autoplay` attribute on the element: it would
+  // start the moment the browser had enough data, which is exactly the early
+  // playback this effect exists to prevent.
   useEffect(() => {
     const el = sectionRef.current;
     const video = videoRef.current;
@@ -105,7 +116,8 @@ export default function PainterWorldScene({
 
     let onScreen = false;
     const sync = () => {
-      const shouldPlay = onScreen && document.visibilityState === 'visible';
+      const shouldPlay =
+        open && onScreen && document.visibilityState === 'visible';
       if (shouldPlay) void video.play().catch(() => {});
       else video.pause();
     };
@@ -115,7 +127,8 @@ export default function PainterWorldScene({
         onScreen = entry.isIntersecting;
         sync();
       },
-      // A little margin so it is already running by the time it is looked at.
+      // The margin keeps the film buffered and ready a little before it is
+      // looked at; `open` is what decides when it may actually start.
       { rootMargin: '200px' },
     );
     io.observe(el);
@@ -124,7 +137,9 @@ export default function PainterWorldScene({
       io.disconnect();
       document.removeEventListener('visibilitychange', sync);
     };
-  }, [still]);
+    // `open` re-runs this: the fresh observer reports the current intersection
+    // immediately, so the film starts the instant the frame begins to expand.
+  }, [still, open]);
 
   // The navbar steps aside while the film owns the screen, and returns as the
   // visitor moves on. A separate observer from the reveal above because it is
@@ -197,7 +212,9 @@ export default function PainterWorldScene({
           ref={videoRef}
           src={videoSrc}
           poster={posterSrc}
-          autoPlay={!still}
+          // No `autoPlay` — the effect above owns when this starts, so that the
+          // first frame lands with the frame's expansion rather than ahead of
+          // it. The poster holds the frame until then.
           controls={still}
           muted
           loop

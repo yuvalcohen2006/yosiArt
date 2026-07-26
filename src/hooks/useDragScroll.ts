@@ -42,18 +42,38 @@ export function useDragScroll<T extends HTMLElement>() {
   // reads to a visitor as a broken control rather than as a full row.
   const [scrollable, setScrollable] = useState(false);
 
+  // Which ends the strip is currently parked against. Callers draw their edge
+  // fades from this rather than from `scrollable` alone: a fade is a promise
+  // that there is more content behind it, so one sitting over the first card at
+  // rest — where nothing is hidden — is just a white smear across the artwork.
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd, setAtEnd] = useState(false);
+
   useEffect(() => {
     if (!node) return;
-    // +1 absorbs sub-pixel rounding, which otherwise reports a flush row as
-    // overflowing by a fraction of a pixel.
-    const measure = () => setScrollable(node.scrollWidth > node.clientWidth + 1);
+    const measure = () => {
+      const max = node.scrollWidth - node.clientWidth;
+      // +1 absorbs sub-pixel rounding, which otherwise reports a flush row as
+      // overflowing by a fraction of a pixel.
+      setScrollable(max > 1);
+      // Every current browser reports RTL `scrollLeft` as 0 at the reading
+      // start and NEGATIVE toward the end, so taking its magnitude makes the
+      // same two comparisons correct in both directions — no `dir` sniffing.
+      const pos = Math.abs(node.scrollLeft);
+      setAtStart(pos <= 1);
+      setAtEnd(pos >= max - 1);
+    };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(node);
     // Observe the track too: images settling changes content width without ever
     // resizing the scroll container itself.
     for (const child of Array.from(node.children)) ro.observe(child);
-    return () => ro.disconnect();
+    node.addEventListener('scroll', measure, { passive: true });
+    return () => {
+      ro.disconnect();
+      node.removeEventListener('scroll', measure);
+    };
   }, [node]);
 
   const onPointerDown = useCallback(
@@ -105,6 +125,8 @@ export function useDragScroll<T extends HTMLElement>() {
   return {
     ref,
     scrollable,
+    atStart,
+    atEnd,
     handlers: {
       onPointerDown,
       onPointerMove,
