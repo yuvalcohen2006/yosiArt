@@ -164,7 +164,10 @@ export default function PriceTag({ priceILS, priceUSD, status }: Props) {
           className={[
             'absolute inset-y-0 start-0 flex w-max min-w-full items-center justify-center',
             'rounded-md bg-flame-300 px-5',
-            'font-sans text-sm font-medium uppercase tracking-[0.16em] text-ink',
+            // 0.176em to match the site's `.eyebrow` token exactly — both are
+            // 14px uppercase, so tracking them identically makes the page's
+            // small-caps read as one system rather than two near-misses.
+            'font-sans text-sm font-medium uppercase tracking-[0.176em] text-ink',
             'transition-[opacity,filter] duration-500 ease-out motion-reduce:transition-none',
             // Darkening the fill keeps the label's contrast comfortably past AA
             // (5.8:1 at the hover shade), which recolouring the text to the

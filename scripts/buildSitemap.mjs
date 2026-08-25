@@ -16,7 +16,10 @@ const here = fileURLToPath(import.meta.url);
 const root = resolve(here, '..', '..');
 loadEnv({ path: resolve(root, '.env.local') });
 
-const SITE_BASE_URL = 'https://yosiart.vercel.app';
+// Keep in lockstep with SITE_BASE_URL in src/components/seo/SEO.tsx — the
+// sitemap must advertise the same canonical domain the pages declare, or Google
+// sees the sitemap URLs and the page canonicals disagree.
+const SITE_BASE_URL = 'https://yosiart.com';
 const PROJECT_ID = process.env.VITE_SANITY_PROJECT_ID;
 const DATASET = process.env.VITE_SANITY_DATASET ?? 'production';
 

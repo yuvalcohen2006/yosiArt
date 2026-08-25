@@ -193,9 +193,18 @@ export function StageWash({ className }: { className?: string }) {
   );
 }
 
-/** The grid tile, as an inline SVG — weightless, crisp at any resolution. */
+/**
+ * The grid tile, as an inline SVG — weightless, crisp at any resolution.
+ *
+ * A DOT at each 32px intersection, not ruled lines. A continuous line grid at
+ * graph-paper density is the single biggest "cheap/technical" tell on a dark
+ * hero — it reads as a blueprint. A dot deposits a fraction of the ink of a
+ * line at the same spacing, so the same texture registers as faint grain on the
+ * wall rather than as graph paper. (This is why the resting alpha below can sit
+ * higher than the old line value and still read lighter: far less total ink.)
+ */
 const GRID_TILE = (opacity: string) =>
-  `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(255 255 255 / ${opacity})'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e")`;
+  `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='rgb(255 255 255 / ${opacity})'%3e%3ccircle cx='16' cy='16' r='1'/%3e%3c/svg%3e")`;
 
 /** Diameter of the cursor's pool of light, in px. Small on purpose — a
  *  penlight held to the wall, not a floodlight. */
@@ -225,7 +234,11 @@ const TORCH = 190;
 */
 const EDGE_RX = 0.62;
 const EDGE_RY = 0.58;
-const EDGE_IN = 0.3;
+// Pushed out from 0.3: the grid now only begins appearing 40% of the way to the
+// rim, leaving more of the mid-field pure stage. This is the "retreat the grid"
+// lever, and because EDGE_IN is shared by the torch's edgeStrength() the cursor
+// light stays consistent with the resting grid for free.
+const EDGE_IN = 0.4;
 const EDGE_OUT = 1;
 
 const EDGE_MASK = `radial-gradient(ellipse ${EDGE_RX * 100}% ${EDGE_RY * 100}% at 50% 50%, transparent ${EDGE_IN * 100}%, rgba(0,0,0,0.30) 62%, rgba(0,0,0,0.72) 84%, #000 ${EDGE_OUT * 100}%)`;
@@ -353,7 +366,10 @@ export function GridBackground({
       <div
         className="absolute inset-0"
         style={{
-          backgroundImage: GRID_TILE('0.05'),
+          // 0.09 for dots, where the old line grid sat at 0.05. A single dot is
+          // ~16x less ink than the two ruled edges of a tile, so even at nearly
+          // double the alpha the grid reads markedly lighter — which is the ask.
+          backgroundImage: GRID_TILE('0.09'),
           maskImage: EDGE_MASK,
           WebkitMaskImage: EDGE_MASK,
         }}

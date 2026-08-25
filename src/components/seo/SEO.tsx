@@ -2,7 +2,11 @@ import { Head } from 'vite-react-ssg';
 
 const SITE_NAME = 'YosiArt';
 const SITE_TAGLINE = 'Acrylic on canvas';
-const SITE_BASE_URL = 'https://yosiart.vercel.app';
+// The live custom domain. Every canonical, og:url, twitter and JSON-LD URL is
+// built from this, so it MUST be the domain we want search engines to credit —
+// not the yosiart.vercel.app deploy URL, which would tell Google the "real"
+// site lives there and split ranking authority away from yosiart.com.
+const SITE_BASE_URL = 'https://yosiart.com';
 
 type Props = {
   /** Page title — gets suffixed with " · YosiArt" automatically. Pass

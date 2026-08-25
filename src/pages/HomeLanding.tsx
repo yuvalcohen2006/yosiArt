@@ -220,7 +220,7 @@ export default function HomeLanding() {
             where there is grid to light. */}
         <StageWash />
         <Spotlight />
-        <GridBackground interactive torchOpacity="0.13" />
+        <GridBackground interactive torchOpacity="0.16" />
 
         {/* Composition — compact two-column: voice left, artwork right;
             stacked and centred on small screens. */}
@@ -229,13 +229,13 @@ export default function HomeLanding() {
 
           {heroImages.length > 0 && (
             <div className="flex shrink-0 flex-col items-center">
-              {/* Gallery plaque above the artwork — near-white on the dark
-                  stage, at 18px. Light rather than bold: at this size the
-                  weight was doing the shouting, and a plaque should be quieter
-                  than the work it introduces. Thin uppercase needs air between
-                  the letters to stay legible, hence the wider tracking — the
-                  two changes go together and shouldn't be split. */}
-              <p className="mb-5 text-lg font-light uppercase tracking-[0.2em] text-flame-50">
+              {/* Gallery plaque above the artwork — a kicker, so it recedes.
+                  At 13px in warm flame-300 (not near-white) with wide tracking
+                  it reads as the small caption on a museum wall label rather
+                  than a heading competing with the painting it introduces. An
+                  18px near-white version outweighed the artwork; a plaque
+                  should be the quietest thing in its corner. */}
+              <p className="mb-4 text-[13px] font-medium uppercase tracking-[0.2em] text-flame-300">
                 {t('heroCarousel.title')}
               </p>
               {/* The glow is a sibling of the artwork, centred on this box, so

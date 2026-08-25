@@ -129,7 +129,7 @@ export default function Footer() {
         xOffset={70}
         duration={10}
       />
-      <GridBackground interactive torchOpacity="0.09" />
+      <GridBackground interactive torchOpacity="0.13" />
       {/* Accent thread along the top edge, fading out at both ends. */}
       <div
         aria-hidden

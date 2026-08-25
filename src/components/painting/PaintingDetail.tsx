@@ -220,7 +220,7 @@ export default function PaintingDetail({ painting }: Props) {
             read as what they are — the way out, and separately, where you are.
             `gap-x` is logical, so Hebrew opens the same distance the other
             way. */}
-        <header className="mb-10 flex flex-wrap items-center gap-x-10 gap-y-4 md:mb-12 md:gap-x-16">
+        <header className="mb-10 flex flex-wrap items-center gap-x-10 gap-y-4 md:mb-12 md:justify-between md:gap-x-16">
           <Link
             to={backTo}
             className="group inline-flex min-h-11 shrink-0 items-center gap-2.5 rounded-md border border-line px-4 font-sans text-xs font-medium uppercase tracking-[0.18em] text-slate transition-colors duration-300 hover:border-ink/40 hover:text-accent-ink"
@@ -372,7 +372,12 @@ export default function PaintingDetail({ painting }: Props) {
                 its own right rather than as one chip among several. The cm/in
                 toggle rides alongside it on the baseline. */}
             {hasDimensions && (
-              <div className="mt-8">
+              // Extra air below the oversized title on desktop only. The h1
+              // scales to ~60px but every gap under it was a flat 32px, so the
+              // loudest element got the least proportional breathing room; +8px
+              // here re-asserts the title as the dominant block. Mobile's
+              // smaller text-4xl title keeps its 32px.
+              <div className="mt-8 md:mt-10">
                 <p className="eyebrow">{t('painting.dimensions')}</p>
                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
                   <span className="font-display text-3xl font-semibold leading-none tracking-tight text-ink md:text-4xl">
@@ -417,7 +422,7 @@ export default function PaintingDetail({ painting }: Props) {
                 {specs.map((spec) => (
                   <div
                     key={spec.label}
-                    className="flex items-baseline justify-between gap-6 py-3"
+                    className="flex items-baseline justify-between gap-6 py-3 md:py-3.5"
                   >
                     <dt className="eyebrow">{spec.label}</dt>
                     <dd className="text-end font-sans text-base text-ink">
@@ -461,7 +466,11 @@ export default function PaintingDetail({ painting }: Props) {
             block, also gated on heroLoaded so the entire below-hero
             region appears together. */}
         {heroLoaded && related.length > 0 && (
-          <section className="mt-32">
+          // 128px here stacked with the section's own `rule` + heading margins
+          // put ~200px of dead space above "More in this collection". 96px on
+          // desktop keeps a clear section break without the void; mobile keeps
+          // its 128px, where the single column needs the harder separation.
+          <section className="mt-32 md:mt-24">
             <Reveal>
               <div className="rule mb-8" />
               <div className="mb-10 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">

@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /navbar-demo
 
-Sitemap: https://yosiart.vercel.app/sitemap.xml
+Sitemap: https://yosiart.com/sitemap.xml

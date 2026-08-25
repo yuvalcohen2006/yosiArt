@@ -56,7 +56,7 @@ export default function InquireButtons({ painting }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="font-sans text-base text-slate">
+      <p className="font-sans text-base text-slate md:text-sm">
         {sold ? t('painting.contactSold') : t('painting.contactAbout')}
       </p>
 
