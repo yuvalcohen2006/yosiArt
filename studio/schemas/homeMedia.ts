@@ -5,7 +5,7 @@ import { defineType, defineField } from 'sanity';
  * painting:
  *   - heroImages: the cycling images behind the hero headline
  *   - ogImage: the social-share preview card image used when someone
- *     pastes the bare site URL (yosiart.vercel.app) into WhatsApp / IG.
+ *     pastes the bare site URL (yosiart.com) into WhatsApp / IG.
  *
  * Deliberately NOT here: the "painter's world" film. Sanity serves files as
  * plain downloads with no streaming, so every visitor would pull the whole
@@ -60,7 +60,7 @@ export default defineType({
       group: 'social',
       type: 'image',
       description:
-        'Used as the preview card when the bare site URL (yosiart.vercel.app) is pasted into WhatsApp / Instagram / Facebook. 1200×630 landscape works best — anything portrait gets letterboxed with black bars.',
+        'Used as the preview card when the bare site URL (yosiart.com) is pasted into WhatsApp / Instagram / Facebook. 1200×630 landscape works best — anything portrait gets letterboxed with black bars.',
       options: { hotspot: true },
       fields: [
         defineField({

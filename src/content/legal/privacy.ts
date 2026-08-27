@@ -16,7 +16,7 @@ export const privacyDoc: LegalDoc = {
   he: {
     title: 'מדיניות פרטיות – YosiArt',
     intro:
-      'ברוכים הבאים ל-YosiArt (yosiart.vercel.app), גלריה מקוונת להצגת ציורי אקריליק מקוריים של האמן יוסי כהן. הפרטיות שלכם חשובה לי, ומדיניות זו מסבירה בשפה פשוטה וכנה איזה מידע — מעט מאוד, למען האמת — מעובד בעת ביקורכם באתר, בהתאם לחוק הגנת הפרטיות, התשמ"א-1981, לרבות תיקון מס\' 13. בעל האתר והאחראי על המידע: יוסי כהן ("YosiArt"), אמן עצמאי. דרכי התקשרות: דוא"ל Yosicohen164@gmail.com, וואטסאפ ‎+972-54-524-1828, אינסטגרם ‎@_cohen_art. הנוסח העברי של מדיניות זו הוא הנוסח המחייב.',
+      'ברוכים הבאים ל-YosiArt (yosiart.com), גלריה מקוונת להצגת ציורי אקריליק מקוריים של האמן יוסי כהן. הפרטיות שלכם חשובה לי, ומדיניות זו מסבירה בשפה פשוטה וכנה איזה מידע — מעט מאוד, למען האמת — מעובד בעת ביקורכם באתר, בהתאם לחוק הגנת הפרטיות, התשמ"א-1981, לרבות תיקון מס\' 13. בעל האתר והאחראי על המידע: יוסי כהן ("YosiArt"), אמן עצמאי. דרכי התקשרות: דוא"ל Yosicohen164@gmail.com, וואטסאפ ‎+972-54-524-1828, אינסטגרם ‎@_cohen_art. הנוסח העברי של מדיניות זו הוא הנוסח המחייב.',
     sections: [
       {
         heading: 'העיקרון המנחה: האתר אינו אוסף מידע אישי',
@@ -59,7 +59,7 @@ export const privacyDoc: LegalDoc = {
   en: {
     title: 'Privacy Policy – YosiArt',
     intro:
-      "Welcome to YosiArt (yosiart.vercel.app), the online gallery of original acrylic paintings by the Israeli artist Yosi Cohen. Your privacy matters, and this policy explains in plain, honest language what little information is processed when you visit the site, in accordance with Israel's Protection of Privacy Law, 5741-1981, including Amendment 13. Site owner and person responsible for the data: Yosi Cohen (\"YosiArt\"), an independent artist. Contact: email Yosicohen164@gmail.com, WhatsApp +972 54-524-1828, Instagram @_cohen_art. The Hebrew version of this policy is the binding version.",
+      "Welcome to YosiArt (yosiart.com), the online gallery of original acrylic paintings by the Israeli artist Yosi Cohen. Your privacy matters, and this policy explains in plain, honest language what little information is processed when you visit the site, in accordance with Israel's Protection of Privacy Law, 5741-1981, including Amendment 13. Site owner and person responsible for the data: Yosi Cohen (\"YosiArt\"), an independent artist. Contact: email Yosicohen164@gmail.com, WhatsApp +972 54-524-1828, Instagram @_cohen_art. The Hebrew version of this policy is the binding version.",
     sections: [
       {
         heading: 'The Guiding Principle: This Site Does Not Collect Personal Data',

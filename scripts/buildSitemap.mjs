@@ -48,7 +48,12 @@ const paintingSlugs = await groq(
   `*[_type == "painting" && defined(slug.current)].slug.current`,
 );
 
-const today = new Date().toISOString().slice(0, 10);
+// NO <lastmod>. It used to be stamped with today's date on every URL of
+// every build, which told Google that the Terms page and all 59 paintings had
+// changed each time the site was deployed. Google's documented response to a
+// lastmod it can see is untrue is to distrust the field for the whole sitemap,
+// so an honest omission is worth strictly more than a confident lie — and it
+// matters most right now, while the yosiart.com move needs a clean recrawl.
 
 const urls = [
   { loc: '/', priority: '1.0', changefreq: 'weekly' },
@@ -71,7 +76,6 @@ ${urls
   .map(
     ({ loc, priority, changefreq }) => `  <url>
     <loc>${SITE_BASE_URL}${loc}</loc>
-    <lastmod>${today}</lastmod>
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
   </url>`,

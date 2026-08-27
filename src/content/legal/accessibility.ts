@@ -16,7 +16,7 @@ export const accessibilityDoc: LegalDoc = {
   he: {
     title: 'הצהרת נגישות – YosiArt',
     intro:
-      'אתר YosiArt‏ (yosiart.vercel.app) הוא גלריה מקוונת המציגה ציורי אקריליק מקוריים של האמן יוסי כהן. אנו רואים חשיבות רבה במתן חוויית גלישה שוויונית, מכבדת ועצמאית לכל המבקרים, ובהם אנשים עם מוגבלות, ופועלים באופן שוטף לשיפור נגישות האתר.',
+      'אתר YosiArt‏ (yosiart.com) הוא גלריה מקוונת המציגה ציורי אקריליק מקוריים של האמן יוסי כהן. אנו רואים חשיבות רבה במתן חוויית גלישה שוויונית, מכבדת ועצמאית לכל המבקרים, ובהם אנשים עם מוגבלות, ופועלים באופן שוטף לשיפור נגישות האתר.',
     sections: [
       {
         heading: 'הבסיס החוקי ויעד הנגישות',
@@ -51,7 +51,7 @@ export const accessibilityDoc: LegalDoc = {
   en: {
     title: 'Accessibility Statement – YosiArt',
     intro:
-      "YosiArt (yosiart.vercel.app) is an online gallery presenting original acrylic paintings by the Israeli artist Yosi Cohen. We believe every visitor, including people with disabilities, should be able to browse the gallery comfortably, independently and with dignity, and we work continuously to improve the site's accessibility. The Hebrew version of this statement is the legally binding text; this English translation is provided for convenience.",
+      "YosiArt (yosiart.com) is an online gallery presenting original acrylic paintings by the Israeli artist Yosi Cohen. We believe every visitor, including people with disabilities, should be able to browse the gallery comfortably, independently and with dignity, and we work continuously to improve the site's accessibility. The Hebrew version of this statement is the legally binding text; this English translation is provided for convenience.",
     sections: [
       {
         heading: 'Legal Basis and Conformance Target',

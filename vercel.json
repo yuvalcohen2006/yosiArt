@@ -5,6 +5,14 @@
   "outputDirectory": "dist",
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "yosiart.vercel.app" }],
+      "destination": "https://yosiart.com/$1",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/((?!.*\\.).*)",

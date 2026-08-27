@@ -18,7 +18,7 @@ export const termsDoc: LegalDoc = {
   he: {
     title: 'תקנון ותנאי שימוש — YosiArt',
     intro:
-      'ברוכים הבאים לאתר YosiArt בכתובת yosiart.vercel.app ("האתר"). האתר מופעל על ידי האמן יוסי כהן, אמן עצמאי (עוסק) מישראל ("האמן" או "מפעיל האתר"). אנא קראו תנאים אלה בעיון; הגלישה באתר והשימוש בו מהווים הסכמה להם.',
+      'ברוכים הבאים לאתר YosiArt בכתובת yosiart.com ("האתר"). האתר מופעל על ידי האמן יוסי כהן, אמן עצמאי (עוסק) מישראל ("האמן" או "מפעיל האתר"). אנא קראו תנאים אלה בעיון; הגלישה באתר והשימוש בו מהווים הסכמה להם.',
     sections: [
       {
         heading: '1. כללי וקבלת התנאים',
@@ -73,7 +73,7 @@ export const termsDoc: LegalDoc = {
   en: {
     title: 'Terms of Use — YosiArt',
     intro:
-      'Welcome to YosiArt at yosiart.vercel.app (the "Site"). The Site is operated by Yosi Cohen, an independent Israeli artist (the "Artist" or "Site operator"). Please read these terms carefully; browsing or using the Site constitutes acceptance of them.',
+      'Welcome to YosiArt at yosiart.com (the "Site"). The Site is operated by Yosi Cohen, an independent Israeli artist (the "Artist" or "Site operator"). Please read these terms carefully; browsing or using the Site constitutes acceptance of them.',
     sections: [
       {
         heading: '1. General and Acceptance of Terms',

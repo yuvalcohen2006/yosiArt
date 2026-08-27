@@ -77,7 +77,11 @@ export const PAINTING_BY_SLUG_QUERY = /* groq */ `
     priceUSD,
     status,
     previewImage,
-    images
+    images,
+    // Dominant colour of the hero image, for the detail page's price strip.
+    // Projected under its own key so the separate images[] projection above
+    // keeps its raw asset refs, which getImageDims() parses for width/height.
+    "accentHex": images[0].asset->metadata.palette.dominant.background
   }
 `;
 

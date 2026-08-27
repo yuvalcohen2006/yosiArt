@@ -56,6 +56,10 @@ export type Painting = {
    *  `images[0]` when not set. */
   previewImage?: SanityImage | null;
   images: SanityImage[];
+  /** The first image's dominant colour (`#rrggbb`), from Sanity's automatic
+   *  palette metadata. Only the painting-detail query projects it, so it is
+   *  optional everywhere else. */
+  accentHex?: string | null;
 };
 
 /**

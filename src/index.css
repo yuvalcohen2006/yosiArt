@@ -540,9 +540,11 @@ html.a11y-readable * {
    dark section is one attribute away from being correct, and
    `npm run audit:contrast` fails the build if one forgets it.
 
-   Specificity: the dark rule is (0,2,1) against the light rule's (0,1,1), and
-   comes second — so it wins on any nested element regardless of source order
-   further down.
+   Specificity: BOTH rules compute to (0,2,1) — `:where()` contributes nothing,
+   but `:not()` contributes its most specific argument, which the light rule's
+   text-paper/white/flame-50 exclusion supplies. The dark rule therefore wins
+   only because it is declared SECOND, not on weight. Keep it last, and give
+   any new a11y-contrast rule either lower specificity or an earlier position.
    --------------------------------------------------------------------------- */
 html.a11y-contrast body {
   background: #fff;

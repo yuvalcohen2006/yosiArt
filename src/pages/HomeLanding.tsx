@@ -234,8 +234,13 @@ export default function HomeLanding() {
                   it reads as the small caption on a museum wall label rather
                   than a heading competing with the painting it introduces. An
                   18px near-white version outweighed the artwork; a plaque
-                  should be the quietest thing in its corner. */}
-              <p className="mb-4 text-[13px] font-medium uppercase tracking-[0.2em] text-flame-300">
+                  should be the quietest thing in its corner.
+
+                  `text-sm` rather than a hard `text-[13px]`: the accessibility
+                  widget enlarges text by scaling the root font-size, which
+                  moves rem-based sizes only, and index.css bumps Hebrew small
+                  text by literal class name. A pixel value opts out of both. */}
+              <p className="mb-4 text-sm font-medium uppercase tracking-[0.2em] text-flame-300">
                 {t('heroCarousel.title')}
               </p>
               {/* The glow is a sibling of the artwork, centred on this box, so

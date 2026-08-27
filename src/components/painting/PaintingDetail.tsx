@@ -74,6 +74,11 @@ export default function PaintingDetail({ painting }: Props) {
   // correct aspect-ratio'd box before the image bytes arrive (no more
   // text jumping when the image lands).
   const heroDims = getImageDims(heroImage);
+  // Aspect ratio of the hero, when the asset ref carries its dimensions. Used
+  // to size the image's box up front — see the wrapper below — so the box is
+  // right before the bytes land and the `sizes` hint can describe it honestly.
+  const heroRatio =
+    heroDims && heroDims.height > 0 ? heroDims.width / heroDims.height : null;
   const heroImgRef = useRef<HTMLImageElement>(null);
   const [heroLoaded, setHeroLoaded] = useState(false);
   useEffect(() => {
@@ -205,22 +210,13 @@ export default function PaintingDetail({ painting }: Props) {
         jsonLd={jsonLd}
       />
       <div className="mx-auto max-w-7xl">
-        {/* Page header — the way out, and beside it the body of work this piece
-            belongs to. The painting's own name sits beside the work itself
-            further down; up here the page announces which collection you are
-            standing in.
-
-            One row, vertically centred on the back control rather than centred
-            under it: the two are a single orientation line ("here is the way
-            out, here is where you are"), and stacking them put a lone centred
-            sentence in the middle of an otherwise start-aligned page. Wraps to
-            two rows on a narrow screen, where a row would not fit. */}
-        {/* The gap is wide on purpose. At a conversational spacing the two read
-            as one control with a caption stuck to it; pushed well apart they
-            read as what they are — the way out, and separately, where you are.
-            `gap-x` is logical, so Hebrew opens the same distance the other
-            way. */}
-        <header className="mb-10 flex flex-wrap items-center gap-x-10 gap-y-4 md:mb-12 md:justify-between md:gap-x-16">
+        {/* Page header — just the way out.
+            The collection this piece belongs to used to sit up here too, on the
+            far side of the same row. It reads better directly above the
+            painting's name, where the two lines form one caption block, so it
+            has moved down into the meta column and this row carries the single
+            control it started as. */}
+        <header className="mb-10 md:mb-12">
           <Link
             to={backTo}
             className="group inline-flex min-h-11 shrink-0 items-center gap-2.5 rounded-md border border-line px-4 font-sans text-xs font-medium uppercase tracking-[0.18em] text-slate transition-colors duration-300 hover:border-ink/40 hover:text-accent-ink"
@@ -233,23 +229,6 @@ export default function PaintingDetail({ painting }: Props) {
                 being sent to the collection is told which one. */}
             <span>{cameFrom ? t('painting.back') : categoryTitle || t('works.title')}</span>
           </Link>
-          {/* Held at 2xl. It used to run to 3xl, which outweighed the painting's
-              own name below it — and the name is now set much larger, so this
-              line has to step back for the page to read in the right order. */}
-          <p className="font-display text-xl font-semibold leading-tight tracking-tight text-slate sm:text-2xl">
-            {t('category.tagline')}
-            {categoryTitle && painting.category ? (
-              <>
-                {': '}
-                <Link
-                  to={`/works?category=${painting.category.slug}`}
-                  className="text-ink underline-offset-4 transition-colors duration-300 hover:text-accent-ink hover:underline"
-                >
-                  {categoryTitle}
-                </Link>
-              </>
-            ) : null}
-          </p>
         </header>
 
         {/* Asymmetric two-column: image block on one side, structured
@@ -257,8 +236,39 @@ export default function PaintingDetail({ painting }: Props) {
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-start">
         {/* Image column */}
         <div className="lg:col-span-7">
+        {/* Shrink-wrapped to the artwork and centred, rather than a full-width
+            block. A tall painting cannot fill the column: `max-h-[60vh]`
+            clamps its height, and because the intrinsic ratio is known the
+            used WIDTH shrinks with it — so the image box was narrower than
+            the column and sat against its start edge. Two things went wrong
+            there: the price strip below centres on the column and so drifted
+            off the painting it belongs to, and the enlarge cue, anchored to
+            the column's end, floated in the empty gutter beside the work.
+            Hugging the image fixes both by construction. */}
         {heroImage && (
-          <div className="group block w-full">
+          // Width is stated explicitly rather than shrink-wrapped. `w-fit` made
+          // the box depend on the image having an intrinsic size, so before the
+          // bytes arrived it collapsed to zero — measured 0x0 — and the
+          // `inset-0` skeleton and spinner had no area to render in, replacing
+          // a reserved placeholder with a blank column and a hard snap on load.
+          // `min(100%, 60vh * ratio)` is the same value the CSS would have
+          // settled on, computed up front, so the box is correct from the first
+          // paint and the enlarge cue and the price below both line up with the
+          // artwork rather than the column. Falls back to full width when the
+          // asset ref carries no dimensions.
+          <div
+            className={[
+              'group mx-auto block max-w-full',
+              heroRatio ? '' : 'w-full',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            style={
+              heroRatio
+                ? { width: `min(100%, calc(60vh * ${heroRatio.toFixed(4)}))` }
+                : undefined
+            }
+          >
             <motion.button
               type="button"
               onClick={() => {
@@ -303,7 +313,15 @@ export default function PaintingDetail({ painting }: Props) {
                       `${urlFor(heroImage).width(w).auto('format').url()} ${w}w`,
                   )
                   .join(', ')}
-                sizes="(max-width: 1024px) 92vw, 742px"
+                // Must describe the box above, not the column: `sizes` is
+                // resolved by the preload scanner from this expression alone,
+                // never from layout, so a flat 742px made the browser pick a
+                // 1400w file for a ~450px slot on the page's LCP element.
+                sizes={
+                  heroRatio
+                    ? `(max-width: 1024px) 92vw, min(742px, calc(60vh * ${heroRatio.toFixed(4)}))`
+                    : '(max-width: 1024px) 92vw, 742px'
+                }
                 alt={pickAlt(heroImage, locale, title)}
                 width={heroDims?.width}
                 height={heroDims?.height}
@@ -317,8 +335,18 @@ export default function PaintingDetail({ painting }: Props) {
                 {...({ fetchpriority: 'high' } as Record<string, string>)}
                 decoding="async"
                 onLoad={() => setHeroLoaded(true)}
+                // Everything below the image — title, specs, price, Inquire,
+                // related — is gated on `heroLoaded`, and `load` never fires
+                // for an image that 404s or fails to decode. Without this the
+                // page would sit on a back link and a pulsing skeleton forever
+                // on any CDN hiccup; treating a failure as "done" degrades to a
+                // page that is merely missing its picture.
+                onError={() => setHeroLoaded(true)}
                 className={[
-                  'block w-full max-h-[60vh] object-contain transition-opacity duration-500',
+                  // Fills the explicitly-sized wrapper above, which already
+                  // carries the intrinsic ratio, so there is nothing left to
+                  // letterbox.
+                  'block h-auto w-full transition-opacity duration-500',
                   heroLoaded ? 'opacity-100' : 'opacity-0',
                 ].join(' ')}
               />
@@ -343,6 +371,28 @@ export default function PaintingDetail({ painting }: Props) {
           </div>
         )}
 
+        {/* The ask, directly under the work it prices and centred on it. It
+            used to sit in the meta column paired with the Inquire buttons,
+            which put the price halfway down a column of specifications; under
+            the painting it is the first thing the eye reaches after the piece
+            itself, which is the order a buyer actually reads in.
+
+            Gated on `heroLoaded` like the meta column, so the whole
+            below-the-image region still arrives in one moment rather than
+            assembling in pieces. */}
+        {heroLoaded && (
+          <Reveal delay={0.2}>
+            <div className="mt-8 flex justify-center">
+              <PriceTag
+                priceILS={painting.priceILS}
+                priceUSD={painting.priceUSD}
+                status={painting.status}
+                accentHex={painting.accentHex}
+              />
+            </div>
+          </Reveal>
+        )}
+
         </div>
 
         {/* Meta column — only mounted once the hero image has loaded, so
@@ -352,6 +402,42 @@ export default function PaintingDetail({ painting }: Props) {
         {heroLoaded && (
         <div className="lg:col-span-5">
           <Reveal>
+            {/* The body of work this piece belongs to, sitting directly on top
+                of the piece's own name and ruled off from it. Read together the
+                two lines are one caption — "this collection, this painting" —
+                which is why the divider is a hairline in the same `line` token
+                as the spec rules rather than anything heavier: it separates the
+                two without breaking them into unrelated blocks.
+
+                No colon. The quotes around the collection do the same work a
+                colon did, and they answer the quotes around the title below, so
+                the pair reads as one typographic idea. They sit OUTSIDE the
+                link so hovering underlines the name alone. */}
+            {categoryTitle && painting.category ? (
+              <div className="mb-6">
+                <p className="font-display text-xl font-semibold leading-tight tracking-tight text-slate sm:text-2xl">
+                  {t('category.tagline')}{' '}
+                  {/* Quotes match the ones flanking the title below: same
+                      accent colour, and `aria-hidden` on both so a screen
+                      reader with punctuation verbosity on does not announce one
+                      pair and skip the other. No `whitespace-nowrap` — the
+                      glyphs sit flush against the name with no break
+                      opportunity between them anyway, whereas holding the whole
+                      CMS-authored title unbreakable would push a long
+                      collection name past the viewport edge. */}
+                  <span aria-hidden className="text-accent-ink">&ldquo;</span>
+                  <Link
+                    to={`/works?category=${painting.category.slug}`}
+                    className="text-ink underline-offset-4 transition-colors duration-300 hover:text-accent-ink hover:underline"
+                  >
+                    {categoryTitle}
+                  </Link>
+                  <span aria-hidden className="text-accent-ink">&rdquo;</span>
+                </p>
+                <div aria-hidden className="mt-6 h-px w-full bg-line" />
+              </div>
+            ) : null}
+
             {/* The piece's own name, alongside the work rather than up in the
                 page header — the collection took that slot.
 
@@ -377,7 +463,7 @@ export default function PaintingDetail({ painting }: Props) {
               // loudest element got the least proportional breathing room; +8px
               // here re-asserts the title as the dominant block. Mobile's
               // smaller text-4xl title keeps its 32px.
-              <div className="mt-8 md:mt-10">
+              <div className="mt-8 lg:mt-10">
                 <p className="eyebrow">{t('painting.dimensions')}</p>
                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
                   <span className="font-display text-3xl font-semibold leading-none tracking-tight text-ink md:text-4xl">
@@ -422,7 +508,7 @@ export default function PaintingDetail({ painting }: Props) {
                 {specs.map((spec) => (
                   <div
                     key={spec.label}
-                    className="flex items-baseline justify-between gap-6 py-3 md:py-3.5"
+                    className="flex items-baseline justify-between gap-6 py-3 lg:py-3.5"
                   >
                     <dt className="eyebrow">{spec.label}</dt>
                     <dd className="text-end font-sans text-base text-ink">
@@ -443,18 +529,13 @@ export default function PaintingDetail({ painting }: Props) {
             </Reveal>
           )}
 
-          {/* Price and the ask, side by side and sharing a baseline — the two
-              things a buyer is weighing against each other. `items-end` is what
-              lines the channel buttons up with the bottom of the figure rather
-              than with the top of its block. Wraps to two rows on a narrow
-              column. */}
+          {/* The ask, closing the column. With the price now under the painting
+              this is no longer half of a two-up row, so it simply follows the
+              story on the same start edge as the paragraph above it — the lead
+              -in line and the description share a left margin and read as one
+              continuous thought ending in "here is how to reach him". */}
           <Reveal delay={0.2}>
-            <div className="mt-12 flex flex-wrap items-end justify-between gap-x-8 gap-y-6">
-              <PriceTag
-                priceILS={painting.priceILS}
-                priceUSD={painting.priceUSD}
-                status={painting.status}
-              />
+            <div className="mt-10">
               <InquireButtons painting={painting} />
             </div>
           </Reveal>
@@ -470,7 +551,7 @@ export default function PaintingDetail({ painting }: Props) {
           // put ~200px of dead space above "More in this collection". 96px on
           // desktop keeps a clear section break without the void; mobile keeps
           // its 128px, where the single column needs the harder separation.
-          <section className="mt-32 md:mt-24">
+          <section className="mt-32 lg:mt-24">
             <Reveal>
               <div className="rule mb-8" />
               <div className="mb-10 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">

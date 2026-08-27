@@ -91,7 +91,7 @@ export default function Layout() {
         <AccessibilityWidget />
         {/* Vercel Analytics — pageviews + referrers, privacy-friendly
             (no cookies, no consent banner needed). Active only on the
-            live yosiart.vercel.app deployment; the scripts no-op during
+            live yosiart.com deployment; the scripts no-op during
             dev / preview. */}
         <Analytics />
         {/* Vercel Speed Insights — Core Web Vitals from real visitors.

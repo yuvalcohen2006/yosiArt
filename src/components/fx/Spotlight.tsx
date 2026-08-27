@@ -234,14 +234,18 @@ const TORCH = 190;
 */
 const EDGE_RX = 0.62;
 const EDGE_RY = 0.58;
-// Pushed out from 0.3: the grid now only begins appearing 40% of the way to the
-// rim, leaving more of the mid-field pure stage. This is the "retreat the grid"
-// lever, and because EDGE_IN is shared by the torch's edgeStrength() the cursor
-// light stays consistent with the resting grid for free.
-const EDGE_IN = 0.4;
+// Pushed out again, 0.3 -> 0.4 -> 0.55: the grid only begins appearing past
+// the halfway mark, so the whole middle of the stage is clean and the texture
+// belongs to the sides and corners. This is the "retreat the grid" lever, and
+// because EDGE_IN is shared by the torch's edgeStrength() below, the cursor
+// light retreats with it for free rather than lighting an empty centre.
+const EDGE_IN = 0.55;
 const EDGE_OUT = 1;
 
-const EDGE_MASK = `radial-gradient(ellipse ${EDGE_RX * 100}% ${EDGE_RY * 100}% at 50% 50%, transparent ${EDGE_IN * 100}%, rgba(0,0,0,0.30) 62%, rgba(0,0,0,0.72) 84%, #000 ${EDGE_OUT * 100}%)`;
+// The intermediate stops are pushed out to match: holding the ramp faint until
+// ~76% and only reaching full at the very rim keeps the weight in the outer
+// band instead of letting it bleed back toward the middle.
+const EDGE_MASK = `radial-gradient(ellipse ${EDGE_RX * 100}% ${EDGE_RY * 100}% at 50% 50%, transparent ${EDGE_IN * 100}%, rgba(0,0,0,0.22) 76%, rgba(0,0,0,0.66) 90%, #000 ${EDGE_OUT * 100}%)`;
 
 /**
  * How much grid there is at a point, on the mask's own scale: 0 in the middle,
@@ -259,7 +263,7 @@ function edgeStrength(px: number, py: number, w: number, h: number) {
 }
 
 /**
- * The fine graph-paper grid the beams fall across.
+ * The fine dot grid the beams fall across.
  *
  * With `interactive`, a second copy of the grid — brighter, and masked to a
  * soft circle — follows the cursor, so the lines quietly light up under it.
@@ -278,7 +282,7 @@ export function GridBackground({
 }: {
   className?: string;
   interactive?: boolean;
-  /** Brightness of the cursor's pool of light (the grid lines under it).
+  /** Brightness of the cursor's pool of light (the dots under it).
    *  Lower it for a subtler highlight — e.g. the footer. */
   torchOpacity?: string;
 }) {
@@ -328,14 +332,17 @@ export function GridBackground({
         e.clientX <= r.right &&
         e.clientY >= r.top &&
         e.clientY <= r.bottom;
-      if (!inside) {
-        if (strength === 0) return; // already dark; nothing to schedule
-        strength = 0;
-      } else {
+      // The whole middle of the stage now sits inside the mask's transparent
+      // core, where the torch is fully invisible. Bailing on "already zero,
+      // still zero" keeps a cursor crossing that region — roughly a third of
+      // the hero, and the part it is most likely to sit in — from scheduling a
+      // frame per move to restyle something nobody can see.
+      const next = inside ? edgeStrength(e.clientX - r.left, e.clientY - r.top, r.width, r.height) : 0;
+      if (next === 0 && strength === 0) return;
+      strength = next;
+      if (inside) {
         x = e.clientX - r.left;
         y = e.clientY - r.top;
-        // The torch is only ever as bright as the grid beneath it.
-        strength = edgeStrength(x, y, r.width, r.height);
       }
       if (!raf) raf = requestAnimationFrame(apply);
     };
